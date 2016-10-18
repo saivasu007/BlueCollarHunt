@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>Blue Collar Hunt Employer Job Posting Page</title>
+  </head>
+<body>
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:556px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:550px;">
+<div class="panel-body" style="padding:10px;">
+
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:707px;margin:0 0 0 460px;">
+<div class="panel-body" style="padding:0px;">
+				<p style="font-size: 22px; font-weight: bold">Add Job Posting Information: </p>
+				<font style="color:red;"><b>* indicates Mandatory Fields.</b></font>
+				<br/><br/>
+				<div class="form-group">
+				<label for="addCorCh" class="col-sm-4" style="font-size: 16px">* Job Title:</label>
+				<div class="form-group col-sm-8">
+                <input id="addCorCh" style="width: 240px; height: 27px" type="text" ng-model="addQueCorChoice" class="form-control" placeholder="Enter Job Title" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" ng-required="true">
+            	</div>
+            	</div>
+            	<div class="form-group">
+				<label for="addCorCh" class="col-sm-4" style="font-size: 16px">* Job Location:</label>
+				<div class="form-group col-sm-8">
+            	<input type="text" id="Autocomplete" ng-model="location" style="width: 240px; height: 27px" class="form-control" placeholder="Enter Job Location" ng-autocomplete="result1" details="details1" options="options1" />
+            	</div>
+            	</div>
+				<div class="form-group">
+					<label for="addCont" class="col-sm-4" style="font-size: 16px">* Job Requirements:</label>
+					<div class="form-group col-sm-8">
+						<textarea id="addCont" rows="5" cols="5" class="form-control"  ng-model="addQueContent" placeholder="Enter Job Requirement" ng-required="true"></textarea>
+					</div>
+				</div>
+				<br><br>
+				<div class="form-group">
+				<label for="addCho" class="col-sm-4" style="font-size: 16px">* Job Responsibilities:</label>
+				<div class="form-group col-sm-8">
+                <textarea id="addCho" rows="5" cols="5" ng-model="addQueChoice" class="form-control" placeholder="Enter Responsibilities" ng-blur="testQueChoice();" ng-required="true"></textarea>
+            	</div>
+            	</div>
+            	<br><br>
+            	<div class="form-group">
+				<label for="addCorCh" class="col-sm-4" style="font-size: 16px">* Hourly Rate:</label>
+				<div class="form-group col-sm-8">
+                <input id="addCorCh" style="width: 140px; height: 27px" type="text" ng-model="addQueCorChoice" class="form-control" placeholder="Enter Hourly Rate" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" ng-required="true">
+            	</div>
+            	</div>
+            	<br><br>
+			<button style="margin: 35px 32px 60px 175px; width: 95px; height: 40px; font-size: 16px" class="btn btn-primary"  ng-click="addQuestion()" ng-disabled="adminQuestion.$invalid">
+				<span class="glyphicon glyphicon-ok-sign"></span>  Save
+			</button>
+			<a href="/questionInfo"><button style="margin: 35px 32px 60px 0px; width: 98px; height: 40px; font-size: 16px;" class="btn btn-warning">
+				<span class="glyphicon glyphicon-remove-sign"></span>  Cancel
+			</button></a>
+</div></div>
+
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:454px;margin:-530px 0 0 0;">
+<div class="panel-body" style="padding:0px;">
+<div style="text-align: center">
+		<br>
+		<a href="/empPostJob"><button class="btn btn-info customBtn" style="width:135px;height:40px;"><span class="customSpan">Post Job</span></button></a>
+		<br><br>
+		<a href="/empJobQueue"><button class="btn btn-info customBtn" style="width:135px;height:40px;"><span class="customSpan">Job Queue</span></button></a>
+		<!--
+		<br><br><br>
+		<a href="/history"><button class="btn btn-info customBtn"><span class="customSpan">History</span></button></a>
+		<br><br><br>
+		-->
+		<br><br>
+	</div>
+</div>
+</div>
+</div>
+</div></div></div></div>
+
+<footer>
+<div class="container" style="padding-left:0px;">
+<div class="row">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel-body" style="padding:55px;">
+<div class="middle-box" style="margin-left:400px;">
+</div>
+</div></div></div></div></div>
+<div class="copyright">
+     <p>&copy; 2016 Blue Collar Hunt. All rights reserved.</p>
+</div>
+</footer>
+</body>
+</html>
+<!-- 
+<ng-form name="empJobPostForm">
+	<div class="content">
+		<div class="container">
+			<hr>	
+			<div>
+				<p style="font-size: 22px; font-weight: bold">Add Question Information: </p>
+				<font style="color:red;"><b>* indicates Mandatory Fields.</b></font>
+				<br/><br/>
+				<div class="form-group">
+					<label for="addQueCat" class="col-sm-2" style="font-size: 16px">* Category:</label>
+					<div class="form-group col-sm-10">
+						<select id="addQueCat" ng-model="addQueCat" style="font-size: 14px; width: 120px; height: 30px; display: inline;" ng-required="true">
+							<option value="gk">GKModel</option>
+							<option value="sqm">SQMModel</option>
+							<option value="ep">EPModel</option>
+							<option value="pm">PMModel</option>
+							<option value="mam">MAModel</option>
+							<option value="SVV">SVVModel</option>
+							<option value="scm">SCMModel</option>
+					</select>
+					</div>
+				</div>
+				<br><br>
+				<div class="form-group">
+					<label for="addCont" class="col-sm-2" style="font-size: 16px">* Question Desc:</label>
+					<div class="form-group col-sm-10">
+						<textarea id="addCont" rows="5" cols="5" class="form-control"  ng-model="addQueContent" placeholder="Enter Question Description" ng-required="true"></textarea>
+					</div>
+				</div>
+				<br><br>
+				<div class="form-group">
+				<label for="addCho" class="col-sm-2" style="font-size: 16px">* Choices:</label>
+				<div class="form-group col-sm-10">
+                <textarea id="addCho" rows="5" cols="5" ng-model="addQueChoice" class="form-control" placeholder="Enter Question Choices" ng-blur="testQueChoice();" ng-required="true"></textarea>
+            	</div>
+            	</div>
+            	<br><br>
+            	<div class="form-group">
+				<label for="addCorCh" class="col-sm-2" style="font-size: 16px">* Correct Choice:</label>
+				<div class="form-group col-sm-10">
+                <input id="addCorCh" style="width: 200px; height: 27px" type="text" ng-model="addQueCorChoice" class="form-control" placeholder="Enter Correct Choice" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" maxlength="1" ng-required="true">
+            	</div>
+            	</div>
+            	<br><br>
+			</div>
+			<button style="margin: 35px 32px 60px 175px; width: 95px; height: 40px; font-size: 16px" class="btn btn-primary"  ng-click="addQuestion()" ng-disabled="adminQuestion.$invalid">
+				<span class="glyphicon glyphicon-ok-sign"></span>  Save
+			</button>
+			<a href="/questionInfo"><button style="margin: 35px 32px 60px 0px; width: 98px; height: 40px; font-size: 16px;" class="btn btn-warning">
+				<span class="glyphicon glyphicon-remove-sign"></span>  Cancel
+			</button></a>
+			<hr>
+		</div>
+	</div>
+	</ng-form>
+
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div style="text-align: center" class="copy">
+						<h5>ASQ CSQE Virtual Exam & Practice</h5>
+						<p>&copy; <a href="/about">2015 Big Bang ASQ Exam</a></p>
+						<p>Questions Provided by <a href="http://www.qualitycouncil.com/CSQE.html" target="_blank">Quality Council of Indiana</a> and by <a href="http://www.westfallteam.com/quiz_listing" target="_blank">Linda Westfall</a></p>
+					</div>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+	</footer>
+</div>
+-->

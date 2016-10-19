@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
-	"angular":"^1.5.8",
-	"angular-credit-cards":"3.1.4",
+    "angular":"^1.5.8",
+    "angular-credit-cards":"^3.1.4",
     "async": "^1.4.2",
     "body-parser": "^1.12.4",
     "connect-flash": "^0.1.1",

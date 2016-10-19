@@ -3,7 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>BlueColalrHunt Password Reset.</title>
+<title>BlueCollarHunt Password Reset Successful.</title>
 <style>
 /* -------------------------------------
     GLOBAL
@@ -164,30 +164,30 @@ ol li {
             <hr size=15 color="#3399FF">
             <br/>
             <p>Hi <b><%= locals.name %></b>,</p>
-            <p>You are receiving this email because you have requested the reset of the password for your account.Click the button below to reset the password.</p>
+            <p>This is a confirmation that the Unique EmpID for your account <b> <%= locals.email %> </b> has been included in this email as given below.</p>
+            <b>Employer Unique ID : <%= locals.ID %></b>
             <br/>
-            <a href="<%= locals.url %>"><button style="margin: 0px 20px 0px 100px;background-color:#5BC0DE;color:white;width:250px;height:40px;" align="center">Reset your password</button></a>
             <br/>
-            <br/>
-            <p>If you did not request a password reset, please ignore this email and your password will remain unchanged.This password reset is only <b>valid for the next 30 minutes</b>.</p>
-            <p><b><a href="mailto:thungathurti.srinivas@bluecollarhunt.com">Blue Collar Hunt Team</a></b></p>
-            <br/>
-            <p><b>P.S.</b> We also love hearing from you and helping you with any issues you have.Please reply to this email if you have any questions or encounter any problems.</p>
             <br/>
             <hr size=15 color="#3399FF">
-            <p><small>If you're having trouble clicking the password reset button, copy and paste the URL below into your web browser.</small></p>
-            <p><%= locals.url %></p>
+            <br/>
+            <p><b style="color:#3399FF;">Login to see it in action?</b></p>
+            <p>Please go-ahead and Login using <b><a href="<%= locals.url %>">Blue Collar Hunt Portal</a></b>.</p>
+            <br/>
+            <p>If you did not request this, please ignore this email and if you have any questions or encounter any problems, please contact a site administrator at <b><a href="mailto:thungathurti.srinivas@bluecollarhunt.com">BlueCollarHunt Team.</a></b></p>
           </td>
         </tr>
       </table>
       <!-- /content -->
-      
-    </td>
+      </td>
     <td></td>
   </tr>
 </table>
 </div>
 <!-- /body -->
+<table>
+<tr></tr>
+</table>
 
 <!-- footer -->
 <div class="content">
@@ -204,7 +204,7 @@ ol li {
 				 It is solely for use by the individual for whom it is intended, even if addressed incorrectly.
 				 If you received this e-mail in error, please notify the sender.Any other use of this e-mail is prohibited.
 				 Thank you for your compliance.</p>
-			  <p align="center">© 2016 Blue Collar Hunt.</p>
+			     <p align="center">© 2016 Blue Collar Hunt Inc.</p>
             </td>
           </tr>
         </table>

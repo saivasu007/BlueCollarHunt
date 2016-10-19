@@ -5,79 +5,6 @@
  */
 var app = angular.module('blueCollarApp', ['ngRoute', 'highcharts-ng','toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash']);
 
-app.controller('DatepickerCtrl', function ($scope) {
-	  	  $scope.today = function() {
-		    $scope.dt = new Date();
-		  };
-		  $scope.today();
-
-		  $scope.clear = function () {
-		    $scope.dt = null;
-		  };
-
-		  // Disable weekend selection
-		  $scope.disabled = function(date, mode) {
-		    return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
-		  };
-
-		  $scope.toggleMin = function() {
-		    $scope.minDate = new Date(1947, 5, 22);
-		  };
-		  $scope.toggleMin();
-		  $scope.maxDate = new Date(2050, 5, 22);
-
-		  $scope.open = function($event) {
-		    $scope.status.opened = true;
-		  };
-
-		  $scope.setDate = function(year, month, day) {
-		    $scope.dt = new Date(year, month, day);
-		  };
-
-		  $scope.dateOptions = {
-		    formatYear: 'yy',
-		    startingDay: 1
-		  };
-
-		  $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy','mm/dd/yyyy', 'shortDate'];
-		  $scope.format = $scope.formats[0];
-
-		  $scope.status = {
-		    opened: false
-		  };
-		  
-		  var tomorrow = new Date();
-		  tomorrow.setDate(tomorrow.getDate() + 1);
-		  var afterTomorrow = new Date();
-		  afterTomorrow.setDate(tomorrow.getDate() + 2);
-		  $scope.events =
-		    [
-		      {
-		        date: tomorrow,
-		        status: 'full'
-		      },
-		      {
-		        date: afterTomorrow,
-		        status: 'partially'
-		      }
-		    ];
-
-		  $scope.getDayClass = function(date, mode) {
-		    if (mode === 'day') {
-		      var dayToCheck = new Date(date).setHours(0,0,0,0);
-
-		      for (var i=0;i<$scope.events.length;i++){
-		        var currentDay = new Date($scope.events[i].date).setHours(0,0,0,0);
-
-		        if (dayToCheck === currentDay) {
-		          return $scope.events[i].status;
-		        }
-		      }
-		    }
-
-		    return '';
-		  };
-});
 
 app.directive("ngFileSelect",function(){
 	  return {
@@ -103,10 +30,6 @@ app.controller('indexCtrl', function($scope, ObserverService, $location, $anchor
 		$location.hash('top');
 		$anchorScroll();
 	};
-	$scope.$on('timer-stopped', function () {
-		console.log('notify');
-		ObserverService.notify('timeUp','timer');
-	});
 });
 
 app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http,Flash) {
@@ -125,6 +48,18 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 		zipcode:'',
 		image:''
 	};
+	
+	if($scope.emp == undefined || $scope.emp == "") {
+		$scope.emp = {
+			email:"",
+			name:"",
+			contactNum:"",
+			address1:"",
+			passwd2:"",
+			passwd1:"",
+			amount:""
+		};
+	}
 
 	$scope.verify = function () {
 
@@ -260,7 +195,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	$scope.register = function (user){
 		
 		if ($scope.user.email == "" || $scope.user.firstName == "" || $scope.user.lastName == "" || $scope.user.passwd1 == "" || $scope.user.passwd2 == "" || $scope.user.zipcode == "") {
-			//alert("We need your complete personal information! Please fill in all the blanks.");
+			//alert("We need your complete information! Please fill in all the blanks.");
 			$scope.errorMsg = true;
 			Flash.create('Info', "Please fill in all the blanks.",0, {class: 'alert-info', id: 'custom-id'}, true);
 		}
@@ -282,6 +217,11 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	};
 	
 	$scope.empRegister = function(emp) {
+		if ($scope.emp.email == "" || $scope.emp.name == "" || $scope.emp.contactNum == "" || $scope.emp.address1 == "" || $scope.emp.passwd2 == "" || $scope.emp.passwd1 == "" || $scope.emp.amount) {
+			alert("We need your complete information! Please fill in all the blanks.");
+			$scope.errorMsg = true;
+			Flash.create('Warning', "Please fill in all the blanks.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+		} else {
 		//For Stripe card transactions.
 		var amount = emp.amount;
 		$scope.emp.password = $scope.emp.passwd1;
@@ -360,6 +300,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 					alert("ERROR: "+err.message);
 				});
 		}
+	  }
 	}
 	
 	/*$scope.stripeResponseHandler = function(status,response) {

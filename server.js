@@ -368,7 +368,7 @@ app.post('/uploadPic', function(req, res) {
 
 // routes
 app.post('/register', function(req, res) {
-	/*
+	
 	if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
 	    return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
 	  }
@@ -385,7 +385,7 @@ app.post('/register', function(req, res) {
 	    }
 	    res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
 	  });
-	*/
+	
 	var password = encrypt(req.body.password);
 	req.body.password = password;
 	var email = req.body.email;
@@ -1130,6 +1130,13 @@ app.all('/*', function(req, res, next) {
 		root : __dirname + "/views"
 	});
 });
+
+var options = {
+		  key: fs.readFileSync(__dirname +'/views/certs/key.pem'),
+		  cert: fs.readFileSync(__dirname +'/views/certs/cert.pem')
+};
+
+http.createServer(options, app).listen(1338);
 
 app.listen(process.env.PORT || 1337,function() {
 	console.log('Node server started : http://127.0.0.1:' + port + '/');

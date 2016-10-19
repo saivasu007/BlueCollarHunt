@@ -49,7 +49,7 @@
 	<div class="panel panel-default site-panel-box" style="height:595px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
-			<h5>Employer Registration Form</h5>
+			<h3 class="panel-title">Employer Registration Form</h3>
 			</div>
 			<!-- 
             <div class="form-group has-feedback" style="padding-top:10px;">
@@ -58,14 +58,14 @@
 			</div>
 			-->
 			<div class="form-group has-feedback" style="padding-top:10px;">
-				<input type="text" ng-model="emp.email" class="form-control" placeholder="Email Address" ng-change="" style="width:300px">
+				<input type="text" ng-model="emp.email" class="form-control" placeholder="Email Address" ng-change="" style="width:302px">
 				<i class="glyphicon glyphicon-envelope form-control-feedback" style="padding-top:10px;"></i>
 			</div>
 			<div class="form-group">
-                <input type="text" ng-model="emp.name" class="form-control" placeholder="Employer Name" style="width:300px">
+                <input type="text" ng-model="emp.name" class="form-control" placeholder="Employer Name" style="width:302px">
             </div>
             <div class="form-group has-feedback">
-                <input type="text" id="phone" ng-model="emp.contactNum" class="form-control" placeholder="Contact Number" ng-blur="formatContactNum(emp)" style="width:300px">
+                <input type="text" id="phone" ng-model="emp.contactNum" class="form-control" placeholder="Contact Number" ng-blur="formatContactNum(emp)" style="width:302px">
             	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
             </div>
             <div class="form-group has-feedback">
@@ -73,15 +73,15 @@
                 <input type="text" ng-model="emp.address1" class="form-control" placeholder="Address" style="width:300px">
             	<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
             	-->
-            	<input type="text" ng-model="emp.address1" style="width:300px" class="form-control" placeholder="Address" ng-autocomplete="result1" details="details1" options="options1" />
+            	<input type="text" ng-model="emp.address1" style="width:302px" class="form-control" placeholder="Address" ng-autocomplete="result1" details="details1" options="options1" />
             	<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
             </div>
             <div class="form-group has-feedback">
-                <span class="{{myClass}}"><input type="password" ng-model="emp.passwd1" class="form-control" placeholder="New Password" ng-change="testPassword()" style="width:300px" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
+                <span class="{{myClass}}"><input type="password" ng-model="emp.passwd1" class="form-control" placeholder="New Password" ng-change="testPassword()" style="width:302px" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
             	<i class="glyphicon glyphicon-lock form-control-feedback"></i>
             </div>
             <div class="form-group has-feedback">
-                <span class="{{myClass}}"><input type="password" ng-model="emp.passwd2" ng-change="testPassword2()" class="form-control" placeholder="Confirm Password" style="width:300px" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
+                <span class="{{myClass}}"><input type="password" ng-model="emp.passwd2" ng-change="testPassword2()" class="form-control" placeholder="Confirm Password" style="width:302px" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
             	<i class="glyphicon glyphicon-lock form-control-feedback"></i>
             </div>
             <div class="form-group">
@@ -99,7 +99,7 @@
 </div>
 <div id="cardInfo">
 <div id="social" class="right-box text-center" style="margin:0 0 0 -350px;padding-top:50px;">
-		<div class="panel panel-default site-panel-box" style="height:300px;">
+		<div class="panel panel-default site-panel-box" style="height:270px;">
 		<div class="panel-body" style="padding:10px;">
         <div class="panel-heading display-table" style="background-color:#5BC0DE;">
                     <div class="row display-tr">
@@ -191,7 +191,7 @@
 		<div class="panel panel-default site-panel-box" style="height:155px;width:360px;margin:0 0 0px -20px;margin-top:80px;">
 		<div class="panel-body" style="padding:0px;">
 		<div class="form-group">
-		<ul style="font-size:12px;padding:10px 0 0px 30px;text-align:left;color:667C26;"> <strong>Password Tips :</strong>
+		<ul style="font-size:12px;padding:10px 0 0px 30px;text-align:left;color:667C26;"> <strong style="color:blue;">Password Tips :</strong>
 		<li style="padding-top:10px;">Password must be at least 6 characters.</li>
 		<li>Enter a combination of at least six numbers,<br>letters and punctuation marks.</li>
 		<li>Password may not not too obvious.</li>

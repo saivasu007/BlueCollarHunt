@@ -1,10 +1,10 @@
 {
-  "name": "bluecollarhunt",
+  "name": "BlueCollarJobs",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "dependencies": {
-    "angular-credit-cards":"^3.1.4",
+	"angular-credit-cards":"^3.1.4",
     "async": "^1.4.2",
     "body-parser": "^1.12.4",
     "connect-flash": "^0.1.1",

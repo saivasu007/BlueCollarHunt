@@ -368,7 +368,7 @@ app.post('/uploadPic', function(req, res) {
 
 // routes
 app.post('/register', function(req, res) {
-	
+	/*
 	if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
 	    return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
 	  }
@@ -385,7 +385,7 @@ app.post('/register', function(req, res) {
 	    }
 	    res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
 	  });
-	
+	*/
 	var password = encrypt(req.body.password);
 	req.body.password = password;
 	var email = req.body.email;

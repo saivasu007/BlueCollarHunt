@@ -3,7 +3,7 @@
  * @author : Srinivas Thungathurti
  * @description : Created for Capstone Project Blue Collar Hunt
  */
-var app = angular.module('blueCollarApp', ['ngRoute', 'highcharts-ng','toggle-switch','timer','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash']);
+var app = angular.module('blueCollarApp', ['ngRoute', 'highcharts-ng','toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash']);
 
 app.controller('DatepickerCtrl', function ($scope) {
 	  	  $scope.today = function() {

@@ -1,5 +1,5 @@
 process.env.port = 1337
-mongodb.connect.url = mongodb://localhost:27017/bluecollar
+mongodb.connect.url = mongodb://heroku_1x37qpxk:qdp0oikg1rnqfnga75442fpfap@ds061506.mlab.com:61506/heroku_1x37qpxk
 app.email.transport = SMTP
 #SMTP.service = Gmail
 SMTP.service.user = bluecollarhuntsearch@gmail.com

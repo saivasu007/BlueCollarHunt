@@ -368,9 +368,10 @@ app.post('/uploadPic', function(req, res) {
 
 // routes
 app.post('/register', function(req, res) {
-	
+	console.log(req.body['g-recaptcha-response']);
 	if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
-	    return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
+		console.log("Please select captcha");
+		return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
 	  }
 	  // Put your secret key here.
 	  var secretKey = "6Lf_kQkUAAAAAGtjR-_m4rQiGE1qbYE2eqrRHCvt";
@@ -378,14 +379,17 @@ app.post('/register', function(req, res) {
 	  var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
 	  // Hitting GET request to the URL, Google will respond with success or error scenario.
 	  request(verificationUrl,function(error,response,body) {
+		console.log("Verification");
 	    body = JSON.parse(body);
 	    // Success will be true or false depending upon captcha validation.
 	    if(body.success !== undefined && !body.success) {
+	    	console.log("Failed Verification");
 	      return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
 	    }
+	    console.log("SUCCESS");
 	    res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
 	  });
-	
+	console.log("Start user setup");
 	var password = encrypt(req.body.password);
 	req.body.password = password;
 	var email = req.body.email;
@@ -803,6 +807,54 @@ app.post('/addJobDet', function(req, res) {
 			res.send('error')
 		} else {
 			res.send(result)
+		}
+	})
+});
+
+app.post('/getEmpJobs', function(req, res) {
+	console.log(req.body.email);
+	jobInfoModel.find({
+		employerID : req.body.email
+	}, function(err, result) {
+		res.send(result);
+	});
+});
+
+app.post('/deleteJobInfo', function(req, res) {
+	jobInfoModel.remove({
+		jobID : req.body.jobID
+	}, function(err, num) {
+		if(num.ok =1) {
+			console.log("Job "+req.body.jobID+" removed successfully.");
+			res.send('success');
+		}
+	});
+});
+
+app.post('/updateJobDet', function(req, res) {
+	jobInfoModel.findOne({
+		jobID : req.body.jobID
+	}, function(err, result) {
+		if (result && result.jobID) {
+			jobInfoModel.update({
+				jobID : req.body.jobID
+			}, {
+				title : req.body.title,
+				location : req.body.location,
+				responsibilities : req.body.responsibilities,
+				requirement : req.body.requirement,
+				rate : req.body.rate,
+				activeJob : req.body.activeJob,
+				updatedDate : new Date()
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send('error')
+				}
+			})
 		}
 	})
 });

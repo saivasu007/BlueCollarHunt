@@ -63,44 +63,34 @@
 		</div>
 		</div>
         
-        <div class="panel panel-default site-panel-box" style="height:615px;">
+        <div class="panel panel-default site-panel-box" style="height:500px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
-			<h5>User Registration Form</h5>
+			<h5>Personal Information Update</h5>
 			</div>
             <div class="form-group has-feedback" style="padding-top:10px;">
-				<input type="text" ng-model="user.email" class="form-control" placeholder="Email Address" ng-change="testUsername()">
+				<input type="text" ng-model="currentUser.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" ng-disabled="true">
 				<i class="glyphicon glyphicon-user form-control-feedback" style="padding-top:10px;"></i>
-				<span ng-show="usernameErr && user.email != ''" style="color:red;display:inline-block;">invalid email address</span>
 			</div>
             <div class="form-group">
-                <input id="fName" type="text" ng-model="user.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names">
+                <input id="fName" type="text" ng-model="currentUser.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names">
             </div>
             <div class="form-group">
-                <input id="lName" type="text" ng-model="user.lastName" class="form-control" placeholder="Last Name">
+                <input id="lName" type="text" ng-model="currentUser.lastName" class="form-control" placeholder="Last Name">
             </div>
             <div class="form-group">
-                <input type="text" id="zip" ng-model="user.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
+                <input type="text" id="zip" ng-model="currentUser.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
                 <span ng-show="zipCodeErr && user.zipcode != ''" style="color:red;">Please enter valid Zipcode.</span>
             </div>
             <div class="form-group">
-                <input type="file" id="profPic" name="myImage" ng-model="user.image" class="form-control" image-with-preview accept="image/jpeg,image/png" placeholder="Upload Profile Image" ng-change="profPicChange()">
+                <input type="file" id="profPic" name="myImage" ng-model="currentUser.image" class="form-control" image-with-preview accept="image/jpeg,image/png" placeholder="Upload Profile Image" ng-change="profPicChange()">
             </div>
-            <div class="form-group has-feedback">
-                <span class="{{myClass}}"><input type="password" ng-model="user.passwd1" class="form-control" placeholder="New Password" ng-change="testPassword()" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
-                <i class="glyphicon glyphicon-lock form-control-feedback"></i>
-    			<span ng-show="passwordShort && user.passwd1 != ''" style="color:red">password must be at least 6 characters</span>
-            </div>
-            <div class="form-group has-feedback">
-                <span class="{{myClass}}"><input type="password" ng-model="user.passwd2" ng-change="testPassword2()" class="form-control" placeholder="Confirm Password" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
-    			 <i class="glyphicon glyphicon-lock form-control-feedback"></i>
-    			<span ng-show="passwordErr && user.passwd2 != undefined" style="color:red">password doesn't match</span>
-            </div>
-            <div class="g-recaptcha" data-sitekey="6Lf_kQkUAAAAAP9qhGzZ7_qa7mEmksRTf-RF6I7K" data-theme="dark"></div><br>
-            <button ng-click="register(user)" ng-disabled="error" class="btn btn-info block full-width m-b">Register</button>
+            <br/>
+            <button ng-click="register(user)" ng-disabled="error" class="btn btn-info block full-width m-b">Save</button>
             <br/><br/>
-            <button ng-click="clear(user)" ng-disabled="error" class="btn btn-info block full-width m-b">Clear</button>
+            <button ng-click="clear(user)" ng-disabled="error" class="btn btn-info block full-width m-b">Cancel</button>
         </div>
+        <p class="panel-footer" style="padding:10px 0px 45px 0px;"></p>
         </div></div>
 </div>
 
@@ -120,24 +110,8 @@
 		</div>
 	</div>
   </div>
-  <h4 style="color:#5BC0DE;"><strong>PREVIEW</strong></h4>
+  <h5 style="color:#5BC0DE;"><strong>Profile Picture</strong></h5>
 </div>
-
-<div id="PassPolicy" class="right-box text-center" style="margin:180px 0 0 -380px;padding-top:70px;">
-		<div class="panel panel-default site-panel-box" style="height:155px;width:360px;margin:0 0 10px 0px;margin-top:80px;">
-		<div class="panel-body" style="padding:0px;">
-		<div class="form-group">
-		<ul style="font-size:12px;padding:10px 0 0px 30px;text-align:left;color:667C26;"> <strong>Password Tips :</strong>
-		<li style="padding-top:10px;">Password must be at least 6 characters.</li>
-		<li>Enter a combination of at least six numbers,<br>letters and punctuation marks.</li>
-		<li>Password may not not too obvious.</li>
-		<li>Password must contain at least two of the following: <br><strong>uppercase or lowercase letters, numbers and symbols.</strong></li>
-		</ul>
-		</div>
-		</div>
-		</div>
-</div>
-
 </div>
 
 </div></div></div></div>

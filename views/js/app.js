@@ -366,6 +366,7 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
     	$http.post('/getJobs',data).success(function (response){
 			$scope.jobsList = response;
 			if($scope.jobsList.length <= 0) $scope.noJobs = true;
+			$scope.noJobs = false;
 			$scope.searchResults = 1;
 			$location.url('/');
 		}).error(function (err) {
@@ -831,6 +832,37 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     $scope.launchFilePicker = function(){
     	('#fileDialog').trigger('click');
     }
+    
+    $scope.search = function (searchInfo) {
+    	var data = {
+    			search : searchInfo
+    	}
+    	$http.post('/getJobs',data).success(function (response){
+			$scope.jobsList = response;
+			if($scope.jobsList.length <= 0) $scope.noJobs = true;
+			$scope.noJobs = false;
+			$scope.searchResults = 1;
+			$location.url('/home');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		});
+    }
+    
+    $scope.getJobInfo = function (jobID) {
+
+		var postData = {
+				search: jobID
+		}
+		$http.post('/getJobInfo',postData).success(function (response) {
+			$scope.jobInfo = response;
+			$scope.jobResults = 2;
+			$location.url('/home');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
 	
 
 	$scope.logout = function () {
@@ -1018,6 +1050,12 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location, $interval) {
 	$rootScope.wrong = 0;
 	$rootScope.report = {type:'',wrong:[]};
+	$scope.isJobQueue = false;
+	$scope.currentPage = 1;
+	$scope.numPerPage = 10;
+	$scope.maxSize = 5;
+	var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+    , end = begin + $scope.numPerPage;
 	
 	$scope.getMaxNumber = function (){
 		$http.get('/getJobMaxNumber').success(function (response){
@@ -1032,21 +1070,26 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			console.log(err);
 		})
 	}
+	
 	$scope.addJobInfo = function (jobInfo){
 		$scope.getMaxNumber();
-		if($scope.maxNum == undefined) $scope.maxNum = 101;
+		if($scope.maxNum == undefined || $scope.maxNum == "") $scope.maxNum = 103;
+		var jobNum = $scope.maxNum;
+		jobNum = jobNum+1;
 		var postData = { 
 			title : jobInfo.title,
 			location : jobInfo.location,
+			employerID : "test@testinc.com",
 			responsibilities : jobInfo.responsibilities,
 			requirement : jobInfo.requirement,
 			rate : jobInfo.rate,
-			jobID : "BCJOB-"+ $scope.maxNum+1
+			jobID : "BCJOB-"+ jobNum,
+			maxNumber : jobNum,
+			activeJob : jobInfo.publish,
+			origPostDate : new Date()
 		};
 		$http.post('/addJobDet',postData).success(function (response){
-			alert("add record");
 			if (response != 0){
-			alert('Success!');
 			$location.url('/empHome');
 			} else if (response == 'error') {
 			alert('error')
@@ -1055,6 +1098,109 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			alert("Error!");
 			console.log(err);
 		})
+	};
+	
+	$scope.displayJobEntry = function (jobInfo){
+		$scope.isPostJob = true;
+		$scope.isJobQueue = false;
+		$scope.isUpdate = false;
+		$scope.job = undefined;
+		document.getElementById("active").checked = true;
+		$location.url('/empHome');
+	};
+	
+	$scope.updateJobInfo = function (jobInfo){
+		$scope.job = jobInfo;
+		$scope.isPostJob = true;
+		$scope.isJobQueue = false;
+		$scope.isUpdate = true;
+		if(jobInfo.activeJob == "Y") $scope.job.activeJob = "1";
+		else $scope.job.activeJob = "0";
+		$location.url('/empHome');
+	};
+	
+	$scope.updateDetailJobInfo = function (jobInfo){
+		if(jobInfo.activeJob == 1) jobInfo.activeJob = "Y";
+		else jobInfo.activeJob = "N";
+		var postData = { 
+				title : jobInfo.title,
+				location : jobInfo.location,
+				responsibilities : jobInfo.responsibilities,
+				requirement : jobInfo.requirement,
+				rate : jobInfo.rate,
+				activeJob : jobInfo.activeJob,
+				jobID : jobInfo.jobID
+		};
+
+		$http.post('/updateJobDet',postData).success(function (response){
+				if (response != 0){
+				alert("Success");
+				$scope.isJobQueue = true;
+				$scope.isPostJob = false;
+				$scope.getJobQueue("test@testinc.com");
+				$location.url('/empHome');
+				} else if (response == 'error') {
+					alert('error')
+				}
+		}).error(function (err) {
+				alert("Error!");
+				console.log(err);
+		})
+	};
+	
+	$scope.getJobQueue = function (emailID){
+		var postData = { 
+				email : "test@testinc.com"
+		};
+		$http.post('/getEmpJobs',postData).success(function (response){
+			if (response != 0){
+				
+			$scope.partialJobs = [];
+			$scope.allEmpJobs = [];
+			$scope.allJobs = response;
+			  for(i=0;i<=$scope.allJobs.length-1;i++) {
+					$scope.allEmpJobs.push($scope.allJobs[i]);
+			  }
+			$scope.partialJobs = $scope.allEmpJobs.slice(begin, end);	
+			$scope.isJobQueue = true;
+			$scope.isPostJob = false;
+			$location.url('/empHome');
+			
+			} else if (response == 'error') {
+			alert('error')
+			}
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialUsers = $scope.allUsers.slice(begin, end);
+	  });
+	//End Pagination changes here.
+	
+	$scope.delete = function (jobNumber){
+		alert(jobNumber);
+		var postData ={
+				jobID: jobNumber
+		};
+		if(confirm('Are you sure you want you delete this job info?')) {
+			$http.post('/deleteJobInfo',postData).success(function (response) {
+				if (response == 'success'){
+					alert("Job removed from the portal successfully.");
+					console.log("Job"+ jobNumber +" removed from application");
+					$scope.isJobQueue = true;
+					$scope.getJobQueue("test@testinc.com");
+					$location.url('/empHome');
+				}
+			}).error(function (err) {
+				alert("Error!");
+				console.log(err);
+			})
+		}
 	};
 
 	$scope.logout = function () {
@@ -1389,6 +1535,13 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		}).
 		when('/profile', {
 			templateUrl: 'partials/profile.html',
+			controller: 'profileCtrl',
+			resolve: {
+				loggedin: checkLoggedIn
+			}
+		}).
+		when('/editProfile', {
+			templateUrl: 'partials/editProfile.html',
 			controller: 'profileCtrl',
 			resolve: {
 				loggedin: checkLoggedIn

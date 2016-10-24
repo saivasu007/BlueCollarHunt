@@ -6,7 +6,8 @@ var userJobInfoSchema = new mongoose.Schema({
     jobID: Number,
     email: String
     companyName: String,
-    dateApplied: Date
+    dateApplied: Date,
+    files_id: ObjectId
 });
 
 module.exports = mongoose.model('userJobInfoModel', userJobInfoSchema);

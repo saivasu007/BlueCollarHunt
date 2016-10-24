@@ -11,28 +11,18 @@
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
-			<div style="text-align:center">
-			<div class="form-group" style="display:inline-block;">
-            <a href="/profile"><button style="margin-top:-57px;width: 145px; height: 35px; font-size: 16px" class="btn btn-primary"  ng-click="">
-				<span class="glyphicon"></span>  Profile
-			</button></a>
-            </div>
-			<div class="form-group" style="display:inline-block;">
-            <a href="/upload"><button style="margin-top:-57px;width: 145px; height: 35px; font-size: 16px" class="btn btn-primary"  ng-click="">
-				<span class="glyphicon"></span>  Upload Resume
-			</button></a>
-            </div>
-            <div class="form-group" style="display:inline-block;float:center">
-            <a href="/contact"><button style="margin-top:-57px;width: 145px; height: 35px; font-size: 16px" class="btn btn-primary"  ng-click="">
-				<span class="glyphicon"></span>  Contact Us
-			</button></a>
-            </div>
-            <div class="form-group" style="display:inline-block;float:center">
-            <button style="margin-top:-57px;width: 145px; height: 35px; font-size: 16px" class="btn btn-primary"  ng-click="logout()">
-				<span class="glyphicon"></span>  Logout
-			</button>
-            </div>
-            </div>
+			<img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="75" style="margin:10px 0px 0px -60px"/>
+			<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-151px -61px 70px;">
+			<p style="align:right;padding:10px;margin: 0px 0 0px 700px;">
+			<a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="/changePassword" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Password</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a>
+			</p>
+			</div>
+			<div style="text-align:right">
+				<div class="profileImage" style="background-image: url('../img/Srini.jpg');margin: -60px 0px 0px 900px;"></div>
+			</div>
             <div style="text-align:center">
 			<div class="form-group has-feedback" style="display:inline-block;">
                 <input type="text" ng-model="user.search" class="form-control" style="width:280px" placeholder="Jobs" ng-change="testLoginName()" ng-required="true">
@@ -53,20 +43,52 @@
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:550px;">
 <div class="panel-body" style="padding:10px;">
-<img class="banner" src="img/bluecollar.jpg" alt="background" width="100%" height="530px"/>
-</div></div></div></div></div>
+
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:684px;margin:0 0 0 480px;">
+<div class="panel-body" style="padding:0px;">
+<div style="text-align:left;margin:0 0 0 20px; " ng-show="jobResults == 2 && jobInfo">
+			<h3 style="color:#3399FF">{{jobInfo.title}}
+			<a href="/upload"><button style="width: 125px; height: 30px; font-size: 16px;margin:20px 0px 0px 290px" class="btn btn-primary"  ng-click="" ng-disabled="">
+				<span class="glyphicon"></span>  APPLY
+			</button></a>
+			</h5>
+			<h5>{{jobInfo.location}}</h5>
+			<br/>
+			<h4 style="color:#3399FF;"><strong>Responsibilities :</strong></h4>
+			<h5 style="white-space: pre-line;">{{jobInfo.responsibilities}}</h5>
+			<br/>
+			<h4 style="color:#3399FF"><strong>Requirement : </strong></h4>
+			<h5 style="white-space: pre-line;">{{jobInfo.requirement}}</h5>
+			<br/>
+			<h5><strong>Hourly Rate : </strong>${{jobInfo.rate}}</h5>
+</div>
+</div></div>
+
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:470px;background-color:#3399FF;margin:-530px 0 0 0;">
+<div class="panel-body" style="padding:0px;padding-top:5px;" ng-repeat="job in jobsList">
+<div ng-show="searchResults == 1">
+<div style="padding: 0px;cursor: pointer;" ng-click="getJobInfo(job.jobID)">
+<font color="white" size="4"><strong>&nbsp;&nbsp;&nbsp;&nbsp;{{job.title}}</strong></font> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="black" size="2"><strong>{{job.location}}</strong></font>
+<hr style="display: block;margin-top: 0.5em;margin-bottom: 0.5em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
+</div>
+</div>
+</div>
+<div ng-show="noJobs" style="text-align:center;padding-top:40px;">
+	<h4 style="color:white">No Jobs Found For Your Search.</h4>
+</div>
+</div>
+</div>
+</div></div></div></div>
 <footer>
 <div class="container" style="padding-left:0px;">
 <div class="row">
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:55px;">
-<div class="middle-box" style="margin-left:400px;">
+<div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
+	<p class="copyright" style="padding-top:10px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
 </div>
 </div></div></div></div></div>
-<div class="copyright">
-     <p>&copy; 2016 Blue Collar Hunt. All rights reserved.</p>
-</div>
 </footer>
 </body>
 </html>

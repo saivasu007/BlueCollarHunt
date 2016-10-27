@@ -859,6 +859,140 @@ app.post('/updateJobDet', function(req, res) {
 	})
 });
 
+app.post('/updatePublishStat', function(req, res) {
+	jobInfoModel.findOne({
+		jobID : req.body.jobID
+	}, function(err, result) {
+		if (result && result.jobID) {
+			jobInfoModel.update({
+				jobID : req.body.jobID
+			}, {
+				activeJob : req.body.activeJob,
+				updatedDate : new Date()
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send('error')
+				}
+			})
+		}
+	})
+});
+
+app.post('/updateUserProfile', function(req, res) {
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (result && result.email) {
+			userModel.update({
+				email : req.body.email
+			}, {
+				firstName : req.body.firstName,
+				lastName : req.body.lastName,
+				zipcode : req.body.zipcode
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send('error')
+				}
+			})
+		}
+	})
+});
+
+app.post('/ClearCurrentProfile', function(req, res) {
+	console.log("Change Profile Picture inprogress..");
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (!result) {
+			res.send("0");
+		} else {
+			console.log("req.body.email "+req.body.email);
+			if(req.body.imageName != "") {
+				console.log("Start change profile picture upload process");
+				console.log(req.body);
+				MongoClient.connect(mongodbUrl, function(err, db) {
+					
+					db.collection('fs.files')
+					  .find({ "metadata.email" : req.body.email})
+					  .toArray(function(err, files) {
+					    if (err) {
+					    	console.log("ERROR "+err);
+					    	throw err;
+					    }
+					    files.forEach(function(file) {
+					    	console.log("Iterating each file from collection.");
+					    	  var gridStore = new GridStore(db, file.filename,"r");
+					    	  console.log("Before opening gridstore.");
+							  gridStore.open(function(err, gridStore) {
+								var stream = gridStore.stream(true);
+								console.log("Before unlink file in gridstore.");
+							    gridStore.unlink(function(err, result) {
+							    	console.log("Deleting existing Profile Pic "+result);
+							   });
+							   stream.on("end", function(err) {
+							       db.close();
+								   console.log("End of checking existing profile pic");
+							   });
+							  });
+					    });
+					  });
+			});
+			}
+			res.send('success');
+		}
+	});
+});
+
+app.post('/changeProfilePic', function(req, res) {
+	console.log("Change Profile Picture inprogress..");
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (!result) {
+			res.send("0");
+		} else {
+			console.log("req.body.email "+req.body.email);
+			if(req.body.imageName != "") {
+				console.log("Start change profile picture upload process");
+				console.log(req.body);
+				MongoClient.connect(mongodbUrl, function(err, db) {
+					
+					var gridStore = new GridStore(db, new ObjectID(),req.body.imageName, "w",{
+						  "email": req.body.email,
+						  "content_type": req.body.imageContentType,
+						  "metadata":{
+						      "author": req.user.lastName,
+						      "email": req.body.email,
+						      "type": "profilePic"
+						  }
+						  });
+					  gridStore.open(function(err, gridStore) {
+						var stream = gridStore.stream(true);
+					    gridStore.write(req.body.imageContents, function(err, gridStore) {
+					      gridStore.close(function(err, result) {
+					      });
+					      stream.on("end", function(err) {
+					    	  db.close();
+					      });
+					   });
+					  });
+					  console.log("Finished change profile picture upload to MongoDB");
+			});
+			}
+			res.send('success');
+		}
+	});
+	
+});
+
 //User Forgot Password functionality.
 app.post('/forgot', function(req, res) {
 	      crypto.randomBytes(20, function(err, buf) {

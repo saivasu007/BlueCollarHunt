@@ -11,6 +11,7 @@ var jobInfoSchema = new mongoose.Schema({
     responsibilities: String,
     requirement: String,
     rate: Number,
+    salaryType: String,
     maxNumber: Number,
     activeJob: String,
     origPostDate: Date,

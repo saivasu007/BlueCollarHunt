@@ -28,17 +28,18 @@
 <div class="container" style="padding-left:0px;">
 <div class="row" style="height:556px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:550px;">
+<div class="panel panel-default site-panel-box" style="height:590px;">
 <div class="panel-body" style="padding:10px;">
 <!-- <img class="banner" src="img/BlueCollar_Profile.png" alt="background" width="100%" height="530px"/> -->
 <!-- For Profile Image and Details -->
-<div class="panel panel-default site-panel-box" style="width:220px;height:450px;margin:35px 0 0 20px;float:left">
+<div class="panel panel-default site-panel-box" style="width:220px;height:530px;margin:35px 0 0 20px;float:left">
 <div class="panel-body" style="padding:20px;">
 <img ng-src="{{dataUrl | trustUrl}}" style="height:125px;width:175px;border-radius: 60%;background-position: center center;background-size: cover;" />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="">Edit</a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="" ng-click="changeProfilePic()">Edit</a>
+<input type="file" id="imgupload" ng-model="Image" accept="image/jpeg,image/png" placeholder="Change Profile Image" style="display:none" ng-change="profPicChange()">
 </div></div>
 <!-- For Most Talended Skills and Recommendations/Views -->
-<div class="panel panel-default site-panel-box" style="width:875px;height:315px;margin:35px 0 0 250px;">
+<div class="panel panel-default site-panel-box" style="width:900px;height:400px;margin:35px 0 0 250px;">
 <div class="panel-body" style="padding:5px;">
 <!-- <h5>{{currentUser.firstName}} {{currentUser.lastName}}</h5> -->
 <div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:0 0 0 450px;float:right;border:2px dotted">
@@ -46,11 +47,11 @@
 </div></div>
 </div></div>
 <!-- For Recommended Jobs list -->
-<div class="panel panel-default site-panel-box" style="width:875px;height:125px;margin:10px 0 0 250px;">
+<div class="panel panel-default site-panel-box" style="width:900px;height:125px;margin:5px 0 0 250px;">
 <div class="panel-body" style="padding:20px;">
 </div></div>
 </div></div></div></div></div></div>
-<footer>
+<footer style="padding-top:20px;">
 <div class="container" style="padding-left:0px;">
 <div class="row">
 <div class="col-xs-50 col-md-40">

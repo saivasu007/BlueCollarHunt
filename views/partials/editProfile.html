@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
-    <title>Blue Collar Hunt User Registration Page</title>
+    <title>Blue Collar Hunt User Profile Update Page</title>
     <style>
 .dropdown {
     position: relative;
@@ -63,32 +63,27 @@
 		</div>
 		</div>
         
-        <div class="panel panel-default site-panel-box" style="height:500px;">
+        <div class="panel panel-default site-panel-box" style="height:430px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
 			<h5>Personal Information Update</h5>
 			</div>
             <div class="form-group has-feedback" style="padding-top:10px;">
-				<input type="text" ng-model="currentUser.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" ng-disabled="true">
+				<input type="text" ng-model="currentUser.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" ng-disabled="true" style="width:280px">
 				<i class="glyphicon glyphicon-user form-control-feedback" style="padding-top:10px;"></i>
 			</div>
             <div class="form-group">
-                <input id="fName" type="text" ng-model="currentUser.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names">
+                <input id="fName" type="text" ng-model="currentUser.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names" style="width:280px">
             </div>
             <div class="form-group">
-                <input id="lName" type="text" ng-model="currentUser.lastName" class="form-control" placeholder="Last Name">
+                <input id="lName" type="text" ng-model="currentUser.lastName" class="form-control" placeholder="Last Name" style="width:280px">
             </div>
             <div class="form-group">
                 <input type="text" id="zip" ng-model="currentUser.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
-                <span ng-show="zipCodeErr && user.zipcode != ''" style="color:red;">Please enter valid Zipcode.</span>
             </div>
-            <div class="form-group">
-                <input type="file" id="profPic" name="myImage" ng-model="currentUser.image" class="form-control" image-with-preview accept="image/jpeg,image/png" placeholder="Upload Profile Image" ng-change="profPicChange()">
-            </div>
-            <br/>
-            <button ng-click="register(user)" ng-disabled="error" class="btn btn-info block full-width m-b">Save</button>
+            <button ng-click="saveProfileInfo(currentUser)" ng-disabled="error" class="btn btn-info block full-width m-b">Save</button>
             <br/><br/>
-            <button ng-click="clear(user)" ng-disabled="error" class="btn btn-info block full-width m-b">Cancel</button>
+            <a href="/home"><button class="btn btn-info block full-width m-b">Cancel</button></a>
         </div>
         <p class="panel-footer" style="padding:10px 0px 45px 0px;"></p>
         </div></div>
@@ -102,9 +97,9 @@
 		<img ng-show="noImage" src="img/preview.png" style="height:125px;width:160px;"/>
 		 -->
 		 <div id="profPicDisplay" class="dropdown">
-  		<img ng-src="{{user.image.src}}" style="height:171px;width:196px;">
+  		<img ng-src="{{dataUrl | trustUrl}}" style="height:171px;width:196px;">
   		<div class="dropdown-content">
-    	<img ng-src="{{user.image.src}}" style="height:215px;width:250px;">
+    	<img ng-src="{{dataUrl | trustUrl}}" style="height:215px;width:250px;">
     	<div class="desc">Blue Collar Profile Picture</div>
   		</div>
 		</div>

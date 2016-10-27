@@ -41,7 +41,7 @@
 <div class="panel panel-default site-panel-box" style="height:550px;">
 <div class="panel-body" style="padding:10px;">
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:684px;margin:0 0 0 480px;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:704px;margin:0 0 0 460px;">
 <div class="panel-body" style="padding:0px;">
 <div style="text-align:left;margin:0 0 0 20px; " ng-show="jobResults == 2 && jobInfo">
 			<h3 style="color:#3399FF">{{jobInfo.title}}
@@ -57,7 +57,7 @@
 			<h4 style="color:#3399FF"><strong>Requirement : </strong></h4>
 			<h5 style="white-space: pre-line;">{{jobInfo.requirement}}</h5>
 			<br/>
-			<h5><strong>Hourly Rate : </strong>${{jobInfo.rate}}</h5>
+			<h5><strong>Salary Rate : </strong>${{jobInfo.rate}} {{jobInfo.salaryType}}</h5>
 </div>
 <!-- UNCOMMENT in the finish of development
 <div ng-show="searchResults != 1 && jobResults != 2" style="text-align:center;">
@@ -72,7 +72,7 @@
 -->
 </div></div>
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:470px;background-color:#3399FF;margin:-530px 0 0 0;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:450px;background-color:#3399FF;margin:-530px 0 0 0;">
 <div class="panel-body" style="padding:0px;padding-top:5px;" ng-repeat="job in jobsList">
 <div ng-show="searchResults == 1">
 <div style="padding: 0px;cursor: pointer;" ng-click="getJobInfo(job.jobID)">

@@ -21,7 +21,34 @@
 			</p>
 			</div>
 			<div style="text-align:right">
-				<div class="profileImage" style="background-image: url('../img/Srini.jpg');margin: -60px 0px 0px 900px;"></div>
+			<nav role="navigation" class="navbar">
+			      <div class="container">
+			        <!-- 'Sticky' (non-collapsing) right-side menu item(s) -->
+			        <div class="navbar-header pull-right">
+			          <ul class="nav pull-left">
+			            <!-- This works well for static text, like a username -->
+			            <li class="navbar-text pull-left">
+			            	
+			            </li>
+			            <!-- Add any additional bootstrap header items.  This is a drop-down from an icon -->
+			            <li class="dropdown pull-right">
+			              <a href="#" data-toggle="dropdown" style="color:#777; margin-top: 5px;" class="dropdown-toggle"><div class="profileImage" style="background-image: url('../img/Srini.jpg');"></div><b class="caret"></b></a>
+			              <ul class="dropdown-menu">
+			                <li>
+			                  <a href="" ng-click="editProfileInfo()" title="Profile">Change Profile</a>
+			                </li>
+			                <li>
+			                  <a href="/changePassword" title="Profile">Change Password</a>
+			                </li>
+			                <li>
+			                  <a href="" title="Logout" ng-click="logout()">Signout</a>
+			                </li>
+			              </ul>
+			            </li>
+			          </ul>
+			      </div>
+			      </div>
+			    </nav>
 			</div>
             <div style="text-align:center">
 			<div class="form-group has-feedback" style="display:inline-block;">
@@ -44,7 +71,7 @@
 <div class="panel panel-default site-panel-box" style="height:550px;">
 <div class="panel-body" style="padding:10px;">
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:684px;margin:0 0 0 480px;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:704px;margin:0 0 0 460px;">
 <div class="panel-body" style="padding:0px;">
 <div style="text-align:left;margin:0 0 0 20px; " ng-show="jobResults == 2 && jobInfo">
 			<h3 style="color:#3399FF">{{jobInfo.title}}
@@ -64,7 +91,7 @@
 </div>
 </div></div>
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:470px;background-color:#3399FF;margin:-530px 0 0 0;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:450px;background-color:#3399FF;margin:-530px 0 0 0;">
 <div class="panel-body" style="padding:0px;padding-top:5px;" ng-repeat="job in jobsList">
 <div ng-show="searchResults == 1">
 <div style="padding: 0px;cursor: pointer;" ng-click="getJobInfo(job.jobID)">

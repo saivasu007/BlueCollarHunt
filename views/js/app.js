@@ -11,7 +11,6 @@ app.directive("ngFileSelect",function(){
 	    link: function($scope,el){
 	      
 	      el.bind("change", function(e){
-	        alert("Hello Change");
 	        $scope.file = (e.srcElement || e.target).files[0];
 	        $scope.getFile();
 	      })
@@ -502,8 +501,13 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 			email: emailID
 		}
 		$http.post('/forgot', postData).success(function (response){
-			console.log(response);
-			alert("Please check the registered email for instructions.");
+			
+			if(response = "NotFound" ) {
+				alert("Email ID not registered in Blue Collar Hunt Portal.");
+				return;
+			} else {
+				alert("Please check the registered email for instructions.");
+			}
 			$location.url('/login');
 		}).error(function (err) {
 			if(err = "NotFound" ) {
@@ -604,7 +608,6 @@ app.controller('empLoginCtrl', function ($scope, $rootScope, $http, $routeParams
 		
 		$scope.user.userType = "E";
 		$http.post('/empSignIn', user).success(function (response){
-			alert(response.toSource());
 			$rootScope.currentUser = response;
 			$location.url('/empHome');
 		}).error(function (err) {
@@ -864,6 +867,46 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		})
 	};
 	
+	$scope.editProfileInfo = function (){
+		$scope.search = $rootScope.currentUser.email;
+		var postData ={
+				search: $scope.search
+		};
+		$http.post('/getUserInfo',postData).success(function (response) {
+			/*$rootScope.user.image = response;
+			$rootScope.currentUser = response;
+			alert($rootScope.currentUser);
+			*/
+			$rootScope.dataUrl = response;
+			$location.url('/editProfile');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+	$scope.saveProfileInfo = function(cUser) {
+		var postData = { 
+				firstName : cUser.firstName,
+				lastName : cUser.lastName,
+				zipcode : cUser.zipcode,
+				email : cUser.email
+		};
+
+		$http.post('/updateUserProfile',postData).success(function (response){
+				if (response != 0){
+				alert("Success");
+				$location.url('/home');
+				} else if (response == 'error') {
+					alert('error')
+				}
+		}).error(function (err) {
+				alert("Error!");
+				console.log(err);
+		})
+		
+	}
+	
 
 	$scope.logout = function () {
 		alert("Logout of application");
@@ -1060,7 +1103,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	$scope.getMaxNumber = function (){
 		$http.get('/getJobMaxNumber').success(function (response){
 			if (response != 0){
-			alert('Success!');
 			$scope.maxNum = response;
 			} else if (response == 'error') {
 			alert('error')
@@ -1086,10 +1128,13 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			jobID : "BCJOB-"+ jobNum,
 			maxNumber : jobNum,
 			activeJob : jobInfo.publish,
-			origPostDate : new Date()
+			origPostDate : new Date(),
+			salaryType : jobInfo.salaryType
 		};
+
 		$http.post('/addJobDet',postData).success(function (response){
 			if (response != 0){
+			alert("Job Posted Successfully.");
 			$location.url('/empHome');
 			} else if (response == 'error') {
 			alert('error')
@@ -1182,8 +1227,28 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	  });
 	//End Pagination changes here.
 	
+	$scope.publishJob = function (jobInfo){
+		if(jobInfo.activeJob == 1) jobInfo.activeJob = "Y";
+		else jobInfo.activeJob = "N";
+		if(document.getElementById("pubStatus").checked) jobInfo.activeJob = "Y";
+		else jobInfo.activeJob = "N";
+		var postData = { 
+				activeJob : jobInfo.activeJob,
+				jobID : jobInfo.jobID
+		};
+
+		$http.post('/updatePublishStat',postData).success(function (response){
+				console.log("Updated ");
+				if (response == 'error') {
+					alert('error')
+				}
+		}).error(function (err) {
+				alert("Error!");
+				console.log(err);
+		})
+	};
+	
 	$scope.delete = function (jobNumber){
-		alert(jobNumber);
 		var postData ={
 				jobID: jobNumber
 		};
@@ -1202,6 +1267,13 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			})
 		}
 	};
+	
+	$scope.jobInfoClear = function () {
+        if(confirm("Are you sure to clear the form?")) { 
+        	$scope.job = {}
+        	//$scope.selectedState = "";
+        }
+    };
 
 	$scope.logout = function () {
 		alert("Logout of application");
@@ -1296,6 +1368,51 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	
 	$scope.userInfo();
 	
+	$scope.changeProfilePic = function() {
+		$('#imgupload').trigger('click');
+		$scope.user = {
+				imageContents : "",
+				imageContentType : "",
+				imageName : ""
+		}
+		$('#imgupload').change(function(e){
+			var filename = document.getElementById('imgupload').files[0];//$('input[type=file]').val().split('\\').pop();
+			if ( !window.FileReader ) {
+				alert( 'FileReader API is not supported by your browser.' );
+			}
+			var fr = new FileReader();
+			fr.readAsDataURL(filename);
+			fr.onload = function(e) {
+	            //alert(e.target.result);
+	            $scope.user.imageContents = e.target.result;
+	            $scope.user.imageContentType = e.target.result.substring(5,15);
+	            $scope.user.imageName = filename.name;
+				$scope.user.email = $scope.currentUser.email;
+				$scope.user.lastName = $scope.currentUser.lastName;
+
+				$http.post('/ClearCurrentProfile',$scope.user).success(function (response) {
+	    			if(response != 0) console.log("Current Profile Picture deleted from dataStore.");
+	    		}).error(function (err) {
+	    			alert("Error!");
+	    			console.log(err);
+	    		})
+				
+				$http.post('/changeProfilePic',$scope.user).success(function (response) {
+	    			$rootScope.dataUrl = response;
+	    			$location.url('/profile');
+	    		}).error(function (err) {
+	    			alert("Error!");
+	    			console.log(err);
+	    		})
+	        };
+		});
+		return false;
+	}
+	
+	$scope.profPicChange = function() {
+		alert("Hello");
+	}
+	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
 			$location.url('/');
@@ -1333,9 +1450,7 @@ app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $locatio
 	}
 	
 	$scope.pwSave = function (currentUser) {
-		alert(currentUser.oldPassword);
-		alert(currentUser.password1);
-		alert(currentUser.password2);
+		
 		if(currentUser.oldPassword == "" && currentUser.password1 == "" && currentUser.password2 == "") { 
 			$scope.errorMsg = true;
 			Flash.create('warning', "Please enter all Password fields.",0, {class: 'alert-warning', id: 'custom-id'}, true);
@@ -1542,7 +1657,7 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		}).
 		when('/editProfile', {
 			templateUrl: 'partials/editProfile.html',
-			controller: 'profileCtrl',
+			controller: 'homeCtrl',
 			resolve: {
 				loggedin: checkLoggedIn
 			}

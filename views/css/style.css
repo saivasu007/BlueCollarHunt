@@ -2,7 +2,7 @@
     color: #a7aaab;
 }*/
 .gray-bg {
-    background-color: #5BC0DE;
+    background-color: #F5F6FA;
 }
 .middle-box {
     max-width: 400px;
@@ -334,9 +334,9 @@ hr {
 }.btn.active span.glyphicon {				
 	opacity: 1;				
 }.profileImage{
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 45%;
   background-position: center center;
   background-size: cover;
 }

@@ -4,8 +4,8 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>Blue Collar Hunt User Profile Page</title>
   </head>
-<body data-ng-init="userInfo()">
-<div class="container" style="padding-left:0px;">
+<body>
+<div class="container" style="padding-left:0px;" data-ng-init="userInfo()">
 <div class="row" style="height:201px;">
 <br/>
 <div class="col-xs-50 col-md-40">
@@ -20,9 +20,6 @@
 		<a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a>
 	</p>
 	</div>
-	<div style="text-align:right">
-		<h4>Welcome to Blue Collar Hunt {{currentUser.firstName}}</h4>
-	</div>
 </div></div></div></div>
 
 <div class="container" style="padding-left:0px;">
@@ -36,22 +33,84 @@
 <div class="panel-body" style="padding:20px;">
 <img ng-src="{{dataUrl | trustUrl}}" style="height:125px;width:175px;border-radius: 60%;background-position: center center;background-size: cover;" />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="" ng-click="changeProfilePic()">Edit</a>
-<input type="file" id="imgupload" ng-model="Image" accept="image/jpeg,image/png" placeholder="Change Profile Image" style="display:none" ng-change="profPicChange()">
+<input type="file" id="imgupload" ng-model="Image" accept="image/jpeg,image/png" placeholder="Change Profile Image" style="display:none">
 </div></div>
-<!-- For Most Talended Skills and Recommendations/Views -->
-<div class="panel panel-default site-panel-box" style="width:900px;height:400px;margin:35px 0 0 250px;">
+<!-- For Most Talented Skills and Recommendations/Views -->
+<div class="panel panel-default site-panel-box" style="width:900px;height:380px;margin:35px 0 0 250px;">
 <div class="panel-body" style="padding:5px;">
-<!-- <h5>{{currentUser.firstName}} {{currentUser.lastName}}</h5> -->
-<div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:0 0 0 450px;float:right;border:2px dotted">
-<div class="panel-body" style="padding:20px;">
+<h3>{{currentUser.firstName}} {{currentUser.lastName}}</h3>
+<h4>@{{currentUser.lastName}}</h4>
+<div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:-85px 0 0 450px;float:right;border:2px dotted">
+<div class="panel-body" style="padding:0px;" data-ng-init="checkProfileVideo()">
+
+<div ng-show="!showVideo">
+<div ng-show="uploader.isHTML5" style="padding-left:0px;">
+             <div nv-file-drop ng-click="launchFilePicker()" uploader="uploader">
+               <div nv-file-over uploader="uploader" over-class="another-file-over-class" class="well my-drop-zone" style="border-style:dotted;border-color:#5BC0DE;border-width: 5px;width:396px;height:274px;">
+                                Drag & Drop Profile Video Here
+               <div ng-hide="uploader.isHTML5"><input id="fileDialog" type="file" nv-file-select uploader="uploader" onclick="javascript:alert('hi')"/></div>
+               </div>
+             </div>
+             <div class="progress" style="width:396px;margin: -18px 0px 0px 0px;height: 24px;">
+                     <div class="progress-bar" role="progressbar" ng-style="{ 'width': progress + '%' }"></div>
+             </div>
+</div>
+</div>
+<div ng-show="showVideo" style="padding:0px;" data-ng-init="getProfileVideo()">
+<video id="videoPreview" ng-src="{{videoSrc | trustUrl}}" style="width:396px;height:301px;" controls="yes"></video>
+</div>
+
 </div></div>
+</div></div>
+<!-- For endorsements -->
+<div class="panel panel-default site-panel-box" style="width:404px;height:55px;margin:-65px 0 0 740px;">
+<div class="panel-body" style="padding:0px;">
+<button class="btn btn-info block full-width m-b" style="width:145px;height:52px;" data-toggle="modal" data-target="#listEndorses"><span class="customSpan">Endorsements</span></button>
 </div></div>
 <!-- For Recommended Jobs list -->
-<div class="panel panel-default site-panel-box" style="width:900px;height:125px;margin:5px 0 0 250px;">
+<div class="panel panel-default site-panel-box" style="width:900px;height:142px;margin:18px 0 0 250px;">
 <div class="panel-body" style="padding:20px;">
 </div></div>
 </div></div></div></div></div></div>
-<footer style="padding-top:20px;">
+
+<div  class="modal fade" id="listEndorses" role="dialogue">
+	<div class="modal-dialogue" style="width:45%;height:100%;z-index:0;margin-top: 10%;margin-left: 27%" data-ng-init="listEndorsements()">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4>Endorsements received for {{currentUser.lastName}}</h4>
+			</div>
+			<div class="modal-body" style="display:block;">
+				<table class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th>Endorse Message</th>
+					<th></th>
+					<th>Endorsed By</th>
+					<th>Endorsed Date</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="endorse in endorseList">
+					<td colspan="2" style="padding: 0px;cursor: pointer;">{{endorse.message}}</td>
+					<td style="padding: 0px;cursor: pointer;">{{endorse.fromEmail}}</td>
+					<td style="padding: 0px;cursor: pointer;">{{endorse.origPostDate}}</td>
+				</tr>
+				<tr ng-show="endorseList.length <= 0">
+				<td colspan="4" align="center"><h4 style="color:red">No Endorsements received.</h4></td>
+				</tr>
+				</tbody>
+			</table>
+				
+			</div>
+			<div class="modal-footer" style="text-align:center;">
+				<button class="btn btn-success" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<footer style="padding-top:40px;">
 <div class="container" style="padding-left:0px;">
 <div class="row">
 <div class="col-xs-50 col-md-40">

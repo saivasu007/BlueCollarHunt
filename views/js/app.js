@@ -203,6 +203,10 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 			$scope.user.imageContents = $scope.user.image.src;
 			$scope.user.imageContentType = $scope.user.image.src.substring(5,15);
 			$scope.user.imageName = document.getElementById("profPic").value;
+			var socialYN = $scope.user.socialYN;
+			if(socialYN == true) socialYN = "Y";
+			else socialYN = "N";
+			$scope.user.socialYN = socialYN;
 			$http.post('/register', user).success(function (response) {
 				if (response != "0") {
 					alert("Success! Please login with your registered email \"" + user.email + "\" and password you created.");
@@ -750,7 +754,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 	$rootScope.wrong = 0;
 	$rootScope.report = {type:'',wrong:[]};
 	var uploader = $scope.uploader = new FileUploader();
-	var uploaderCover = $scope.uploaderCover = new FileUploader();
 	uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
         console.log('onWhenAddingFileFailed', item, filter, options);
     };
@@ -783,54 +786,24 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         console.log('onCancelItem', fileItem, response, status, headers);
     };
     uploader.onCompleteItem = function(fileItem, response, status, headers) {
-    	alert("Upload Success");
+    	var postData = {
+                name: fileItem.file.name,
+                type: fileItem.file.type,
+                email: $rootScope.currentUser.email
+        };
+		
+		$http.post('/uploadProfileResume',postData).success(function (response) {
+			alert("Upload resume Success");
+		}).error(function (err) {
+			if(err) {
+				alert("Error while uploading resume and Please try again!.");
+			}
+		});
         console.log('onCompleteItem', fileItem, response, status, headers);
     };
     uploader.onCompleteAll = function() {
         console.log('onCompleteAll');
     };
-    
-    uploaderCover.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
-        console.log('onWhenAddingFileFailed', item, filter, options);
-    };
-    uploaderCover.onAfterAddingFile = function(fileItem) {
-    	$scope.coverProgress = "";
-    	fileItem.upload();
-        console.log('onAfterAddingFile', fileItem);
-    };
-    uploaderCover.onAfterAddingAll = function(addedFileItems) {
-        console.log('onAfterAddingAll', addedFileItems);
-    };
-    uploaderCover.onBeforeUploadItem = function(item) {
-        console.log('onBeforeUploadItem', item);
-    };
-    uploaderCover.onProgressItem = function(fileItem, progress) {
-    	$scope.coverProgress = progress;
-        console.log('onProgressItem', fileItem, progress);
-    };
-    uploaderCover.onProgressAll = function(progress) {
-    	$scope.coverProgress = progress;
-        console.log('onProgressAll', progress);
-    };
-    uploaderCover.onSuccessItem = function(fileItem, response, status, headers) {
-        console.log('onSuccessItem', fileItem, response, status, headers);
-    };
-    uploaderCover.onErrorItem = function(fileItem, response, status, headers) {
-        console.log('onErrorItem', fileItem, response, status, headers);
-    };
-    uploaderCover.onCancelItem = function(fileItem, response, status, headers) {
-        console.log('onCancelItem', fileItem, response, status, headers);
-    };
-    uploaderCover.onCompleteItem = function(fileItem, response, status, headers) {
-    	alert("Upload Success");
-        console.log('onCompleteItem', fileItem, response, status, headers);
-    };
-    uploaderCover.onCompleteAll = function() {
-        console.log('onCompleteAll');
-    };
-
-    console.log('uploader', uploader);
-    console.log('uploader', uploaderCover);
     
     $scope.launchFilePicker = function(){
     	('#fileDialog').trigger('click');
@@ -930,8 +903,10 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			        var files = {
                         name: files[0].name,
                         type: fileType,
-                        contents: files[0].link
+                        contents: files[0].link,
+                        email: $scope.currentUser.email
 			        };
+			        
 			        $http.post('/uploadResume',files).success(function (response) {
 			        	$location.url('/upload');
 			        }).error(function (err) {
@@ -1088,6 +1063,34 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         var fileId = data.docs[0].id;
       }
     }
+    
+    $scope.listProfileResume = function() {
+		var postData = {
+				email: $rootScope.currentUser.email
+		};
+		
+		$http.post('/getProfileResumes',postData).success(function (response) {
+			$rootScope.resumeList = response;
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		});
+	}
+    
+    $scope.deleteResume = function (filename){
+		var resInfo = { 
+				name:filename
+		}
+	if(confirm('Are you sure you want you delete this document?')) {
+		$http.post('/delResume', resInfo).success(function (response){
+			alert("Delete Resume :: Success");
+			$scope.listProfileResume();
+			$location.url('/upload');
+		}).error(function (err) {
+			console.log(err);
+		})
+	  }
+    }; 
 });
 
 app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location, $interval) {
@@ -1118,6 +1121,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		if($scope.maxNum == undefined || $scope.maxNum == "") $scope.maxNum = 103;
 		var jobNum = $scope.maxNum;
 		jobNum = jobNum+1;
+		if(jobInfo.activeJob == "1") jobInfo.activeJob = "Y"
+		else jobInfo.activeJob = "N";
 		var postData = { 
 			title : jobInfo.title,
 			location : jobInfo.location,
@@ -1127,7 +1132,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			rate : jobInfo.rate,
 			jobID : "BCJOB-"+ jobNum,
 			maxNumber : jobNum,
-			activeJob : jobInfo.publish,
+			activeJob : jobInfo.activeJob,
 			origPostDate : new Date(),
 			salaryType : jobInfo.salaryType
 		};
@@ -1228,8 +1233,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	//End Pagination changes here.
 	
 	$scope.publishJob = function (jobInfo){
-		if(jobInfo.activeJob == 1) jobInfo.activeJob = "Y";
-		else jobInfo.activeJob = "N";
 		if(document.getElementById("pubStatus").checked) jobInfo.activeJob = "Y";
 		else jobInfo.activeJob = "N";
 		var postData = { 
@@ -1238,7 +1241,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		};
 
 		$http.post('/updatePublishStat',postData).success(function (response){
-				console.log("Updated ");
+				console.log("Updated Publish Flag");
 				if (response == 'error') {
 					alert('error')
 				}
@@ -1346,7 +1349,77 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 });
 
 
-app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location) {
+app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location, FileUploader) {
+	
+	var uploader = $scope.uploader = new FileUploader();
+	uploader.onWhenAddingFileFailed = function(item, filter, options) {
+        console.log('onWhenAddingFileFailed', item, filter, options);
+    };
+    uploader.onAfterAddingFile = function(fileItem) {
+    	$scope.progress = "";
+    	fileItem.upload();
+        console.log('onAfterAddingFile', fileItem);
+    };
+    uploader.onAfterAddingAll = function(addedFileItems) {
+        console.log('onAfterAddingAll', addedFileItems);
+    };
+    uploader.onBeforeUploadItem = function(item) {
+        console.log('onBeforeUploadItem', item);
+    };
+    uploader.onProgressItem = function(fileItem, progress) {
+    	$scope.progress = progress;
+        console.log('onProgressItem', fileItem, progress);
+    };
+    uploader.onProgressAll = function(progress) {
+    	$scope.progress = progress;
+        console.log('onProgressAll', progress);
+    };
+    uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        console.log('onSuccessItem', fileItem, response, status, headers);
+    };
+    uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.log('onErrorItem', fileItem, response, status, headers);
+    };
+    uploader.onCancelItem = function(fileItem, response, status, headers) {
+        console.log('onCancelItem', fileItem, response, status, headers);
+    };
+    uploader.onCompleteItem = function(fileItem, response, status, headers) {
+    	
+    		var postData = {
+                    name: fileItem.file.name,
+                    type: fileItem.file.type,
+                    email: $rootScope.currentUser.email
+            };
+    		
+    		$http.post('/uploadStream',postData).success(function (response) {
+    			alert("Upload stream to MongoDB :: Success");
+		    	//$rootScope.videoSrc = response;
+		    	$rootScope.showVideo = true;
+    		}).error(function (err) {
+    			if(err) {
+    				alert("Error while uploading to MongoDB and Please try again!.");
+    			}
+    		});
+        console.log('onCompleteItem', fileItem, response, status, headers);
+    };
+    uploader.onCompleteAll = function() {
+        console.log('onCompleteAll');
+    };
+    
+    $scope.checkProfileVideo = function (){
+    	$scope.email = $rootScope.currentUser.email;
+    	var postData ={
+				email: $scope.email
+		};
+    	$http.post('/checkProfileVideoCount',postData).success(function (response) {
+    		alert(response);
+			if(response == 'success') $rootScope.showVideo = true;
+			else $rootScope.showVideo = false;
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+    }
 	
 	$scope.userInfo = function (){
 		$scope.search = $rootScope.currentUser.email;
@@ -1366,7 +1439,7 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		})
 	};
 	
-	$scope.userInfo();
+	//$scope.userInfo();
 	
 	$scope.changeProfilePic = function() {
 		$('#imgupload').trigger('click');
@@ -1376,20 +1449,21 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 				imageName : ""
 		}
 		$('#imgupload').change(function(e){
-			var filename = document.getElementById('imgupload').files[0];//$('input[type=file]').val().split('\\').pop();
+			var filename = document.getElementById('imgupload').files[0];
 			if ( !window.FileReader ) {
 				alert( 'FileReader API is not supported by your browser.' );
 			}
+			alert(filename.name);
 			var fr = new FileReader();
 			fr.readAsDataURL(filename);
 			fr.onload = function(e) {
-	            //alert(e.target.result);
 	            $scope.user.imageContents = e.target.result;
 	            $scope.user.imageContentType = e.target.result.substring(5,15);
 	            $scope.user.imageName = filename.name;
 				$scope.user.email = $scope.currentUser.email;
 				$scope.user.lastName = $scope.currentUser.lastName;
 
+				
 				$http.post('/ClearCurrentProfile',$scope.user).success(function (response) {
 	    			if(response != 0) console.log("Current Profile Picture deleted from dataStore.");
 	    		}).error(function (err) {
@@ -1399,11 +1473,11 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 				
 				$http.post('/changeProfilePic',$scope.user).success(function (response) {
 	    			$rootScope.dataUrl = response;
-	    			$location.url('/profile');
+	    			location.reload();
 	    		}).error(function (err) {
 	    			alert("Error!");
 	    			console.log(err);
-	    		})
+	    		});
 	        };
 		});
 		return false;
@@ -1412,6 +1486,36 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	$scope.profPicChange = function() {
 		alert("Hello");
 	}
+	
+	$scope.getProfileVideo = function() {
+		
+		var postData = {
+				email: $rootScope.currentUser.email
+		};
+		
+		$http.post('/getProfileVideo',postData).success(function (response) {
+			$rootScope.videoSrc = response;
+			$rootScope.showVideo = true;
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		});
+	}
+	
+	$scope.listEndorsements = function (){
+		$scope.email = $rootScope.currentUser.email;
+		var postData ={
+				email: $scope.email
+		};
+		$http.post('/getEndorsements',postData).success(function (response) {
+			$scope.endorseList = response;
+			//$location.url('/profile#listEndorses');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
 	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
@@ -1547,6 +1651,19 @@ app.controller('navCtrl', function ($scope, $http, $location, $rootScope){
 });
 
 app.controller('testCtrl', function ($scope, $http, $location, $rootScope){
+	alert("test");
+	
+	$scope.readFileFromServer = function () {
+		alert("Read File Contents");
+		var postData = {
+	            fileName : "test.mp4"
+	    };
+		
+		$http.post('/getFileContents',postData).success(function (response) {
+            $rootScope.contents = response;
+            $location.url("/testDynamic")
+        });
+	}
 	
     $scope.logout = function () {
         $http.post('/logout',$rootScope.user).success(function () {
@@ -1576,6 +1693,24 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		})
 	};
 	
+	var checkEmpLoggedIn = function ($q, $timeout, $http, $location, $rootScope) {
+		var deferred = $q.defer();
+		$http.get('/empLoggedin').success(function (user) {
+			$rootScope.errorMessage = null;
+			if (user !== '0'){
+				$rootScope.currentUser =  user;
+				$rootScope.currentUser.passwd1 = "";
+				$rootScope.isLoggedIn = (user != 0);
+				deferred.resolve();
+			} else {
+				$rootScope.errorMessage = "You are not login yet.";
+				deferred.reject();
+				$location.url('/empSignIn');
+				$rootScope.isLoggedIn = (user != 0);
+			}
+		})
+	};
+	
 	var checkSessionActive = function ($q, $timeout, $http, $location, $rootScope) {
 		var deferred = $q.defer();
 		$http.get('/loggedin').success(function (user) {
@@ -1590,6 +1725,20 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		})
 	};
 	
+	var checkEmpSessionActive = function ($q, $timeout, $http, $location, $rootScope) {
+		var deferred = $q.defer();
+		$http.get('/empLoggedin').success(function (user) {
+			$rootScope.errorMessage = null;
+			if (user !== '0'){
+				$rootScope.currentUser =  user;
+				$rootScope.currentUser.passwd1 = "";
+				$rootScope.isLoggedIn = (user != 0);
+				$location.url('/empHome');
+				deferred.resolve();
+			}
+		})
+	};
+	
 	$locationProvider.html5Mode(true);
 	$routeProvider.
 		when('/', {
@@ -1598,13 +1747,16 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		}).
 		when('/empSignIn', {
 			templateUrl: 'partials/empSignIn.html',
-			controller: 'empLoginCtrl'
+			controller: 'empLoginCtrl',
+			resolve: {
+				loggedin: checkEmpSessionActive
+			}
 		}).
 		when('/empHome', {
 			templateUrl: 'partials/empHome.html',
 			controller: 'empHomeCtrl',
 			resolve: {
-				loggedin: checkLoggedIn
+				loggedin: checkEmpLoggedIn
 			}
 		}).
 		when('/empForgetPasswd', {
@@ -1613,7 +1765,10 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		}).
 		when('/empPostJob', {
 			templateUrl: 'partials/empPostJob.html',
-			controller: 'empHomeCtrl'
+			controller: 'empHomeCtrl',
+			resolve: {
+				loggedin: checkEmpLoggedIn
+			}
 		}).
 		when('/login', {
 			templateUrl: 'partials/login.html',

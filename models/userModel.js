@@ -17,6 +17,7 @@ var userSchema = new mongoose.Schema({
     expiryDate: String,
     subscriber: String,
     birthDate: String,
+    socialYN: String,
     resetPasswordToken: String,
     resetPasswordExpires: Date
 });

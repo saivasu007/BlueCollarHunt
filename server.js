@@ -38,6 +38,9 @@ var contactModel = require("./models/contactModel.js");
 var paymentModel = require("./models/paymentModel.js");
 var jobInfoModel = require("./models/jobInfoModel.js")
 var fs  = require('fs');
+var FileAPI = require('file-api');
+var File = FileAPI.File;
+var FileReader = FileAPI.FileReader;
 var ejs = require('ejs');
 var config = require('./oauth.js');
 var DIR = './uploads/';
@@ -112,7 +115,7 @@ var storage = multer.diskStorage({
         cb(null, DIR)
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname + '-' + Date.now())
+        cb(null, file.originalname)
   }
 });
 
@@ -120,7 +123,7 @@ app.use(multer({
 	  storage: storage,
 	  limits: { fileSize: 10 * 1024 * 1024},
 	  fileFilter: function (req, file, cb) {
-		 if (!file.originalname.match(/\.(doc|docx|pdf)$/)) {
+		 if (!file.originalname.match(/\.(doc|docx|pdf|mp4)$/)) {
 		        return cb(new Error('Only DOC,DOCX and PDF files are allowed!'));
 		 }
 		 cb(null, true);
@@ -412,7 +415,8 @@ app.post('/register', function(req, res) {
 							  "content_type": req.body.imageContentType,
 							  "metadata":{
 							      "author": req.user.lastName,
-							      "email": email
+							      "email": email,
+							      "type": "profilePic"
 							  }
 							  });
 						  gridStore.open(function(err, gridStore) {
@@ -469,6 +473,7 @@ app.post('/register', function(req, res) {
 	
 });
 
+/*
 app.post('/uploadProfile', function(req, res) {
 	console.log("uploading file to MongoDB");
 	MongoClient.connect(mongodbUrl, function(err, db) {
@@ -517,8 +522,19 @@ app.post('/uploadVideo', function(req, res) {
 		});
 	res.sendStatus(200);
 });
+*/
 
-
+app.post('/getFileContents', function(req, res) {
+	console.log(DIR+req.body.fileName);
+	fs.readFile(DIR+req.body.fileName, function (err,data) {
+		  if (err) {
+		    return console.log(err);
+		    res.send(err);
+		  }
+		  var base64Data = new Buffer(data, 'binary').toString('base64');
+		  res.send(base64Data);
+		});
+});
 
 app.post('/saveContactMessage', function(req, res) {
 		var newUser = new contactModel(req.body);
@@ -553,6 +569,19 @@ app.get('/loggedin', function(req, res) {
 	//Display the pages after successful logout.
 	if(req.user != undefined) {
 	userModel.find({
+		email : req.user.email
+	}, function(err, result) {
+		res.send(req.isAuthenticated() ? result[0] : "0")
+	});
+	} else {
+		res.send("0");
+	}
+});
+
+app.get('/empLoggedin', function(req, res) {
+	//Display the pages after successful logout.
+	if(req.user != undefined) {
+	empModel.find({
 		email : req.user.email
 	}, function(err, result) {
 		res.send(req.isAuthenticated() ? result[0] : "0")
@@ -733,7 +762,7 @@ app.post('/getUserInfo', function(req, res) {
 		if(result) {
 			MongoClient.connect(mongodbUrl, function(err, db) {
 				db.collection('fs.files')
-				  .find({ "metadata.email" : email})
+				  .find({ "metadata.email" : email, "metadata.type" : "profilePic"})
 				  .toArray(function(err, files) {
 				    if (err) {
 				    	console.log("ERROR "+err);
@@ -789,6 +818,15 @@ app.post('/getJobInfo', function(req, res) {
 
 app.post('/getJobLocList', function(req, res) {
 	jobInfoModel.find().exec(function(err, result) {
+		res.send(result);
+	});
+});
+
+app.post('/getEndorsements', function(req, res) {
+	console.log(req.body.email);
+	jobInfoModel.find({
+		email : req.body.email
+	}, function(err, result) {
 		res.send(result);
 	});
 });
@@ -921,7 +959,7 @@ app.post('/ClearCurrentProfile', function(req, res) {
 				MongoClient.connect(mongodbUrl, function(err, db) {
 					
 					db.collection('fs.files')
-					  .find({ "metadata.email" : req.body.email})
+					  .find({ "metadata.email" : req.body.email,"metadata.type" : "profilePic"})
 					  .toArray(function(err, files) {
 					    if (err) {
 					    	console.log("ERROR "+err);
@@ -991,6 +1029,187 @@ app.post('/changeProfilePic', function(req, res) {
 		}
 	});
 	
+});
+
+app.post('/checkProfileVideoCount', function(req, res) {
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if(result) {
+			MongoClient.connect(mongodbUrl, function(err, db) {
+				db.collection('fs.files')
+				  .find({ "metadata.email" : req.body.email,"metadata.type" : "profileVideo"})
+				  .toArray(function(err, files) {
+				    if (err) {
+				    	console.log("ERROR "+err);
+				    	db.close();
+				    	throw err;
+				    	res.send("0");
+				    } else {
+				    	console.log("files "+files.length);
+				    	if(files.length > 0) { 
+				    		console.log("profile video found");
+				    		db.close();
+				    		res.send('success')
+				    	} else {
+				    		console.log("No Video Found");
+				    		res.send('NoVideo');
+				    	}
+				    }
+				  });
+			});
+		}
+	});
+});
+
+app.post('/uploadStream', function(req, res) {
+	var reader = new FileReader();
+	reader.setNodeChunkedEncoding(true);
+	reader.readAsDataURL(new File(DIR+req.body.name));
+	reader.addEventListener('load', function (ev) {
+	console.log("uploading video to MongoDB");
+	MongoClient.connect(mongodbUrl, function(err, db) {
+		  var gridStore = new GridStore(db, new ObjectID(),req.body.name, "w",{
+			  "content_type": req.body.type,
+			  "metadata":{
+			      "email": req.body.email,
+			      "type":"profileVideo"
+			  }
+			  });
+		  if(err) res.send(err);
+		  gridStore.open(function(err, gridStore) {
+			var stream = gridStore.stream(true);
+		    gridStore.write(ev.target.result, function(err, gridStore) { 
+		      gridStore.close(function(err, result) {
+		      });
+		      stream.on("end", function(err) {
+		    	  db.close();
+		      });
+		   });
+		    if(err) console.log(err);
+		  });
+		  if(err) res.send(err);
+		  console.log("Finished video upload to MongoDB");
+		});
+	});
+	/*
+	console.log("Started stream retrieval from MongoDB");
+	MongoClient.connect(mongodbUrl, function(err, db) {
+		  var gridStore = new GridStore(db, req.body.name,"r");
+		  gridStore.open(function(err, gridStore) {
+			var stream = gridStore.stream(true);
+		    gridStore.read(function(err, dataURL) {
+		    	res.send(dataURL);
+		   });
+		   stream.on("end", function(err) {
+		       db.close();
+		   });
+		  });
+	});
+	*/
+});
+
+app.post('/uploadProfileResume', function(req, res) {
+	var reader = new FileReader();
+	reader.setNodeChunkedEncoding(true);
+	reader.readAsDataURL(new File(DIR+req.body.name));
+	reader.addEventListener('load', function (ev) {
+	console.log("uploading resume to MongoDB");
+	MongoClient.connect(mongodbUrl, function(err, db) {
+		  var gridStore = new GridStore(db, new ObjectID(),req.body.name, "w",{
+			  "content_type": req.body.type,
+			  "metadata":{
+			      "email": req.body.email,
+			      "type":"profileResume"
+			  }
+			  });
+		  if(err) res.send(err);
+		  gridStore.open(function(err, gridStore) {
+			var stream = gridStore.stream(true);
+		    gridStore.write(ev.target.result, function(err, gridStore) { 
+		      gridStore.close(function(err, result) {
+		      });
+		      stream.on("end", function(err) {
+		    	  db.close();
+		      });
+		   });
+		    if(err) console.log(err);
+		  });
+		  if(err) res.send(err);
+		  console.log("Finished resume upload to MongoDB");
+		});
+	});
+});
+
+app.post('/getProfileVideo', function(req, res) {
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if(result) {
+			MongoClient.connect(mongodbUrl, function(err, db) {
+				db.collection('fs.files')
+				  .find({ "metadata.email" : req.body.email,"metadata.type" : "profileVideo"})
+				  .toArray(function(err, files) {
+				    if (err) {
+				    	console.log("ERROR "+err);
+				    	throw err;
+				    }
+				    files.forEach(function(file) {
+				      
+				    	  var gridStore = new GridStore(db, file.filename,"r");
+						  gridStore.open(function(err, gridStore) {
+							var stream = gridStore.stream(true);
+						    gridStore.read(function(err, dataURL) {
+						    	console.log("Stream reading..");
+						    	res.send(dataURL);
+						   });
+						   stream.on("end", function(err) {
+						       db.close();
+						   });
+						  });
+						  console.log("Finished profile video retrieval from MongoDB");
+				    });
+				  });
+			});
+		}
+	});
+});
+
+app.post('/getProfileResumes', function(req, res) {
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if(result) {
+			MongoClient.connect(mongodbUrl, function(err, db) {
+				db.collection('fs.files')
+				  .find({ "metadata.email" : req.body.email,"metadata.type" : "profileResume"})
+				  .toArray(function(err, files) {
+				    if (err) {
+				    	console.log("ERROR "+err);
+				    	throw err;
+				    }
+				    res.send(files);
+				  });
+			});
+		}
+	});
+});
+
+app.post('/delResume', function(req, res) {
+	console.log("Started removing selected resume from MongoDB");
+	MongoClient.connect(mongodbUrl, function(err, db) {
+		  var gridStore = new GridStore(db, req.body.name,"w");
+		  gridStore.open(function(err, gridStore) {
+			  var stream = gridStore.stream(true);
+			  gridStore.unlink(db, req.body.name, function(err, gridStore) {
+				  stream.on("end", function(err) {
+				       db.close();
+				   });
+				});
+		  });
+		  console.log("Successfully removed resume from MongoDB.");
+		});
+		res.sendStatus(200);
 });
 
 //User Forgot Password functionality.

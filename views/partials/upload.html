@@ -24,19 +24,21 @@
 </div></div></div></div></div>
 
 <div class="container" style="padding-left:0px;">
-<div class="row" style="height:556px;">
+<div class="row" style="height:646px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:550px;">
+<div class="panel panel-default site-panel-box" style="height:640px;">
 <div class="panel-body" style="padding:25px;">
 
-<div class="content">
-		<div class="container">
-			<!-- Content -->
-			<div class="panel panel-default site-panel-box" style="width:420px;height:250px;margin:35px 0 0 20px;float:left">
-			<div class="panel-body" style="padding:10px;">
-			<div class="row">
-			<br/><br/>
-                <div class="col-md-3">
+<div class="form-group" style="margin-left:340px;padding:0px 0 0 50px;">
+<!-- <div id="dropboxChooser" class="form-group" style="border-style:solid;border-color:#5BC0DE;border-width: 5px;width:170px;margin-left:175px;">  -->
+<a href="" ng-click="dropbox()"><img src="./img/dropbox_icon.jpg" width=158 height=40 style="border-style:solid;border-color:#5BC0DE;border-width: 4px;"></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<!-- <div id="googlePicker" class="form-group" style="border-style:solid;border-color:#5BC0DE;border-width: 5px;width:170px;margin-left:175px;"> -->
+<a href="" ng-click="loadPicker()"><img src="./img/drive_icon.png" width=158 height=40 style="border-style:solid;border-color:#5BC0DE;border-width: 4px;"></a>
+<!-- </div> -->
+</div>
+
+<div class="col-md-3" style="margin:30px 0px 0px 365px;">
 
                     <div ng-show="uploader.isHTML5" style="padding-left:10px;">
                           <div nv-file-drop="" ng-click="launchFilePicker()" uploader="uploader" options="{ url: '/foo' }">
@@ -46,59 +48,56 @@
                             </div>
                         </div>
                         <div>
-                        <td ng-show="uploader.isHTML5">
+                        <div ng-show="uploader.isHTML5">
                                     <div class="progress" style="margin-bottom: 0;width:350px">
                                         <div class="progress-bar" role="progressbar" ng-style="{ 'width': progress + '%' }"></div>
                                     </div>
-                                </td>
+                                </div>
                         </div>
                     </div>
-                </div>
-                </div></div></div>
-                <div class="panel panel-default site-panel-box right-box" style="width:430px;height:250px;margin:-250px 20px 10px 620px;">
-				<div class="panel-body" style="padding:50px 0 0 0;">
-                <div class="col-md-3">
+</div>
 
-                    <div ng-show="uploader.isHTML5">
-                          <div nv-file-drop=""  uploader="uploaderCover" options="{ url: '/foo' }">
-                            <div nv-file-over="" uploader="uploaderCover" over-class="another-file-over-class" class="well my-drop-zone" style="border-style:dotted;border-color:#5BC0DE;border-width: 5px;width:350px;height:150px;">
-                                Drag & Drop Cover Letter Here
-                            </div>
-                        </div>
-                        <div>
-                        <td ng-show="uploader.isHTML5">
-                                    <div class="progress" style="margin-bottom: 0;width:350px">
-                                        <div class="progress-bar" role="progressbar"  ng-style="{ 'width': coverProgress + '%' }"></div>
-                                    </div>
-                        </td>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-		</div>
-	</div>
-<div>
-<!-- <div data-ng-init="dropbox()" id="dropboxChooser" width=160 height=45></div> -->
-<!-- <div data-ng-init="onApiLoad()" id="container1234"></div>  -->
+<div class="panel panel-default site-panel-box" style="height:235px;margin:260px 0px 0px 0px;">
+<div class="panel-body" style="padding:15px;" data-ng-init="listProfileResume()">
+
+<div  ng-show="resumeList.length >= 0">
+			<table class="table table-striped" style="margin-bottom: 0px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th>File Name</th>
+					<th>File Type</th>
+					<th>Size</th>
+					<th>Upload Date</th>
+					<th></th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="resume in resumeList">
+					<td>{{resume.filename}}</td>
+					<td>{{resume.contentType}}</td>
+					<td>{{resume.length}}</td>
+					<td>{{resume.uploadDate}}</td>
+					 <td style="text-align:center;">
+					 <input id="pubStatus" type="checkbox" autocomplete="off" ng-model="job.activeJob" ng-checked="job.activeJob == 'Y'">
+					 </td>
+					<td><button  class="btn btn-info" ng-click="deleteResume(resume.filename)">
+					<span class="glyphicon glyphicon-eye-open"></span>Remove 
+					</button></td>
+				</tr>
+				</tbody>
+			</table>
+		    </div>
+			<div ng-show="resumeList.length <= 0">
+				<h4 style="color:red;text-align:center;">No Resumes available for Candidate.</h4>
+			</div>
+
+</div></div>
 <br/>
-<div class="form-group" style="padding-left:40px;">
-      <select ng-model="selectedState" ng-options="state.abbreviation as state.name for state in states" style="font-size: 14px; width: 400px; height: 32px; display:inline-block;margin-right:80px;">
-	  </select>
-	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <select ng-model="selectedState" ng-options="state.abbreviation as state.name for state in states" style="font-size: 14px; width: 400px; height: 32px; display:inline-block;">
-	  </select>
-</div>
-<br/><br/>
-<div class="form-group" style="margin-left:340px;padding:0px 0 0 50px;">
-<!-- <div id="dropboxChooser" class="form-group" style="border-style:solid;border-color:#5BC0DE;border-width: 5px;width:170px;margin-left:175px;">  -->
-<a href="" ng-click="dropbox()"><img src="./img/dropbox_icon.jpg" width=158 height=40 style="border-style:solid;border-color:#5BC0DE;border-width: 4px;"></a>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<!-- <div id="googlePicker" class="form-group" style="border-style:solid;border-color:#5BC0DE;border-width: 5px;width:170px;margin-left:175px;"> -->
-<a href="" ng-click="loadPicker()"><img src="./img/drive_icon.png" width=158 height=40 style="border-style:solid;border-color:#5BC0DE;border-width: 4px;"></a>
-<!-- </div> -->
-</div>
-</div>
+<div  ng-show="resumeList.length >= 0" style="text-align:center;">
+			   <button class="btn btn-info" style="width:145px;height:52px;"><span class="customSpan">Apply Job</span></button>
+			</div>
+
 </div></div></div></div></div>
 <footer>
 <div class="container" style="padding-left:0px;">

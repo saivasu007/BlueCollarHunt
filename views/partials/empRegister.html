@@ -27,7 +27,19 @@
 <div class="panel panel-default site-panel-box" style="height:650px;">
 <div class="middle-box" style="margin:0 390px auto">
 	<div class="panel-body" style="padding:0px;">
-	<div class="panel panel-default site-panel-box" style="height:595px;">
+	
+	<div id="errMsgArea" ng-show="errorMsg" class="panel panel-default site-panel-box" style="height:54px;">
+		<div class="panel-body" style="padding:0px;">
+			<div class="form-group">
+			<flash-message
+    			duration="5000"
+    			show-close="true"
+    			on-dismiss="ClearMessages(flash)"></flash-message>
+    		</div>
+		</div>
+		</div>
+	
+	<div class="panel panel-default site-panel-box" style="height:525px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
 			<h3 class="panel-title">Employer Registration Form</h3>
@@ -70,7 +82,6 @@
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="Radio" ng-model="emp.amount"  ng-value="1999" ng-click="disableCardInfo(emp)"><b>&nbsp;$19.99/mo</b>
             </div>
-            <div class="g-recaptcha" data-sitekey="6Lf_kQkUAAAAAP9qhGzZ7_qa7mEmksRTf-RF6I7K" data-theme="dark"></div>
             <br/>
             <button ng-click="empRegister(emp)" ng-disabled="error" class="btn btn-info block full-width m-b">Register</button>
             <br/><br/>

@@ -92,8 +92,13 @@
 <div class="row">
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
-<div class="panel-body" style="padding:55px;">
-<div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
+<div class="panel-body" style="padding:20px;" data-ng-init="jobLocList()">
+<ul ng-repeat="loc in jobLocList" style="display:inline-block;list-style-type: square;">
+<li>
+<a href="" style="font-weight:bold;font-size:16px;" ng-click="searchByLoc(loc._id.location)">{{loc._id.location}}({{loc.count}})</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</li>
+</ul>
+<div style="width:103.6%;height:40px;border:0px solid #000;background-color:#3399FF;margin:90px 0px 0px -20px;">
 	<p class="copyright" style="padding-top:10px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
 </div>
 </div></div></div></div></div>

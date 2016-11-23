@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
-    <title>Blue Collar Hunt Forgot Recovery Page</title>
+    <title>Blue Collar Hunt Endorse Job Seeker Page</title>
   </head>
 <body>
 <div class="container" style="padding-left:0px;">
@@ -22,9 +22,9 @@
 			</div>
 </div></div></div></div></div>
 <div class="container" style="padding-left:0px;">
-<div class="row" style="height:556px;">
+<div class="row" style="height:584px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:550px;padding-top:20px;">
+<div class="panel panel-default site-panel-box" style="height:578px;padding-top:0px;">
 <div class="middle-box">
 <div class="panel-body" style="padding:10px;">
 
@@ -39,43 +39,33 @@
 </div>
 </div>
 <br/>
-<div class="panel panel-default site-panel-box" style="height:392px;">
-	<div class="panel-body" style="padding:10px;padding-bottom:30px;">
+<div class="panel panel-default site-panel-box" style="height:480px;">
+	<div class="panel-body" style="padding:10px;padding-bottom:50px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
-			<h5>Password Assistance for User</h5>
+			<h5>Endorsement for Job Seeker</h5>
 			</div>
 			<hr/>
-			<div class="form-group has-feedback" style="padding-top:10px;">
-				<span class="icon-user"></span>
-                <input type="text" id="userId" autofocus="true" ng-model="email" class="form-control" style="width:280px" placeholder="Username or Email" ng-required="true">
-            	<i class="glyphicon glyphicon-user form-control-feedback"  style="padding-top:10px;"></i>
+			<div class="form-group">
+                  <label for="name">
+                                <font color="red">*</font>&nbsp;Endorse From</label>
+                      <input type="text" id="userId" autofocus="true" ng-model="user.email" class="form-control" style="width:312px" placeholder="Username or Email" ng-disabled="true">
             </div>
-			<div style="padding-top:30px;">
-            <button ng-click="forgot(email)" class="btn btn-info block full-width m-b" style="width:280px">Reset Password</button>
+            <div class="form-group">
+                  <label for="name">
+                                <font color="red">*</font>&nbsp;Endorse Message</label>
+                      <textarea name="message" id="message" class="form-control" rows="9" cols="12" required="required"
+                                placeholder="Message" ng-model="endorse.message" style="width:312px;height:120px;"></textarea>
+            </div>
+			<div style="padding-top:20px;">
+            <button ng-click="saveEndorseMsg(endorse)" class="btn btn-info block full-width m-b" style="width:280px">Save</button>
             <br/><br/>
-            <a class="btn btn-info btn-block" href="/login">Cancel</a>
+            <a class="btn btn-info btn-block" href="/profile">Cancel</a>
             </div>
 	</div>
-	<hr/>
-     <div class="panel-footer" style="margin-top:-30px;padding:10%;text-align:center;"> </div>
 </div>
 
 </div>
 </div>
-
-<div id="info" class="right-box text-center" style="margin:0 0 0 -365px;padding-top:140px;">
-	<div class="panel panel-default site-panel-box" style="height:139px;">
-		<div class="panel-body" style="padding-top:10px;">
-		<p style="margin:0px 0px 0px -11px;">
-		Enter the email address associated with your account. We will email you a link to a page where you can reset 
-		your password.
-		</p>
-		<br/>
-		</div>
-		<div class="panel-footer" style="margin-top:-5px;height:27%;text-align:center;font-size:15px;">
-			<a href="/contact"><u>Trouble Reset Password?</u></a>
-		</div>
-</div></div>
 
 </div></div></div></div>
 <footer>

@@ -33,21 +33,21 @@
 
 <div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:612px;width:870px;margin:0 0 0 295px;">
 <div class="panel-body" style="padding:0px;">
-<div ng-show="isPostJob" style="text-align:left;margin:0 0 0 20px;">
+<div ng-show="isPostJob">
 			<p style="font-size: 18px; font-weight: bold" ng-show="!isUpdate">Add Job Posting Information: </p>
-			<p style="font-size: 18px; font-weight: bold" ng-show="isUpdate">Update Job Posting Information: </p>
+			<p style="font-size: 18px; font-weight: bold" ng-show="isUpdate">Update Job Posting Information: <font color="blue">{{job.jobID}}</font></p>
 				<br/>
 				<div class="form-group">
 				<label for="addCorCh" class="col-sm-4" style="font-size: 14px">* Job Title:</label>
 				<div class="form-group col-sm-8">
-                <input id="addCorCh" style="width: 280px; height: 25px" type="text" ng-model="job.title" class="form-control" placeholder="Enter Job Title" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" ng-required="true">
+                <input id="addCorCh" style="width: 280px; height: 30px" type="text" ng-model="job.title" class="form-control" placeholder="Enter Job Title" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" ng-required="true">
             	</div>
             	</div>
             	<div class="form-group">
 				<label for="addCorCh" class="col-sm-4" style="font-size: 14px">* Job Location:</label>
 				<div class="form-group col-sm-8">
-            	<input type="text" id="Autocomplete" ng-model="job.location" style="width: 280px; height: 25px" class="form-control" placeholder="Enter Job Location" ng-autocomplete="result1" details="details1" options="options1" />
-            	<i class="glyphicon glyphicon-map-marker form-control-feedback" style="margin: -5px 236px 0px 0px"></i>
+            	<input type="text" id="Autocomplete" ng-model="job.location" style="width: 280px; height: 30px" class="form-control" placeholder="Enter Job Location" ng-autocomplete="result1" details="details1" options="options1" />
+            	<i class="glyphicon glyphicon-map-marker form-control-feedback" style="margin: -2px 275px 0px 0px"></i>
             	</div>
             	</div>
 				<div class="form-group">
@@ -64,38 +64,38 @@
             	</div>
             	</div>
             	<br><br>
-            	<div class="form-group" style="display:inline-block;">
+            	<div class="form-group">
 				<label for="addCorCh" class="col-sm-4" style="font-size: 14px">* Salary Rate:</label>
-				<div class="form-group col-sm-4" style="display:inline;">
-                <input id="addCorCh" style="width: 140px; height: 25px" type="text" ng-model="job.rate" class="form-control" placeholder="Enter Salary" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" ng-required="true">
-                </div>
-                </div>
-                <div class="form-group" style="display:inline-block;">
-                <div class="form-group col-sm-4">
-                <select name="salType" ng-model="job.salaryType">
-                <option>Per Day</option>
-                <option>Per Hour</option>
-                <option>Per Month</option>
-                <option>Per Year</option>
+				<div class="form-group col-sm-6">
+                <input id="addCorCh" style="width: 140px; height: 30px;display:inline;" type="text" ng-model="job.rate" class="form-control" placeholder="Enter Salary" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" ng-required="true">
+                <select name="salType" ng-model="job.salaryType" style="display:inline;width: 110px; height: 35px;">
+			                <option>Per Day</option>
+			                <option>Per Hour</option>
+			                <option>Per Month</option>
+			                <option>Per Year</option>
                 </select>
             	</div>
             	</div>
             	<div class="form-group">
-            	<label for="addCorCh" class="col-sm-4" style="font-size: 14px">* Publish Job:</label>
+            	<label class="col-sm-4" style="font-size: 14px">* Publish Job:</label>
             	<div class="form-group col-sm-8">
                 <input id="noActive" type="radio" ng-model="job.activeJob"  ng-value="0" style="align:left"><b>&nbsp;No</b>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <input id="active" type="radio" ng-model="job.activeJob"  ng-value="1"><b>&nbsp;Yes</b>
                 </div>
             	</div>
-            	<button ng-show="!isUpdate" style="width: 92px; height: 36px; font-size: 14px; margin: -5px 0px 0px 190px" class="btn btn-primary"  ng-click="addJobInfo(job)">
+            	<br/><br/>
+            	<button ng-show="!isUpdate" style="width: 92px; height: 36px; font-size: 14px; margin: 10px 0px 0px 530px;" class="btn-primary"  ng-click="addJobInfo(job)">
 				<span class="glyphicon glyphicon-ok-sign"></span>  Post
 				</button>
-				<button ng-show="isUpdate" style="width: 92px; height: 36px; font-size: 14px; margin: -5px 0px 0px 190px" class="btn btn-primary"  ng-click="updateDetailJobInfo(job)">
+				<button ng-show="isUpdate" style="width: 92px; height: 36px; font-size: 14px; margin: 10px 0px 0px 530px" class="btn-primary"  ng-click="updateDetailJobInfo(job)">
 				<span class="glyphicon glyphicon-ok-sign"></span>  Save
 				</button>
-				<button style="width: 92px; height: 36px; font-size: 14px; margin: -5px 0px 0px 0px;" class="btn btn-warning" ng-click="jobInfoClear()">
+				<button ng-show="!isUpdate" style="width: 92px; height: 36px; font-size: 14px; margin: 10px 0px 0px 10px" class="btn-warning" ng-click="jobInfoClear()">
 				<span class="glyphicon glyphicon-remove-sign"></span>  Clear
+				</button>
+				<button ng-show="isUpdate" style="width: 92px; height: 36px; font-size: 14px; margin: 10px 0px 0px 10px" class="btn-warning" ng-click="getJobQueue(currentUser.email)">
+				<span class="glyphicon glyphicon-remove-sign"></span>  Cancel
 				</button>
 </div>
 
@@ -114,30 +114,15 @@
 				</thead>
 				<tbody>
 				<tr ng-repeat="job in allJobs">
-					<td style="padding: 0px;cursor: pointer;" ng-click="updateJobInfo(job)">{{job.title}}</td>
+					<td style="padding: 0px;cursor: pointer;" ng-click="updateJobInfo(job)"><strong>{{job.title}}</strong></td>
 					<td style="padding: 0px;cursor: pointer;" ng-click="updateJobInfo(job)">{{job.location}}</td>
 					<td style="padding: 0px;cursor: pointer;" ng-click="updateJobInfo(job)">${{job.rate}} {{job.salaryType}}</td>
-					<!-- 
-					<td style="text-align:center;">
-					<div class="btn-group" data-toggle="buttons">
-					<label class="btn btn-primary" style="height:25px;width:15px;">
-					<input type="checkbox" autocomplete="off" ng-model="job.activeJob" ng-checked="true" ng-click="publish(job.jobID)">
-					<span class="glyphicon glyphicon-ok"></span>
-					</label>
-					</div>
-					</td>
-					 -->
-					 <td style="text-align:center;">
-					 <input id="pubStatus" type="checkbox" autocomplete="off" ng-model="job.activeJob" ng-checked="job.activeJob == 'Y'" ng-click="publishJob(job)">
-					 </td>
-					 <!-- 
-					 <td ng-if="job.activeJob == 'Y'"><button  class="btn btn-info" ng-click="publish(job.jobID)">
-					<span class="glyphicon glyphicon-eye-open"></span>UnPublish 
+					 <td ng-if="job.activeJob == 'Y'"><button  class="btn btn-info" ng-click="unPublish(job.jobID)">
+					<span class="glyphicon glyphicon-eye-open"></span>Un Publish 
 					</button></td>
 					<td ng-if="job.activeJob == 'N' || job.activeJob == undefined"><button  class="btn btn-info" ng-click="publish(job.jobID)">
 					<span class="glyphicon glyphicon-eye-open"></span>Publish 
 					</button></td>
-					 -->
 					<td><button  class="btn btn-info" ng-click="delete(job.jobID)">
 					<span class="glyphicon glyphicon-eye-open"></span>Remove 
 					</button></td>
@@ -172,11 +157,11 @@
 <div style="text-align: center">
 		<br>
 		<div class="form-group">
-		<button class="btn btn-info block full-width m-b" style="width:145px;height:45px;" ng-click="displayJobEntry()"><span class="customSpan">Post Job</span></button>
-		<br><br>
-		<button class="btn btn-info block full-width m-b" style="width:145px;height:45px;" ng-click="getJobQueue(currentUser.email)"><span class="customSpan">Job Queue</span></button>
-		<br><br>
-		<button class="btn btn-info block full-width m-b" style="width:145px;height:45px;" ng-click="getJobTracking(currentUser.email)"><span class="customSpan">Job Track</span></button>
+		<button class="btn-info full-width m-b" style="width:145px;height:45px;" ng-click="displayJobEntry()"><span class="customSpan">Post Job</span></button>
+		<br>
+		<button class="btn-info full-width m-b" style="width:145px;height:45px;" ng-click="getJobQueue(currentUser.email)"><span class="customSpan">Job Queue</span></button>
+		<br>
+		<button class="btn-info full-width m-b" style="width:145px;height:45px;" ng-click="getJobTracking(currentUser.email)"><span class="customSpan">Job Track</span></button>
 		</div>
 	</div>
 </div>

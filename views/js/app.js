@@ -37,6 +37,8 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	$scope.passwordErr = false;
     $scope.usernameErr = false;
     $scope.passwordShort = false;
+    $scope.isSocial = true;
+    var socialYN = "Y";
 
 	$scope.user = {
 		email:'',
@@ -45,7 +47,9 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 		passwd1:'',
 		passwd2:'',
 		zipcode:'',
-		image:''
+		image:'',
+		socialYN:'Y',
+		userType:'U'
 	};
 	
 	if($scope.emp == undefined || $scope.emp == "") {
@@ -56,6 +60,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 			address1:"",
 			passwd2:"",
 			passwd1:"",
+			userType:"E",
 			amount:""
 		};
 	}
@@ -87,6 +92,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
         if(confirm("Are you sure to clear the form?")) { 
         	$scope.emp = {}
         	$scope.selectedState = "";
+        	$("#cardInfo").hide();
         }
     };
     
@@ -191,6 +197,16 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 		$("#PassPolicy").show();
 	}
 	
+	$scope.changeStatus = function() {
+		if(document.getElementById('socialFlag').checked == true) {
+			isSocial = true;
+			socialYN = "Y";
+		} else {
+			isSocial = false;
+			socialYN = "N";
+		}
+	}
+	
 	$scope.register = function (user){
 		
 		if ($scope.user.email == "" || $scope.user.firstName == "" || $scope.user.lastName == "" || $scope.user.passwd1 == "" || $scope.user.passwd2 == "" || $scope.user.zipcode == "") {
@@ -203,13 +219,12 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 			$scope.user.imageContents = $scope.user.image.src;
 			$scope.user.imageContentType = $scope.user.image.src.substring(5,15);
 			$scope.user.imageName = document.getElementById("profPic").value;
-			var socialYN = $scope.user.socialYN;
-			if(socialYN == true) socialYN = "Y";
-			else socialYN = "N";
 			$scope.user.socialYN = socialYN;
+			$scope.user.userType = "U";
 			$http.post('/register', user).success(function (response) {
 				if (response != "0") {
 					alert("Success! Please login with your registered email \"" + user.email + "\" and password you created.");
+					grecaptcha.reset($scope.recaptchaId);
 					$rootScope.currentUser = response;					
 					$location.path('/login');
 				} else {
@@ -220,10 +235,12 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	};
 	
 	$scope.empRegister = function(emp) {
-		if ($scope.emp.email == "" || $scope.emp.name == "" || $scope.emp.contactNum == "" || $scope.emp.address1 == "" || $scope.emp.passwd2 == "" || $scope.emp.passwd1 == "" || $scope.emp.amount) {
-			alert("We need your complete information! Please fill in all the blanks.");
+		if ($scope.emp.email == "" || $scope.emp.name == "" || $scope.emp.contactNum == "" || $scope.emp.address1 == "" || $scope.emp.passwd2 == "" || $scope.emp.passwd1 == "" || $scope.emp.amount == undefined) {
 			$scope.errorMsg = true;
 			Flash.create('Warning', "Please fill in all the blanks.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+		} else if($scope.emp.passwd1 != $scope.emp.passwd2) {
+			$scope.errorMsg = true;
+			Flash.create('Warning', "Passwords doesn't match!.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 		} else {
 		//For Stripe card transactions.
 		var amount = emp.amount;
@@ -253,6 +270,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 						activeIn: emp.activeIn,
 						expiryDate: emp.expiryDate,
 						subscriber: emp.subscriber,
+						userType: "E",
 						saveCC: saveCardInfo,
 						card:{
 							uid: emp.uid,
@@ -289,6 +307,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 					activeIn: emp.activeIn,
 					expiryDate: emp.expiryDate,
 					subscriber: emp.subscriber,
+					userType: "E",
 					saveCC: "NA"
 				}
 				$http.post('/empFreeRegister', empData).success(function (resp) {
@@ -323,6 +342,8 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 		})
 		return;
 	} */
+	
+	$("#cardInfo").hide();
 	
 	$scope.formatCC = function() {
 		var input = document.getElementById('cardNum');
@@ -379,9 +400,24 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
     }
     
     $scope.jobLocList = function () {
-    	
     	$http.get('/getJobLocList').success(function (response){
 			$scope.jobLocList = response;
+			$location.url('/');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		});
+    }
+    
+    $scope.searchByLoc = function (location) {
+    	var data = {
+    			search : location
+    	}
+    	$http.post('/getJobsByLoc',data).success(function (response){
+			$scope.jobsList = response;
+			if($scope.jobsList.length <= 0) $scope.noJobs = true;
+			$scope.noJobs = false;
+			$scope.searchResults = 1;
 			$location.url('/');
 		}).error(function (err) {
 			alert("Error!");
@@ -613,6 +649,7 @@ app.controller('empLoginCtrl', function ($scope, $rootScope, $http, $routeParams
 		$scope.user.userType = "E";
 		$http.post('/empSignIn', user).success(function (response){
 			$rootScope.currentUser = response;
+			$scope.user = response;
 			$location.url('/empHome');
 		}).error(function (err) {
 			if(err == "Unauthorized") {
@@ -814,6 +851,32 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     			search : searchInfo
     	}
     	$http.post('/getJobs',data).success(function (response){
+			$scope.jobsList = response;
+			if($scope.jobsList.length <= 0) $scope.noJobs = true;
+			$scope.noJobs = false;
+			$scope.searchResults = 1;
+			$location.url('/home');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		});
+    }
+    
+    $scope.jobLocList = function () {
+    	$http.get('/getJobLocList').success(function (response){
+			$scope.jobLocList = response;
+			$location.url('/home');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		});
+    }
+    
+    $scope.searchByLoc = function (location) {
+    	var data = {
+    			search : location
+    	}
+    	$http.post('/getJobsByLoc',data).success(function (response){
 			$scope.jobsList = response;
 			if($scope.jobsList.length <= 0) $scope.noJobs = true;
 			$scope.noJobs = false;
@@ -1126,7 +1189,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		var postData = { 
 			title : jobInfo.title,
 			location : jobInfo.location,
-			employerID : "test@testinc.com",
+			employerID : $scope.currentUser.email,
 			responsibilities : jobInfo.responsibilities,
 			requirement : jobInfo.requirement,
 			rate : jobInfo.rate,
@@ -1139,10 +1202,20 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 
 		$http.post('/addJobDet',postData).success(function (response){
 			if (response != 0){
-			alert("Job Posted Successfully.");
-			$location.url('/empHome');
-			} else if (response == 'error') {
-			alert('error')
+			//alert("Job Posted Successfully.");
+				if(!confirm('Post Success.You want to post another job?')) {
+					$scope.isJobQueue = true;
+					$scope.isPostJob = false;
+					$scope.getJobQueue($scope.currentUser.email);
+					$location.url('/empHome');
+				} else {
+					$scope.job.title = "";
+					$scope.job.location = "";
+					$scope.job.requirement = "";
+					$scope.job.responsibilities = "";
+					$scope.job.rate = "";
+					$scope.job.salaryType = "";
+				}
 			}
 		}).error(function (err) {
 			alert("Error!");
@@ -1179,6 +1252,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				requirement : jobInfo.requirement,
 				rate : jobInfo.rate,
 				activeJob : jobInfo.activeJob,
+				salaryType : jobInfo.salaryType,
 				jobID : jobInfo.jobID
 		};
 
@@ -1187,7 +1261,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				alert("Success");
 				$scope.isJobQueue = true;
 				$scope.isPostJob = false;
-				$scope.getJobQueue("test@testinc.com");
+				$scope.getJobQueue($scope.currentUser.email);
 				$location.url('/empHome');
 				} else if (response == 'error') {
 					alert('error')
@@ -1200,7 +1274,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	
 	$scope.getJobQueue = function (emailID){
 		var postData = { 
-				email : "test@testinc.com"
+				email : $scope.currentUser.email
 		};
 		$http.post('/getEmpJobs',postData).success(function (response){
 			if (response != 0){
@@ -1232,16 +1306,33 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	  });
 	//End Pagination changes here.
 	
-	$scope.publishJob = function (jobInfo){
-		if(document.getElementById("pubStatus").checked) jobInfo.activeJob = "Y";
-		else jobInfo.activeJob = "N";
+	$scope.publish = function (jobID){
 		var postData = { 
-				activeJob : jobInfo.activeJob,
-				jobID : jobInfo.jobID
+				activeJob : "Y",
+				jobID : jobID
 		};
 
 		$http.post('/updatePublishStat',postData).success(function (response){
 				console.log("Updated Publish Flag");
+				$scope.getJobQueue($scope.currentUser.email);
+				if (response == 'error') {
+					alert('error')
+				}
+		}).error(function (err) {
+				alert("Error!");
+				console.log(err);
+		})
+	};
+	
+	$scope.unPublish = function (jobID){
+		var postData = { 
+				activeJob : "N",
+				jobID : jobID
+		};
+
+		$http.post('/updatePublishStat',postData).success(function (response){
+				console.log("Updated Publish Flag");
+				$scope.getJobQueue($scope.currentUser.email);
 				if (response == 'error') {
 					alert('error')
 				}
@@ -1261,7 +1352,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					alert("Job removed from the portal successfully.");
 					console.log("Job"+ jobNumber +" removed from application");
 					$scope.isJobQueue = true;
-					$scope.getJobQueue("test@testinc.com");
+					$scope.getJobQueue($scope.currentUser.email);
 					$location.url('/empHome');
 				}
 			}).error(function (err) {
@@ -1293,13 +1384,14 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.result1 = '';
 		$scope.options1 = null;
 		$scope.details1 = '';
-		
+			
 		$http.get('/loggedin').success(function (user) {
-			if(user != undefined) {
-				$scope.contact = user;
-				$scope.contact.name = user.firstName+" "+user.lastName;
-			}
+				if(user != undefined) {
+					$scope.contact = user;
+					$scope.contact.name = user.firstName+" "+user.lastName;
+				}
 		});
+		
 		$scope.ClearMessages = function(flash) {
 			$scope.errorMsg = false;
 			Flash.clear();
@@ -1652,17 +1744,24 @@ app.controller('navCtrl', function ($scope, $http, $location, $rootScope){
 
 app.controller('testCtrl', function ($scope, $http, $location, $rootScope){
 	alert("test");
-	
-	$scope.readFileFromServer = function () {
-		alert("Read File Contents");
+	$scope.saveEndorseMsg = function(endorseInfo) {
+		alert(endorseInfo.message);
 		var postData = {
-	            fileName : "test.mp4"
-	    };
-		
-		$http.post('/getFileContents',postData).success(function (response) {
-            $rootScope.contents = response;
-            $location.url("/testDynamic")
-        });
+				email : "abc@abc.com",
+			    fromEmail: "test@test.com",
+			    message: endorseInfo.message,
+			    origPostDate: new Date()
+		};
+
+		$http.post('/saveEndorse',postData).success(function (response){
+				if (response != 0){
+					alert("Success");
+					$location.url('/home');
+				}
+		}).error(function (err) {
+				alert("Error!");
+				console.log(err);
+		});
 	}
 	
     $scope.logout = function () {
@@ -1838,6 +1937,10 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 			resolve: {
 				loggedin: checkLoggedIn
 			}
+		}).
+		when('/endorse', {
+			templateUrl: 'partials/endorse.html',
+			controller: 'testCtrl'
 		}).
 		when('/testDynamic', {
 			templateUrl: 'partials/test.html',

@@ -36,7 +36,8 @@ var userModel = require('./models/userModel.js');
 var empModel = require("./models/empModel.js");
 var contactModel = require("./models/contactModel.js");
 var paymentModel = require("./models/paymentModel.js");
-var jobInfoModel = require("./models/jobInfoModel.js")
+var jobInfoModel = require("./models/jobInfoModel.js");
+var endorsementModel = require("./models/endorsementModel.js");
 var fs  = require('fs');
 var FileAPI = require('file-api');
 var File = FileAPI.File;
@@ -105,7 +106,7 @@ app.use(session({
 	secret : "secret",
 	resave : "",
 	saveUninitialized : "",
-	cookie:{maxAge:3 * 60 * 60 * 1000}
+	cookie:{maxAge:2 * 60 * 60 * 1000}
 }));
 app.use(passPort.initialize());
 app.use(passPort.session());
@@ -371,27 +372,6 @@ app.post('/uploadPic', function(req, res) {
 
 // routes
 app.post('/register', function(req, res) {
-	console.log(req.body['g-recaptcha-response']);
-	if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
-		console.log("Please select captcha");
-		return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
-	  }
-	  // Put your secret key here.
-	  var secretKey = "6Lf_kQkUAAAAAGtjR-_m4rQiGE1qbYE2eqrRHCvt";
-	  // req.connection.remoteAddress will provide IP address of connected user.
-	  var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
-	  // Hitting GET request to the URL, Google will respond with success or error scenario.
-	  request(verificationUrl,function(error,response,body) {
-		console.log("Verification");
-	    body = JSON.parse(body);
-	    // Success will be true or false depending upon captcha validation.
-	    if(body.success !== undefined && !body.success) {
-	    	console.log("Failed Verification");
-	      return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
-	    }
-	    console.log("SUCCESS");
-	    res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
-	  });
 	console.log("Start user setup");
 	var password = encrypt(req.body.password);
 	req.body.password = password;
@@ -549,12 +529,14 @@ app.post('/saveContactMessage', function(req, res) {
 
 app.post('/login', passPort.authenticate('local'),function(req, res) {
 	var user = req.user;
+	user.userType = "U";
 	res.json(user);
 });
 
 app.post('/empSignIn', passPort.authenticate('local'),function(req, res) {
 	console.log("After empSignIn "+req.user);
 	var user = req.user;
+	user.userType = "E";
 	res.json(user);
 });
 
@@ -807,6 +789,22 @@ app.post('/getJobs', function(req, res) {
 	}
 });
 
+app.post('/getJobsByLoc', function(req, res) {
+	console.log(req.body.search);
+	if(req.body.search != undefined) {
+	var query = req.body.search ? {
+		location : {$regex: req.body.search,$options:"$i"}
+	} : {
+		location : {$regex: req.body.search,$options:"$i"}
+	}
+	jobInfoModel.find(query).exec(function(err, result) {
+		res.send(result);
+	})
+	} else {
+		res.send("No Jobs Available");
+	}
+});
+
 app.post('/getJobInfo', function(req, res) {
 	console.log(req.body.search);
 	jobInfoModel.findOne({
@@ -816,15 +814,21 @@ app.post('/getJobInfo', function(req, res) {
 	});
 });
 
-app.post('/getJobLocList', function(req, res) {
-	jobInfoModel.find().exec(function(err, result) {
+app.get('/getJobLocList', function(req, res) {
+	jobInfoModel.aggregate( { "$match": { "location": { "$ne": null } }},
+		    				{ "$group": {
+		    						"_id": {
+					            "location": "$location"
+					        },
+					        "count": { "$sum": 1 } }}, function(err, result) {
+		console.log(result);
 		res.send(result);
 	});
 });
 
 app.post('/getEndorsements', function(req, res) {
 	console.log(req.body.email);
-	jobInfoModel.find({
+	endorsementModel.find({
 		email : req.body.email
 	}, function(err, result) {
 		res.send(result);
@@ -882,6 +886,7 @@ app.post('/updateJobDet', function(req, res) {
 				responsibilities : req.body.responsibilities,
 				requirement : req.body.requirement,
 				rate : req.body.rate,
+				salaryType : req.body.salaryType,
 				activeJob : req.body.activeJob,
 				updatedDate : new Date()
 			}, false, function(err, num) {
@@ -940,6 +945,19 @@ app.post('/updateUserProfile', function(req, res) {
 					res.send('error')
 				}
 			})
+		}
+	})
+});
+
+app.post('/saveEndorse', function(req, res) {
+	var endorseRecord = new endorsementModel(req.body);
+	endorseRecord.save(function(err, result) {
+		if (err) {
+			console.log(err);
+			res.send('error')
+		} else {
+			console.log(result);
+			res.send(result)
 		}
 	})
 });

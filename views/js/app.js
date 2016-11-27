@@ -221,12 +221,14 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 			$scope.user.imageName = document.getElementById("profPic").value;
 			$scope.user.socialYN = socialYN;
 			$scope.user.userType = "U";
+			$scope.user.activeIn = "Y";
+			$scope.user.role = "user";
 			$http.post('/register', user).success(function (response) {
 				if (response != "0") {
 					alert("Success! Please login with your registered email \"" + user.email + "\" and password you created.");
-					grecaptcha.reset($scope.recaptchaId);
-					$rootScope.currentUser = response;					
-					$location.path('/login');
+					//$rootScope.currentUser = undefined;
+					//$scope.user = undefined;				
+					$scope.logout();
 				} else {
 					alert("Sorry, the account \"" + user.email + "\" has already been registered! Please create a new one.")
 				}
@@ -376,6 +378,14 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
                           $scope.imageSrc = result;
        });
     };
+    
+    $scope.logout = function () {
+		$http.post('/logout',$rootScope.user).success(function () {
+			$location.url('/login');
+			$rootScope.currentUser = undefined;
+			$rootScope.user = undefined;
+		})
+	};
 });
 
 app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams, $location) {
@@ -418,9 +428,8 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 			if($scope.jobsList.length <= 0) $scope.noJobs = true;
 			$scope.noJobs = false;
 			$scope.searchResults = 1;
-			$location.url('/');
 		}).error(function (err) {
-			alert("Error!");
+			alert(err);
 			console.log(err);
 		});
     }
@@ -461,15 +470,19 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 		$http.post('/login', user).success(function (response){
 			console.log(response);
 			$rootScope.currentUser = response;
-			$location.url('/home');
+			if($rootScope.currentUser.role == "admin") $location.url('/admin');
+			else $location.url('/home');
+			
 		}).error(function (err) {
 			if(err == "Unauthorized") {
 				//alert("Email or password does not match! Please login again.");
 				$scope.errorMsg = true;
-				Flash.create('warning', "Email or password does not match! Please login again.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+				Flash.create('warning', "Email or password does not match!.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 				return;
 			} else if(err != "Bad Request") {
-				alert("User account expired in Blue Collar Hunt Portal."+"\n"+"      	    Please contact administrator.");
+				$scope.errorMsg = true;
+				Flash.create('Info', "User account disabled in portal.",0, {class: 'alert-info', id: 'custom-id'}, true);
+				return;
 			} else {
 				$scope.errorMsg = true;
 				Flash.create('Info', "Please enter valid Username or Password.",0, {class: 'alert-info', id: 'custom-id'}, true);
@@ -588,6 +601,41 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 		}).error(function (err) {
 			if(err) {
 				alert("Error while updating password.Please try again!.");
+			}
+		})
+	};
+	
+	$scope.actUserAccount = function (user){
+		$scope.ClearMessages(Flash);
+		if(user == undefined) { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter all the fields.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(user.email == undefined) { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter username or email.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(user.handle == undefined) { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Secret handle.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		}
+		var postData = {
+				email: user.email,
+				activateHandle: user.handle,
+				activeIn: "Y"
+		}
+		$http.post('/activateUser', postData).success(function (response){
+			if(response == "Not Valid") {
+				$scope.errorMsg = true;
+				Flash.create('warning', "User not registered in Portal.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+				return;
+			}
+			alert("User Account Activated. Please Login with your credentials");
+			$location.url('/login');
+		}).error(function (err) {
+			if(err) {
+				alert("Not a valid user information");
 			}
 		})
 	};
@@ -913,6 +961,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			$rootScope.currentUser = response;
 			alert($rootScope.currentUser);
 			*/
+			if($rootScope.currentUser.socialYN == "Y") $rootScope.isSocial=true;
 			$rootScope.dataUrl = response;
 			$location.url('/editProfile');
 		}).error(function (err) {
@@ -922,30 +971,70 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 	};
 	
 	$scope.saveProfileInfo = function(cUser) {
-		var postData = { 
-				firstName : cUser.firstName,
-				lastName : cUser.lastName,
-				zipcode : cUser.zipcode,
-				email : cUser.email
-		};
+		if(document.getElementById("social").checked == true) cUser.socialYN = "Y";
+		else cUser.socialYN = "N";
+		if(document.getElementById("active").checked == true) {
+			if(confirm('Are you sure you want to Deactivate your account?')) {
+				var postData = { 
+						email : cUser.email,
+						activateHandle : cUser.lastName,
+						activeIn : "N"
+				};
+				
+				$http.post('/deactivateProfile',postData).success(function (response){
+					if (response != 0){
+						alert("User Account Deactivated.Sorry and we miss you here.");
+						$scope.logout();
+					}
+				}).error(function (err) {
+						alert("Error!");
+						console.log(err);
+				});
+			}
+		} else {
+			var postData = { 
+					firstName : cUser.firstName,
+					lastName : cUser.lastName,
+					zipcode : cUser.zipcode,
+					email : cUser.email,
+					socialYN : cUser.socialYN
+			};
+			
+			$http.post('/updateUserProfile',postData).success(function (response){
+					if (response != 0){
+					alert("Success");
+					$scope.currentUser.socialYN = cUser.socialYN;
+					$location.url('/home');
+					} else if (response == 'error') {
+						alert('error')
+					}
+			}).error(function (err) {
+					alert("Error!");
+					console.log(err);
+			});
+		}
+	 };
+	 
+	 $scope.deleteAccount = function(cUser) {
+			var postData = { 
+					email : cUser.email
+			};
 
-		$http.post('/updateUserProfile',postData).success(function (response){
-				if (response != 0){
-				alert("Success");
-				$location.url('/home');
-				} else if (response == 'error') {
-					alert('error')
-				}
-		}).error(function (err) {
-				alert("Error!");
-				console.log(err);
-		})
-		
-	}
+			if(confirm('Are you sure you want you delete your account?')) {
+				$http.post('/deleteAccount',postData).success(function (response){
+						if (response != 0){
+							alert("Done.Sorry, We miss you here!");
+							$scope.logout();
+						}
+				}).error(function (err) {
+						alert("Error!");
+						console.log(err);
+				});
+			}
+		};
 	
 
 	$scope.logout = function () {
-		alert("Logout of application");
 		$http.post('/logout',$rootScope.user).success(function () {
 			$location.url('/');
 			$rootScope.currentUser = undefined;
@@ -1504,7 +1593,6 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 				email: $scope.email
 		};
     	$http.post('/checkProfileVideoCount',postData).success(function (response) {
-    		alert(response);
 			if(response == 'success') $rootScope.showVideo = true;
 			else $rootScope.showVideo = false;
 		}).error(function (err) {
@@ -1586,10 +1674,13 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		};
 		
 		$http.post('/getProfileVideo',postData).success(function (response) {
-			$rootScope.videoSrc = response;
-			$rootScope.showVideo = true;
+			if(response == "NoVideo") $rootScope.showVideo = false;
+			else {
+				$rootScope.videoSrc = response;
+				$rootScope.showVideo = true;
+			}
 		}).error(function (err) {
-			alert("Error!");
+			alert(err);
 			console.log(err);
 		});
 	}
@@ -1876,6 +1967,13 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 				loggedin: checkSessionActive
 			}
 		}).
+		when('/admin', {
+			templateUrl: 'partials/adminControl.html',
+			controller: 'loginCtrl',
+			resolve: {
+				loggedin: checkSessionActive
+			}
+		}).
 		when('/contact', {
 			templateUrl: 'partials/contact.html',
 			controller: 'contactCtrl'
@@ -1887,6 +1985,10 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		when('/reset',{
 			templateUrl : 'partials/resetPassword.html',
 			controller : 'loginCtrl'
+		}).
+		when('/actUserAcct', {
+			templateUrl: 'partials/activateUserAccount.html',
+			controller: 'loginCtrl'
 		}).
 		when('/home', {
 			templateUrl: 'partials/home.html',

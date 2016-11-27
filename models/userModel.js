@@ -18,6 +18,8 @@ var userSchema = new mongoose.Schema({
     subscriber: String,
     birthDate: String,
     socialYN: String,
+    userType: String,
+    activateHandle: String,
     resetPasswordToken: String,
     resetPasswordExpires: Date
 });

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <title>Blue Collar Hunt Re-Activate User Account Page</title>
+  </head>
+<body>
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:201px;">
+<br/>
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel-body" style="padding:60px;height:175px;">
+	<img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="75" style="margin:10px 0px 0px -60px"/>
+	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-151px -62px 70px;">
+	  <p style="align:right;padding:10px;margin: 0px 0 0px 700px;">
+		<a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a>
+	</p>
+	</div>
+</div></div></div></div></div>
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:556px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:550px;">
+<div class="middle-box" style="padding-top:30px;">
+<div class="panel-body" style="padding:10px;">
+<div class="panel panel-default site-panel-box" style="height:440px;">
+	<div class="panel-body" style="padding:10px;padding-bottom:20px;">
+			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
+			<h5>Re-Activate User Account</h5>
+			</div>
+			<hr/>
+			<div class="form-group has-feedback" style="padding-top:10px;">
+				<span class="icon-lock"></span>
+                <input id="email" class="form-control" autofocus="true" style="width: 280px; display:inline-block; height:32px" type="text" ng-model="user.email" placeholder="Username or Email" ng-required="true">
+            	<i class="glyphicon glyphicon-lock form-control-feedback"  style="padding-top:10px;"></i>
+            </div>
+			<div class="form-group has-feedback" style="padding-top:10px;">
+				<span class="icon-lock"></span>
+                <input id="handle" class="form-control" autofocus="true" style="width: 280px; display:inline-block; height:32px" type="text" ng-model="user.handle" placeholder="Enter Secret Handle" ng-required="true">
+            	<i class="glyphicon glyphicon-lock form-control-feedback"  style="padding-top:10px;"></i>
+            </div>
+			<div style="padding-top:30px;">
+            <button ng-click="actUserAccount(user)" class="btn btn-info block full-width m-b" style="width:280px">Activate</button>
+            <br/><br/>
+            <a class="btn btn-info btn-block" href="/login">Cancel</a>
+            </div>
+	</div>
+	<hr/>
+     <div class="panel-footer" style="margin-top:-30px;padding:30px;text-align:center;"> </div>
+</div>
+</div>
+</div>
+
+<!-- ERROR Message Display Area -->
+<div id="social" class="right-box text-center" style="margin:0px 0 0 -370px;padding-top:70px;">
+		<div class="panel-body" id="errMsgArea" ng-show="errorMsg" style="padding:0px;">
+			<div class="form-group">
+			<flash-message
+    			duration="5000"
+    			show-close="true"
+    			on-dismiss="ClearMessages(flash)"></flash-message>
+    		</div>
+		</div>
+</div>
+<div id="social" class="right-box text-center" style="margin:30px 0 0 -380px;padding-top:60px;">
+		<div class="panel panel-default site-panel-box" style="height:155px;width:360px;margin:0 0 10px 0px;margin-top:80px;">
+		<div class="panel-body" style="padding:0px;">
+		<div class="form-group">
+		<ul style="font-size:12px;padding:10px 0 0px 30px;text-align:left;color:667C26;"> <strong style="color:blue;">Note :</strong>
+		<li style="padding-top:10px;">Username or Email is registered user Email ID deactivated earlier.</li>
+		<li>Enter Secret handle as received via registered email at the time of deactivation.</li>
+		<li>For any other issues contact Administrator.</li>
+		</ul>
+		</div>
+		</div>
+		</div>
+</div>
+</div>
+<!-- Close Error Message Display Area -->
+           
+</div></div></div>
+<footer>
+<div class="container" style="padding-left:0px;">
+<div class="row">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel-body" style="padding:55px;">
+<div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
+	<p class="copyright" style="padding-top:10px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
+</div></div></div></div></div>
+</footer>
+</body>
+</html>

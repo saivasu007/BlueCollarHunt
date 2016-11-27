@@ -65,16 +65,16 @@
 </div></div></div></div></div>
 
 <div class="container" style="padding-left:0px;">
-<div class="row" style="height:556px;">
+<div class="row" style="height:582px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:550px;">
+<div class="panel panel-default site-panel-box" style="height:576px;">
 <div class="panel-body" style="padding:10px;">
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:704px;margin:0 0 0 460px;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:555px;width:704px;margin:0 0 0 460px;">
 <div class="panel-body" style="padding:0px;">
 <div style="text-align:left;margin:0 0 0 20px; " ng-show="jobResults == 2 && jobInfo">
-			<h3 style="color:#3399FF">{{jobInfo.title}}
-			<a href="/upload"><button style="width: 125px; height: 30px; font-size: 16px;margin:20px 0px 0px 290px" class="btn btn-primary"  ng-click="" ng-disabled="">
+			<h3 style="color:#3399FF">{{jobInfo.title}} ({{jobInfo.jobID}})
+			<a href="/upload"><button style="width: 115px; height: 35px; font-size: 16px;margin:20px 0px 0px 160px" class="btn btn-primary"  ng-click="" ng-disabled="">
 				<span class="glyphicon"></span>  APPLY
 			</button></a>
 			</h5>
@@ -86,11 +86,11 @@
 			<h4 style="color:#3399FF"><strong>Requirement : </strong></h4>
 			<h5 style="white-space: pre-line;">{{jobInfo.requirement}}</h5>
 			<br/>
-			<h5><strong>Hourly Rate : </strong>${{jobInfo.rate}}</h5>
+			<h5><strong>Salary Rate : </strong>${{jobInfo.rate}} {{jobInfo.salaryType}}</h5>
 </div>
 </div></div>
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:530px;width:450px;background-color:#3399FF;margin:-530px 0 0 0;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:555px;width:450px;background-color:#3399FF;margin:-555px 0 0 0;">
 <div class="panel-body" style="padding:0px;padding-top:5px;" ng-repeat="job in jobsList">
 <div ng-show="searchResults == 1">
 <div style="padding: 0px;cursor: pointer;" ng-click="getJobInfo(job.jobID)">

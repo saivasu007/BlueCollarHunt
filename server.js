@@ -148,11 +148,9 @@ passPort.use(new localStrategy({
 	}, function (err, user) {
         if (err) return done(err);
         if (user) {
-        	var date = new Date();
-        	var formatDate = date.getMonth() + 1 + '/' + date.getDate() + '/' +  date.getFullYear();
-            if (new Date(user.expiryDate) < new Date(formatDate)) {
-            	console.log(user.email+" expired in Blue Collar Hunt Portal.Please contact Administrator.");
-                return done(err+" expired");
+            if (user.activeIn == "N") {
+            	console.log(username+" deactivated in Blue Collar Hunt Portal.Please Re-Activate your account and Login.");
+                return done(err+" deactivated");
             }
             return done(null, user)
         }
@@ -749,6 +747,7 @@ app.post('/getUserInfo', function(req, res) {
 				    if (err) {
 				    	console.log("ERROR "+err);
 				    	throw err;
+				    	res.send(err);
 				    }
 				    files.forEach(function(file) {
 				      
@@ -762,9 +761,11 @@ app.post('/getUserInfo', function(req, res) {
 						   stream.on("end", function(err) {
 						       db.close();
 						   });
+						   if(err) res.send(err);
 						  });
 						  console.log("Finished stream retrieval from MongoDB");
 				    });
+				    //res.send('success');
 				  });
 			});
 		}
@@ -772,7 +773,6 @@ app.post('/getUserInfo', function(req, res) {
 });
 
 app.post('/getJobs', function(req, res) {
-	console.log(req.body.search);
 	if(req.body.search != undefined) {
 	var query = req.body.search ? {
 		title : {$regex: req.body.search,$options:"$i"}
@@ -790,16 +790,15 @@ app.post('/getJobs', function(req, res) {
 });
 
 app.post('/getJobsByLoc', function(req, res) {
-	console.log(req.body.search);
 	if(req.body.search != undefined) {
-	var query = req.body.search ? {
-		location : {$regex: req.body.search,$options:"$i"}
-	} : {
-		location : {$regex: req.body.search,$options:"$i"}
-	}
-	jobInfoModel.find(query).exec(function(err, result) {
-		res.send(result);
-	})
+		var query = req.body.search ? {
+			location : {$regex: req.body.search,$options:"$i"}
+		} : {
+			location : {$regex: req.body.search,$options:"$i"}
+		}
+		jobInfoModel.find(query).exec(function(err, result) {
+			res.send(result);
+		})
 	} else {
 		res.send("No Jobs Available");
 	}
@@ -935,7 +934,8 @@ app.post('/updateUserProfile', function(req, res) {
 			}, {
 				firstName : req.body.firstName,
 				lastName : req.body.lastName,
-				zipcode : req.body.zipcode
+				zipcode : req.body.zipcode,
+				socialYN : req.body.socialYN
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
@@ -945,6 +945,57 @@ app.post('/updateUserProfile', function(req, res) {
 					res.send('error')
 				}
 			})
+		}
+	})
+});
+
+app.post('/deactivateProfile', function(req, res) {
+	var handle = req.body.activateHandle+randomNumber();
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (result && result.email) {
+			userModel.update({
+				email : req.body.email
+			}, {
+				activateHandle : encrypt(handle),
+				activeIn : req.body.activeIn
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send('error')
+				}
+			})
+		}
+	})
+});
+
+app.post('/activateUser', function(req, res) {
+	userModel.findOne({
+		email : req.body.email,
+		activateHandle : req.body.activateHandle
+	}, function(err, result) {
+		if (result && result.email) {
+			userModel.update({
+				email : req.body.email
+			}, {
+				activateHandle : "",
+				activeIn : req.body.activeIn
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send('error')
+				}
+			})
+		} else {
+			console.log("Not a valid user in portal.");
+			res.send("Not Valid");
 		}
 	})
 });
@@ -981,7 +1032,7 @@ app.post('/ClearCurrentProfile', function(req, res) {
 					  .toArray(function(err, files) {
 					    if (err) {
 					    	console.log("ERROR "+err);
-					    	throw err;
+					    	res.send(err);
 					    }
 					    files.forEach(function(file) {
 					    	console.log("Iterating each file from collection.");
@@ -1000,9 +1051,14 @@ app.post('/ClearCurrentProfile', function(req, res) {
 							  });
 					    });
 					  });
+					if (err) {
+				    	console.log("ERROR "+err);
+				    	res.send(err);
+				    }
 			});
 			}
-			res.send('success');
+			if(err) res.send(err);
+			else res.send('success');
 		}
 	});
 });
@@ -1034,12 +1090,22 @@ app.post('/changeProfilePic', function(req, res) {
 						var stream = gridStore.stream(true);
 					    gridStore.write(req.body.imageContents, function(err, gridStore) {
 					      gridStore.close(function(err, result) {
+					    	  console.log("gridStore closed after upload");
 					      });
 					      stream.on("end", function(err) {
+					    	  console.log("changeProfilePic: db connection closed after upload");
 					    	  db.close();
 					      });
+					      if(err) {
+					    	  console.log(err);
+					    	  res.send(err);
+					      }
 					   });
 					  });
+					  if(err) {
+						  console.log(err);
+						  res.send(err);
+					  }
 					  console.log("Finished change profile picture upload to MongoDB");
 			});
 			}
@@ -1061,7 +1127,6 @@ app.post('/checkProfileVideoCount', function(req, res) {
 				    if (err) {
 				    	console.log("ERROR "+err);
 				    	db.close();
-				    	throw err;
 				    	res.send("0");
 				    } else {
 				    	console.log("files "+files.length);
@@ -1099,14 +1164,17 @@ app.post('/uploadStream', function(req, res) {
 			var stream = gridStore.stream(true);
 		    gridStore.write(ev.target.result, function(err, gridStore) { 
 		      gridStore.close(function(err, result) {
+		    	  console.log("gridstore closed.");
 		      });
 		      stream.on("end", function(err) {
+		    	  console.log("db connection closed");
 		    	  db.close();
 		      });
 		   });
 		    if(err) console.log(err);
 		  });
 		  if(err) res.send(err);
+		  else res.sendStatus(200);
 		  console.log("Finished video upload to MongoDB");
 		});
 	});
@@ -1146,14 +1214,20 @@ app.post('/uploadProfileResume', function(req, res) {
 			var stream = gridStore.stream(true);
 		    gridStore.write(ev.target.result, function(err, gridStore) { 
 		      gridStore.close(function(err, result) {
+		    	  console.log("gridStore closed after upload.");
 		      });
 		      stream.on("end", function(err) {
+		    	  console.log("uploadProfileResume: db connection closed after upload.");
 		    	  db.close();
 		      });
 		   });
-		    if(err) console.log(err);
+		    if(err) {
+		    	console.log(err);
+		    	res.send(err);
+		    }
 		  });
 		  if(err) res.send(err);
+		  else res.sendStatus(200);
 		  console.log("Finished resume upload to MongoDB");
 		});
 	});
@@ -1170,9 +1244,10 @@ app.post('/getProfileVideo', function(req, res) {
 				  .toArray(function(err, files) {
 				    if (err) {
 				    	console.log("ERROR "+err);
-				    	throw err;
+				    	res.send(err);
 				    }
-				    files.forEach(function(file) {
+				    if(files.length > 0) {
+				    	files.forEach(function(file) {
 				      
 				    	  var gridStore = new GridStore(db, file.filename,"r");
 						  gridStore.open(function(err, gridStore) {
@@ -1182,12 +1257,16 @@ app.post('/getProfileVideo', function(req, res) {
 						    	res.send(dataURL);
 						   });
 						   stream.on("end", function(err) {
+							   console.log("getProfileVideo:db connection closed.")
 						       db.close();
 						   });
 						  });
 						  console.log("Finished profile video retrieval from MongoDB");
 				    });
-				  });
+				  } else {
+					  res.send("NoVideo");
+				  }
+				});
 			});
 		}
 	});
@@ -1206,7 +1285,8 @@ app.post('/getProfileResumes', function(req, res) {
 				    	console.log("ERROR "+err);
 				    	throw err;
 				    }
-				    res.send(files);
+				    if(files.length > 0) res.send(files);
+				    else res.send("NoResumes");
 				  });
 			});
 		}
@@ -1228,6 +1308,61 @@ app.post('/delResume', function(req, res) {
 		  console.log("Successfully removed resume from MongoDB.");
 		});
 		res.sendStatus(200);
+});
+
+app.post('/deleteAccount', function(req, res) {
+	console.log("Deleting Profile inprogress..");
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (!result) {
+			res.send("0");
+		} else {
+			endorsementModel.remove({
+				email : req.body.email
+			}, function(err, num) {
+				if(num.ok =1) {
+					console.log("Endorsements user records removed successfully.");
+				}
+			});
+			MongoClient.connect(mongodbUrl, function(err, db) {
+					
+					db.collection('fs.files')
+					  .find({ "metadata.email" : req.body.email })
+					  .toArray(function(err, files) {
+					    if (err) {
+					    	console.log("ERROR "+err);
+					    	res.send(err);
+					    }
+					    files.forEach(function(file) {
+					    	console.log("Iterating each file from collection.");
+					    	  var gridStore = new GridStore(db, file.filename,"r");
+					    	  console.log("Before opening gridstore.");
+							  gridStore.open(function(err, gridStore) {
+								var stream = gridStore.stream(true);
+								console.log("Before unlink file in gridstore.");
+							    gridStore.unlink(function(err, result) {
+							    	console.log("Deleting existing Profile "+result);
+							   });
+							   stream.on("end", function(err) {
+							       db.close();
+								   console.log("End of checking existing profile");
+							   });
+							  });
+					    });
+					  });
+			});
+			console.log("Deleting User Profile Completed..");
+			userModel.remove({
+				email : req.body.email
+			}, function(err, num) {
+				if(num.ok =1) {
+					console.log("User records completly removed from the Portal.");
+				}
+			});
+			res.send('success');
+		}
+	});
 });
 
 //User Forgot Password functionality.

@@ -63,7 +63,7 @@
 		</div>
 		</div>
         
-        <div class="panel panel-default site-panel-box" style="height:430px;">
+        <div class="panel panel-default site-panel-box" style="height:577px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
 			<h5>Personal Information Update</h5>
@@ -81,7 +81,16 @@
             <div class="form-group">
                 <input type="text" id="zip" ng-model="currentUser.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
             </div>
+            <div class="form-group">
+                <input id="social" type="checkbox" ng-model="currentUser.socialYN"  ng-checked="isSocial" style="align:left;"><b>&nbsp;&nbsp;Connect with other applicants?</b>
+            </div>
+            <div class="form-group">
+                <input id="active" type="checkbox" ng-model="currentUser.activeIn"  style="align:left;"><b style="color:red;">&nbsp;&nbsp;Deactivate Account</b>
+            </div>
+            <br/>
             <button ng-click="saveProfileInfo(currentUser)" ng-disabled="error" class="btn btn-info block full-width m-b">Save</button>
+            <br/><br/>
+            <button ng-click="deleteAccount(currentUser)" class="btn btn-warning block full-width m-b">Delete Account</button>
             <br/><br/>
             <a href="/home"><button class="btn btn-info block full-width m-b">Cancel</button></a>
         </div>
@@ -107,6 +116,20 @@
   </div>
   <h5 style="color:#5BC0DE;"><strong>Profile Picture</strong></h5>
 </div>
+
+<div id="info" class="right-box text-center" style="margin:220px 0 0 -360px;padding-top:60px;">
+		<div class="panel panel-default site-panel-box" style="height:155px;width:364px;margin:0 0 10px 0px;margin-top:80px;">
+		<div class="panel-body" style="padding:0px;">
+		<div class="form-group">
+		<ul style="font-size:12px;padding:10px 0 0px 20px;text-align:left;color:667C26;white-space:pre-line;"> <strong style="color:blue;font-size:14px">NOTE:</strong>
+		<li style="padding-top:10px;">Once you select the deactivate and save the profile then you can come back anytime and re-activate the account.</li>
+		<li>Clicking and Confirming Delete account permanently remove the user profile from the system and recovery will not be possible.</li>
+		</ul>
+		</div>
+		</div>
+		</div>
+</div>
+
 </div>
 
 </div></div></div></div>

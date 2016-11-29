@@ -2,8 +2,8 @@
 exports.smtp = {
   service: 'gmail',
   auth: {
-    user: 'bluecollarhuntsearch@gmail.com',
-    pass: 'Helloworld123!'
+    user: '',
+    pass: ''
   },
   secure: false,
   debug: true

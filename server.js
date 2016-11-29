@@ -38,6 +38,7 @@ var contactModel = require("./models/contactModel.js");
 var paymentModel = require("./models/paymentModel.js");
 var jobInfoModel = require("./models/jobInfoModel.js");
 var endorsementModel = require("./models/endorsementModel.js");
+var userJobInfoModel = require("./models/userJobInfo.js");
 var fs  = require('fs');
 var FileAPI = require('file-api');
 var File = FileAPI.File;
@@ -740,32 +741,36 @@ app.post('/getUserInfo', function(req, res) {
 		email : req.body.search
 	}, function(err, result) {
 		if(result) {
+			console.log("After user found in db");
 			MongoClient.connect(mongodbUrl, function(err, db) {
 				db.collection('fs.files')
 				  .find({ "metadata.email" : email, "metadata.type" : "profilePic"})
 				  .toArray(function(err, files) {
+				    console.log("After fs.files..");
 				    if (err) {
 				    	console.log("ERROR "+err);
-				    	throw err;
 				    	res.send(err);
 				    }
-				    files.forEach(function(file) {
-				      
-				    	  var gridStore = new GridStore(db, file.filename,"r");
-						  gridStore.open(function(err, gridStore) {
-							var stream = gridStore.stream(true);
-						    gridStore.read(function(err, dataURL) {
-						    	console.log("Stream reading..");
-						    	res.send(dataURL);
-						   });
-						   stream.on("end", function(err) {
-						       db.close();
-						   });
-						   if(err) res.send(err);
-						  });
-						  console.log("Finished stream retrieval from MongoDB");
-				    });
-				    //res.send('success');
+				    if(files.length > 0) {
+					    files.forEach(function(file) {
+					      
+					    	  var gridStore = new GridStore(db, file.filename,"r");
+							  gridStore.open(function(err, gridStore) {
+								var stream = gridStore.stream(true);
+							    gridStore.read(function(err, dataURL) {
+							    	console.log("Stream reading..");
+							    	res.send(dataURL);
+							   });
+							   stream.on("end", function(err) {
+							       db.close();
+							   });
+							   if(err) res.send(err);
+							  });
+							  console.log("Finished stream retrieval from MongoDB");
+					    });
+				    } else {
+				    	res.send('NoProfilePic');
+				    }
 				  });
 			});
 		}
@@ -813,6 +818,19 @@ app.post('/getJobInfo', function(req, res) {
 	});
 });
 
+app.post('/checkJobPost', function(req, res) {
+	userJobInfoModel.find({
+			jobID : req.body.jobID,
+			email : req.body.email
+	}, function(err, result) {
+		if (result == "") { 
+			res.send("false");
+		} else {
+			res.send("true");
+		}
+	});
+});
+
 app.get('/getJobLocList', function(req, res) {
 	jobInfoModel.aggregate( { "$match": { "location": { "$ne": null } }},
 		    				{ "$group": {
@@ -820,7 +838,6 @@ app.get('/getJobLocList', function(req, res) {
 					            "location": "$location"
 					        },
 					        "count": { "$sum": 1 } }}, function(err, result) {
-		console.log(result);
 		res.send(result);
 	});
 });
@@ -924,6 +941,18 @@ app.post('/updatePublishStat', function(req, res) {
 	})
 });
 
+app.post('/applyJobPosting', function(req, res) {
+	var userJobInfoRecord = new userJobInfoModel(req.body);
+	userJobInfoRecord.save(function(err, result) {
+		if (err) {
+			console.log(err);
+			res.send('error');
+		} else {
+			res.send("success");
+		}
+	})
+});
+
 app.post('/updateUserProfile', function(req, res) {
 	userModel.findOne({
 		email : req.body.email
@@ -976,7 +1005,8 @@ app.post('/deactivateProfile', function(req, res) {
 app.post('/activateUser', function(req, res) {
 	userModel.findOne({
 		email : req.body.email,
-		activateHandle : req.body.activateHandle
+		activateHandle : req.body.activateHandle,
+		activeIn : "N"
 	}, function(err, result) {
 		if (result && result.email) {
 			userModel.update({
@@ -994,7 +1024,7 @@ app.post('/activateUser', function(req, res) {
 				}
 			})
 		} else {
-			console.log("Not a valid user in portal.");
+			console.log("Either User not registered in portal or account is still active.");
 			res.send("Not Valid");
 		}
 	})

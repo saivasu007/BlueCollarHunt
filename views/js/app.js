@@ -404,7 +404,6 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 			$scope.searchResults = 1;
 			$location.url('/');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		});
     }
@@ -414,7 +413,6 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 			$scope.jobLocList = response;
 			$location.url('/');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		});
     }
@@ -441,10 +439,10 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 		}
 		$http.post('/getJobInfo',postData).success(function (response) {
 			$scope.jobInfo = response;
+			$rootScope.jobID = $scope.jobInfo.jobID;
 			$scope.jobResults = 2;
 			$location.url('/');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -628,7 +626,7 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 		$http.post('/activateUser', postData).success(function (response){
 			if(response == "Not Valid") {
 				$scope.errorMsg = true;
-				Flash.create('warning', "User not registered in Portal.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+				Flash.create('warning', "User not registered or still active in Portal.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 				return;
 			}
 			alert("User Account Activated. Please Login with your credentials");
@@ -844,7 +842,13 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     };
     uploader.onAfterAddingFile = function(fileItem) {
     	$scope.progress = "";
-    	fileItem.upload();
+    	var ext = fileItem.file.name.substring(fileItem.file.name.indexOf(".")+1);
+    	if(ext == "PDF" || ext == "pdf" || ext == "DOC" || ext == "doc" || ext == "DOCX" || ext == "docx") {
+    		fileItem.upload();
+    	} else {
+    		alert("Please upload valid file types i.e PDF/DOC/DOCX");
+    		return;
+    	}
         console.log('onAfterAddingFile', fileItem);
     };
     uploader.onAfterAddingAll = function(addedFileItems) {
@@ -894,6 +898,8 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     	('#fileDialog').trigger('click');
     }
     
+    $scope.isSelected = true;
+    
     $scope.search = function (searchInfo) {
     	var data = {
     			search : searchInfo
@@ -905,7 +911,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			$scope.searchResults = 1;
 			$location.url('/home');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		});
     }
@@ -915,7 +920,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			$scope.jobLocList = response;
 			$location.url('/home');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		});
     }
@@ -931,7 +935,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			$scope.searchResults = 1;
 			$location.url('/home');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		});
     }
@@ -943,10 +946,10 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		}
 		$http.post('/getJobInfo',postData).success(function (response) {
 			$scope.jobInfo = response;
+			$rootScope.jobDetails = $scope.jobInfo;
 			$scope.jobResults = 2;
 			$location.url('/home');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -957,15 +960,24 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 				search: $scope.search
 		};
 		$http.post('/getUserInfo',postData).success(function (response) {
-			/*$rootScope.user.image = response;
-			$rootScope.currentUser = response;
-			alert($rootScope.currentUser);
-			*/
 			if($rootScope.currentUser.socialYN == "Y") $rootScope.isSocial=true;
-			$rootScope.dataUrl = response;
+			if(response == "NoProfilePic") $rootScope.dataUrl = undefined;
+			else $rootScope.dataUrl = response;
 			$location.url('/editProfile');
 		}).error(function (err) {
-			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+	$scope.getProfilePic = function (){
+		$scope.search = $rootScope.currentUser.email;
+		var postData ={
+				search: $scope.search
+		};
+		$http.post('/getUserInfo',postData).success(function (response) {
+			if(response == "NoProfilePic") $rootScope.dataImgUrl = undefined;
+			else $rootScope.dataImgUrl = response;
+		}).error(function (err) {
 			console.log(err);
 		})
 	};
@@ -987,7 +999,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 						$scope.logout();
 					}
 				}).error(function (err) {
-						alert("Error!");
 						console.log(err);
 				});
 			}
@@ -1009,7 +1020,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 						alert('error')
 					}
 			}).error(function (err) {
-					alert("Error!");
 					console.log(err);
 			});
 		}
@@ -1027,7 +1037,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 							$scope.logout();
 						}
 				}).error(function (err) {
-						alert("Error!");
 						console.log(err);
 				});
 			}
@@ -1224,7 +1233,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		$http.post('/getProfileResumes',postData).success(function (response) {
 			$rootScope.resumeList = response;
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		});
 	}
@@ -1243,6 +1251,57 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		})
 	  }
     }; 
+    
+    $scope.uploadCV = function() {
+    	$rootScope.isLinkToJob = false;
+    	$location.path("/upload");
+    }
+    
+    $scope.uploadAndApply = function() {
+    	var postData = { 
+        		jobID : $rootScope.jobDetails.jobID,
+    			email : $rootScope.currentUser.email
+    	};
+        
+        $http.post('/checkJobPost',postData).success(function (response){
+			if (response == "true"){
+				alert("You have already applied for this Job.");
+			} else {
+				$rootScope.isLinkToJob = true;
+				$location.path("/upload");
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+    }
+    
+    $scope.setResumeID = function(resume) {
+    	if(resume.selection == true) $scope.isSelected = false;
+    	else $scope.isSelected = true;
+    	$rootScope.resumeID = resume._id;
+    }
+    
+    $scope.applyJob = function() {
+    	alert($rootScope.resumeID);
+    	alert($rootScope.jobDetails.jobID);
+
+        var postData = { 
+        		jobID : $rootScope.jobDetails.jobID,
+    			employerEmail : $rootScope.jobDetails.employerID,
+    			email : $rootScope.currentUser.email,
+    			dateApplied : new Date(),
+    			files_id: $rootScope.resumeID
+    	};
+        
+        $http.post('/applyJobPosting',postData).success(function (response){
+			if (response != 0){
+				alert("Job application subimitted successfully.");
+				$location.url("/home");
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+    }
 });
 
 app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location, $interval) {
@@ -1263,7 +1322,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			alert('error')
 			}
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	}
@@ -1307,7 +1365,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				}
 			}
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -1356,7 +1413,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					alert('error')
 				}
 		}).error(function (err) {
-				alert("Error!");
 				console.log(err);
 		})
 	};
@@ -1383,7 +1439,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			alert('error')
 			}
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -1408,7 +1463,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					alert('error')
 				}
 		}).error(function (err) {
-				alert("Error!");
 				console.log(err);
 		})
 	};
@@ -1426,7 +1480,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					alert('error')
 				}
 		}).error(function (err) {
-				alert("Error!");
 				console.log(err);
 		})
 	};
@@ -1445,7 +1498,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					$location.url('/empHome');
 				}
 			}).error(function (err) {
-				alert("Error!");
 				console.log(err);
 			})
 		}
@@ -1523,7 +1575,6 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 				   $location.url('/contact');
 				}
 			}).error(function (err) {
-				alert("Error!");
 				console.log(err);
 			});
 	}
@@ -1538,7 +1589,13 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
     };
     uploader.onAfterAddingFile = function(fileItem) {
     	$scope.progress = "";
-    	fileItem.upload();
+    	var ext = fileItem.file.name.substring(fileItem.file.name.indexOf(".")+1);
+    	if(ext == "MP4" || ext == "mp4" || ext == "WMV" || ext == "wmv" || ext == "AVI" || ext == "avi") {
+    		fileItem.upload();
+    	} else {
+    		alert("Please upload valid file types i.e MP4/WMV/AVI");
+    		return;
+    	}
         console.log('onAfterAddingFile', fileItem);
     };
     uploader.onAfterAddingAll = function(addedFileItems) {
@@ -1596,7 +1653,6 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 			if(response == 'success') $rootScope.showVideo = true;
 			else $rootScope.showVideo = false;
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
     }
@@ -1614,7 +1670,6 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 			$rootScope.dataUrl = response;
 			$location.url('/profile');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -1647,7 +1702,6 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 				$http.post('/ClearCurrentProfile',$scope.user).success(function (response) {
 	    			if(response != 0) console.log("Current Profile Picture deleted from dataStore.");
 	    		}).error(function (err) {
-	    			alert("Error!");
 	    			console.log(err);
 	    		})
 				
@@ -1655,7 +1709,6 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	    			$rootScope.dataUrl = response;
 	    			location.reload();
 	    		}).error(function (err) {
-	    			alert("Error!");
 	    			console.log(err);
 	    		});
 	        };
@@ -1685,6 +1738,21 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		});
 	}
 	
+	$scope.editProfileInfo = function (){
+		$scope.search = $rootScope.currentUser.email;
+		var postData ={
+				search: $scope.search
+		};
+		$http.post('/getUserInfo',postData).success(function (response) {
+			if($rootScope.currentUser.socialYN == "Y") $rootScope.isSocial=true;
+			if(response == "NoProfilePic") $rootScope.dataUrl = undefined;
+			else $rootScope.dataUrl = response;
+			$location.url('/editProfile');
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
 	$scope.listEndorsements = function (){
 		$scope.email = $rootScope.currentUser.email;
 		var postData ={
@@ -1694,7 +1762,6 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 			$scope.endorseList = response;
 			//$location.url('/profile#listEndorses');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -1777,7 +1844,6 @@ app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $locatio
                 $scope.currentUser={};
                 $location.url('/changePassword')
             } else if (response == 'error'){
-                alert ('Error!')
                 $scope.currentUser={};
             }
         })
@@ -1850,7 +1916,6 @@ app.controller('testCtrl', function ($scope, $http, $location, $rootScope){
 					$location.url('/home');
 				}
 		}).error(function (err) {
-				alert("Error!");
 				console.log(err);
 		});
 	}
@@ -1873,6 +1938,7 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 				$rootScope.currentUser =  user;
 				$rootScope.currentUser.passwd1 = "";
 				$rootScope.isLoggedIn = (user != 0);
+				if($rootScope.currentUser.role == "admin") $location.url('/admin');
 				deferred.resolve();
 			} else {
 				$rootScope.errorMessage = "You are not login yet.";
@@ -1909,7 +1975,8 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 				$rootScope.currentUser =  user;
 				$rootScope.currentUser.passwd1 = "";
 				$rootScope.isLoggedIn = (user != 0);
-				$location.url('/home');
+				if($rootScope.currentUser.role == "admin") $location.url('/admin');
+				else $location.url('/home');
 				deferred.resolve();
 			}
 		})

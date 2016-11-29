@@ -13,17 +13,26 @@
 <div class="panel-body" style="padding:60px;height:175px;">
 			<img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="75" style="margin:10px 0px 0px -60px"/>
 			<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-151px -61px 0px -60px;">
-			<p style="align:right;padding:10px;margin: 0px 0 0px 850px;">
+			<p style="align:right;padding:10px;margin: 0px 0 0px 725px;">
 			<a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="" ng-click="uploadCV()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="/social"  style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Socialize</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a>
 			</p>
 			</div>
-			<div style="text-align:right">
-			<nav role="navigation" class="navbar">
-			      <div class="container">
-			        <!-- 'Sticky' (non-collapsing) right-side menu item(s) -->
-			        <div class="navbar-header pull-right">
+			<div style="text-align:center;margin: 60px 0px 0px 70px;">
+			<div class="form-group has-feedback" style="display:inline-block;">
+                <input type="text" ng-model="user.search" class="form-control" style="width:280px" placeholder="Jobs" ng-change="testLoginName()" ng-required="true">
+            	<i class="glyphicon glyphicon-search form-control-feedback"></i>
+            </div>
+            <div class="form-group has-feedback" style="display:inline-block;">
+            	<input type="text" id="Autocomplete" ng-model="user.location" style="width:280px" class="form-control" placeholder="Location" ng-autocomplete="result1" details="details1" options="options1" />
+            	<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
+            </div>
+            <div class="form-group" style="display:inline-block;">
+            <input type="image" src="img/search.png" alt="Submit" width="45" height="48" style="padding-bottom:15px;" ng-click="search(user.search)">
+            </div>
+            <div class="navbar-header pull-right">
 			          <ul class="nav pull-left">
 			            <!-- This works well for static text, like a username -->
 			            <li class="navbar-text pull-left">
@@ -31,7 +40,10 @@
 			            </li>
 			            <!-- Add any additional bootstrap header items.  This is a drop-down from an icon -->
 			            <li class="dropdown pull-right">
-			              <a href="#" data-toggle="dropdown" style="color:#777; margin-top: 5px;" class="dropdown-toggle"><div class="profileImage" style="background-image: url('../img/Srini.jpg');"></div><b class="caret"></b></a>
+			              <a href="#" data-toggle="dropdown" style="color:#777; margin-top: 0px; padding:0px;" class="dropdown-toggle">
+			              	<!-- <img class="profileImage" ng-src="{{dataImgUrl | trustUrl}}"/> -->
+			              	<strong style="font-size:15px;color:black;">Welcome {{currentUser.lastName}}</strong>
+			              	<b class="caret"></b></a>
 			              <ul class="dropdown-menu">
 			                <li>
 			                  <a href="" ng-click="editProfileInfo()" title="Profile">Change Profile</a>
@@ -46,22 +58,7 @@
 			            </li>
 			          </ul>
 			      </div>
-			      </div>
-			    </nav>
-			</div>
-            <div style="text-align:center">
-			<div class="form-group has-feedback" style="display:inline-block;">
-                <input type="text" ng-model="user.search" class="form-control" style="width:280px" placeholder="Jobs" ng-change="testLoginName()" ng-required="true">
-            	<i class="glyphicon glyphicon-search form-control-feedback"></i>
-            </div>
-            <div class="form-group has-feedback" style="display:inline-block;">
-            	<input type="text" id="Autocomplete" ng-model="user.location" style="width:280px" class="form-control" placeholder="Location" ng-autocomplete="result1" details="details1" options="options1" />
-            	<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
-            </div>
-            <div class="form-group" style="display:inline-block;">
-            <input type="image" src="img/search.png" alt="Submit" width="45" height="48" style="padding-bottom:15px;" ng-click="search(user.search)">
-            </div>
-            </div>
+          </div> 
 </div></div></div></div></div>
 
 <div class="container" style="padding-left:0px;">
@@ -74,7 +71,7 @@
 <div class="panel-body" style="padding:0px;">
 <div style="text-align:left;margin:0 0 0 20px; " ng-show="jobResults == 2 && jobInfo">
 			<h3 style="color:#3399FF">{{jobInfo.title}} ({{jobInfo.jobID}})
-			<a href="/upload"><button style="width: 115px; height: 35px; font-size: 16px;margin:20px 0px 0px 160px" class="btn btn-primary"  ng-click="" ng-disabled="">
+			<button style="width: 115px; height: 35px; font-size: 16px;margin:20px 0px 0px 160px" class="btn btn-primary"  ng-click="uploadAndApply()" ng-disabled="">
 				<span class="glyphicon"></span>  APPLY
 			</button></a>
 			</h5>

@@ -2,12 +2,12 @@ var express = require('express');
 var mongoose = require('mongoose');
 
 var userJobInfoSchema = new mongoose.Schema({
-    id: Number,
-    jobID: Number,
-    email: String
+    jobID: String,
+    email: String,
     companyName: String,
+    employerEmail: String,
     dateApplied: Date,
-    files_id: ObjectId
+    files_id: Object
 });
 
 module.exports = mongoose.model('userJobInfoModel', userJobInfoSchema);

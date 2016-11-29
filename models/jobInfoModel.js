@@ -12,6 +12,7 @@ var jobInfoSchema = new mongoose.Schema({
     requirement: String,
     rate: Number,
     salaryType: String,
+    referEmail: String,
     maxNumber: Number,
     activeJob: String,
     origPostDate: Date,

@@ -1782,6 +1782,64 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	};
 });
 
+app.controller('socialCtrl', function ($q, $scope, $rootScope, $http, $location,Flash) {
+		
+	$http.get('/loggedin').success(function (user) {
+			if(user != undefined) {
+				$scope.contact = user;
+				$scope.contact.name = user.firstName+" "+user.lastName;
+			}
+	});
+	
+	$scope.ClearMessages = function(flash) {
+		$scope.errorMsg = false;
+		Flash.clear();
+	}
+	
+	$scope.currentPage = 1;
+	$scope.numPerPage = 10;
+	$scope.maxSize = 5;
+	var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+    , end = begin + $scope.numPerPage;
+	
+	$scope.searchContacts = function (user){
+		if($scope.user != undefined) {
+		var postData ={
+				email: $scope.user.search,
+				currEmail: $rootScope.currentUser.email
+		};
+		} else {
+			var postData ={
+					currEmail: $rootScope.currentUser.email
+			};
+		}
+		$http.post('/getUsers',postData).success(function (response) {
+			$scope.partialUsers = [];
+			$scope.allUsers = [];
+			$scope.users = response;
+			for(i=0;i<=$scope.users.length-1;i++) {
+				$scope.allUsers.push($scope.users[i]);
+			}
+			$scope.partialUsers = $scope.allUsers.slice(begin, end);
+		  if ($scope.users[0] != undefined) {			
+			$location.url('/socialContacts');
+		  }else {
+			console.log("No Users found for your Search.");
+		  }
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialUsers = $scope.allUsers.slice(begin, end);
+	  });
+	//End Pagination changes here.
+});
+
 app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $location,Flash) {
 	
 	$scope.currentUser.oldPassword = "";
@@ -2103,6 +2161,13 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		when('/changePassword', {
 			templateUrl: 'partials/changePassword.html',
 			controller: 'changePwdCtrl',
+			resolve: {
+				loggedin: checkLoggedIn
+			}
+		}).
+		when('/socialContacts', {
+			templateUrl: 'partials/socialUserInfo.html',
+			controller: 'socialCtrl',
 			resolve: {
 				loggedin: checkLoggedIn
 			}

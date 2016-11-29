@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blue Collar Hunt Resume Upload Page</title>
+  </head>
+<body>
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:201px;">
+<br/>
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel-body" style="padding:60px;height:175px;">
+    <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="75" style="margin:10px 0px 0px -60px"/>
+	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-151px -61px 70px;">
+	  <p style="align:right;padding:10px;margin: 0px 0 0px 700px;">
+		<a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a href="/social" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Socialize</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a>
+	</p>
+	</div>
+	
+	<div class="form-group" style="margin:-10px 0px 0px 200px">
+				
+				    <table>
+				    <tr>
+				    <td nowrap style="vertical-align:bottom">
+					<label for="search" style="font-size: 18px">Search User:</label>
+					</td><td style="width:20px"></td><td>
+					<input id="search" class="form-control" style="width: 300px; height: 36px" type="text" ng-model="user.search" placeholder="Search User Email ID" ng-required="true">
+					</td>
+					<td style="padding-left:20px;">
+					<button style="width: 92px; height: 36px; font-size: 14px;" class="btn-primary"  ng-click="searchContacts(user)">
+					<span class="glyphicon glyphicon-ok-sign"></span>  Search
+					</button>
+					</td>
+					<td style="padding-left:20px;">
+					<a href="/home"><button style="width: 92px; height: 36px; font-size: 14px;" class="btn-warning">
+					<span class="glyphicon glyphicon-remove-sign"></span>  Cancel
+					</button></a>
+					</td>
+					</tr></table>
+			<br><br>
+	</div>
+	
+</div></div></div></div></div>
+
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:646px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:640px;">
+<div class="panel-body" style="padding:40px;">
+			<!-- Content  -->
+			<div  style="border:2px solid #5BC0DE;width:1110px;" ng-show="allUsers.length >= 0" data-ng-init="searchContacts(user)">
+			<table class="table table-striped">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<!--<th>Number #</th>-->
+					<th>Username</th>
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Ative(Y/N)</th>
+					<th>Zip Code</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="user in partialUsers">
+					<td>{{user.email}}</td>
+					<td>{{user.firstName}}</td>
+					<td>{{user.lastName}}</td>
+					<td>{{user.activeIn}}</td>
+					<td>{{user.zipcode}}</td>
+					<td><button  class="btn btn-info" ng-click="add(user.email)">
+					<span class="glyphicon glyphicon-eye-open"></span>Add Contact 
+					</button></td>
+				</tr>
+				<tr ng-show="allUsers.length <= 0">
+				<td colspan="6" align="center"><h4 style="color:red">No Contacts Found For Your Search.</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialUsers.length > 0">
+				<td></td><td></td><td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentPage"
+				      total-items="allUsers.length"
+				      max-size="maxSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+	</div></div></div></div>
+	<!-- Footer -->
+	<footer>
+<div class="container" style="padding-left:0px;">
+<div class="row">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel-body" style="padding:55px;">
+<div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
+	<p class="copyright" style="padding-top:10px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
+</div></div></div></div></div>
+</footer>
+	</div>
+	</body>

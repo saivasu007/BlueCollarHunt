@@ -734,6 +734,25 @@ function download(url) {
 	  });
 }
 
+app.post('/getUsers', function(req, res) {
+	if(req.body.email != undefined) {
+	var query = req.body.search ? {
+		email : req.body.email,
+		socialYN : "Y"
+	} : {
+		email : req.body.email,
+		socialYN : "Y"
+	}
+	userModel.find(query).exec(function(err, result) {
+		res.send(result)
+	})
+	} else {
+	userModel.find( { socialYN : "Y" }).exec(function(err, result) {
+		res.send(result)
+	})
+	}
+});
+
 app.post('/getUserInfo', function(req, res) {
 	console.log(req.body.search);
 	var email = req.body.search;

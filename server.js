@@ -108,7 +108,7 @@ app.use(session({
 	secret : "secret",
 	resave : true,
 	saveUninitialized : true,
-	cookie:{maxAge:1 * 60 * 1000}
+	cookie:{maxAge:2 * 60 * 60 * 1000}
 }));
 app.use(passPort.initialize());
 app.use(passPort.session());

@@ -39,6 +39,7 @@ var paymentModel = require("./models/paymentModel.js");
 var jobInfoModel = require("./models/jobInfoModel.js");
 var endorsementModel = require("./models/endorsementModel.js");
 var userJobInfoModel = require("./models/userJobInfo.js");
+var userContactsModel = require("./models/userContactsModel.js");
 var fs  = require('fs');
 var FileAPI = require('file-api');
 var File = FileAPI.File;
@@ -105,9 +106,9 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(cookieParser());
 app.use(session({
 	secret : "secret",
-	resave : "",
-	saveUninitialized : "",
-	cookie:{maxAge:2 * 60 * 60 * 1000}
+	resave : true,
+	saveUninitialized : true,
+	cookie:{maxAge:1 * 60 * 1000}
 }));
 app.use(passPort.initialize());
 app.use(passPort.session());
@@ -744,7 +745,20 @@ app.post('/getUsers', function(req, res) {
 		socialYN : "Y"
 	}
 	userModel.find(query).exec(function(err, result) {
-		res.send(result)
+		//res.send(result);
+		if(result && result.email) {
+			
+			userContactsModel.findOne({
+				email : req.body.currEmail,
+				contactEmail : req.body.email
+			}, function (err, result1) {
+		        if (err) return done(err);
+		        if (result1) {
+		            result.status = result1.contactStatus;
+		        }
+		    })
+		}
+		res.send(result);
 	})
 	} else {
 	userModel.find( { socialYN : "Y" }).exec(function(err, result) {
@@ -1412,6 +1426,17 @@ app.post('/deleteAccount', function(req, res) {
 			res.send('success');
 		}
 	});
+});
+
+app.post('/requestAddContact', function(req, res) {
+	var userContactsRecord = new userContactsModel(req.body);
+	userContactsRecord.save(function(err, result) {
+		if (err) {
+			res.send('error')
+		} else {
+			res.send(result)
+		}
+	})
 });
 
 //User Forgot Password functionality.

@@ -73,8 +73,8 @@
 					<td>{{user.lastName}}</td>
 					<td>{{user.activeIn}}</td>
 					<td>{{user.zipcode}}</td>
-					<td><button  class="btn btn-info" ng-click="add(user.email)">
-					<span class="glyphicon glyphicon-eye-open"></span>Add Contact 
+					<td><button  class="btn btn-info" ng-click="sendAddContactReq(user.email)">
+					<span class="glyphicon glyphicon-eye-open"></span>{{user.status}}
 					</button></td>
 				</tr>
 				<tr ng-show="allUsers.length <= 0">

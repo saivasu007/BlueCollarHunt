@@ -286,7 +286,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 				}
 				$http.post('/plans/bluecollarhunt_dev', empData).success(function (resp) {
 					if (resp != "0") {
-						alert("Success! Please login with your registered credentials as created.");
+						alert("Success! Please check your registered email for UniqueID.");
 						//$rootScope.currentUser = null;					
 						$location.path('/empSignIn');
 					} else {
@@ -314,7 +314,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 				}
 				$http.post('/empFreeRegister', empData).success(function (resp) {
 					if (resp != "0") {
-						alert("Success! Please login with your registered credentials.");
+						alert("Success! Please check your registered email for UniqueID.");
 						$rootScope.currentUser = null;					
 						$location.path('/empSignIn');
 					} else {
@@ -1784,6 +1784,8 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 
 app.controller('socialCtrl', function ($q, $scope, $rootScope, $http, $location,Flash) {
 		
+$rootScope.reqLabel = "Add Contact";
+	
 	$http.get('/loggedin').success(function (user) {
 			if(user != undefined) {
 				$scope.contact = user;
@@ -1814,6 +1816,7 @@ app.controller('socialCtrl', function ($q, $scope, $rootScope, $http, $location,
 			};
 		}
 		$http.post('/getUsers',postData).success(function (response) {
+			alert(response.toSource());
 			$scope.partialUsers = [];
 			$scope.allUsers = [];
 			$scope.users = response;
@@ -1838,6 +1841,23 @@ app.controller('socialCtrl', function ($q, $scope, $rootScope, $http, $location,
 	    $scope.partialUsers = $scope.allUsers.slice(begin, end);
 	  });
 	//End Pagination changes here.
+	
+	$scope.sendAddContactReq = function (contactEmail){
+		var postData = { 
+			email : $rootScope.currentUser.email,
+			contactEmail : contactEmail,
+			contactStatus : "S",
+			requestDate : new Date()
+		};
+
+		$http.post('/requestAddContact',postData).success(function (response){
+			if (response != 0){
+			   $rootScope.reqLabel = "Request Sent";
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
 });
 
 app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $location,Flash) {

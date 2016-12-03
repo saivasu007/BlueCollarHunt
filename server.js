@@ -40,6 +40,7 @@ var jobInfoModel = require("./models/jobInfoModel.js");
 var endorsementModel = require("./models/endorsementModel.js");
 var userJobInfoModel = require("./models/userJobInfo.js");
 var userContactsModel = require("./models/userContactsModel.js");
+var countersModel = require("./models/countersModel.js");
 var fs  = require('fs');
 var FileAPI = require('file-api');
 var File = FileAPI.File;
@@ -59,11 +60,13 @@ var serviceUser = properties.get('SMTP.service.user');
 var servicePasswd = properties.get('SMTP.service.passwd');
 var emailFrom = properties.get('app.email.from');
 var emailSubject = properties.get('app.email.subject');
+var emailEmpRegSubject = properties.get('app.email.empRegSubject');
 var bodyText = properties.get('app.email.body.text');
 var bodyHtml = properties.get('app.email.body.html');
 var emailFooter = properties.get('app.email.body.footer');
 var emailChangePwdSubject = properties.get('app.email.subjectChgPwd');
 var regTemplate = properties.get("app.email.registrationTem");
+var empRegTemplate = properties.get("app.email.empRegistrationTem");
 var chgPwdTemplate = properties.get("app.email.changePwdTem");
 var pwdResetSubject = properties.get("app.email.subjectResetPwd");
 var resetPwdTemplate = properties.get("app.email.resetPwdTem");
@@ -106,10 +109,24 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(cookieParser());
 app.use(session({
 	secret : "secret",
-	resave : true,
+	resave : false,
 	saveUninitialized : true,
 	cookie:{maxAge:2 * 60 * 60 * 1000}
 }));
+
+
+/*	
+app.use(function (req, res, next) {
+	console.log("Cookie Maxage check..");
+	if(req.session.cookie.maxAge == 1 * 60 * 1000) {
+		req.session.destroy(function(err) {
+			console.log("Cookie Maxage over and session destroyed.");
+			req.user = {}
+		})
+	}
+});
+*/
+
 app.use(passPort.initialize());
 app.use(passPort.session());
 
@@ -421,7 +438,7 @@ app.post('/register', function(req, res) {
 					service : "Gmail",
 					auth : {
 						user : serviceUser,
-						pass : servicePasswd
+						pass : decrypt(servicePasswd)
 					}
 				});
 				var data = {
@@ -676,6 +693,38 @@ app.post("/empFreeRegister", function(req, res) {
 				req.login(user, function() {
 					res.json(user);
 				});
+				//Email communication after successful registration.
+				var smtpTransport = mailer.createTransport(emailTransport, {
+					service : "Gmail",
+					auth : {
+						user : serviceUser,
+						pass : decrypt(servicePasswd)
+					}
+				});
+				var data = {
+						email: user.email,
+			            password: decrypt(user.password),
+			            uniqueID: user.empUniqueID,
+			            url: "http://"+req.headers.host+"/empLogin",
+			            name: user.name
+				}
+				var mail = {
+					from : emailFrom,
+					to : req.body.email,
+					subject : emailEmpRegSubject,
+					html: renderTemplate(empRegTemplate,data)
+				}
+
+				smtpTransport.sendMail(mail, function(error, response) {
+					if (error) {
+						console.log(error);
+					} else {
+						console.log("Message sent: " + response.message);
+					}
+				   smtpTransport.close();
+				});
+			    //End email communication here.
+				
 			});
 	  } 
 	});
@@ -754,7 +803,7 @@ app.post('/getUsers', function(req, res) {
 			}, function (err, result1) {
 		        if (err) return done(err);
 		        if (result1) {
-		            result.status = result1.contactStatus;
+		            result.push(result1.contactStatus);
 		        }
 		    })
 		}
@@ -765,6 +814,56 @@ app.post('/getUsers', function(req, res) {
 		res.send(result)
 	})
 	}
+});
+
+/*
+app.post('/getUserAddStatus', function(req, res) {
+	console.log(req.body.email);
+	console.log(req.body.currEmail);
+	userContactsModel.findOne({
+		contactEmail : req.body.email,
+		email : req.body.currEmail
+	}, function(err, result) {
+		res.send(result);
+	});
+});
+*/
+
+app.post('/getContactRequests', function(req, res) {
+	console.log(req.body.email);
+	userContactsModel.find({
+		contactEmail : req.body.email,
+		contactStatus : "S"
+	}, function(err, result) {
+		res.send(result);
+	});
+});
+
+app.post('/updateContactApproval', function(req, res) {
+	userContactsModel.findOne({
+		email : req.body.email,
+		contactEmail : req.body.contactEmail,
+		contactStatus : "S"
+	}, function(err, result) {
+		if (result && result.email) {
+			userContactsModel.update({
+				email : req.body.email,
+				contactEmail : req.body.contactEmail,
+				contactStatus : "S"
+			}, {
+				contactStatus : "A",
+				approvedDate : new Date()
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send('error')
+				}
+			})
+		}
+	})
 });
 
 app.post('/getUserInfo', function(req, res) {
@@ -884,22 +983,39 @@ app.post('/getEndorsements', function(req, res) {
 	});
 });
 
-app.get('/getJobMaxNumber', function(req, res) {
-	console.log("getMaxNumber");
-	jobInfoModel.find().sort({"maxNumber":-1}).limit(1).exec(function(err, result) {
-		res.send(result);
-	})
-});
-
 app.post('/addJobDet', function(req, res) {
-	var jobInfoRecord = new jobInfoModel(req.body);
-	jobInfoRecord.save(function(err, result) {
-		if (err) {
-			res.send('error')
-		} else {
-			res.send(result)
+	countersModel.findOne({
+		name: "jobid"
+	}, function(err, result) {
+		if(result) {
+			var jobID = result.seqNum;
+			jobID = jobID+1;
+			req.body.jobID = req.body.jobID+jobID;
+			console.log("jobID "+req.body.jobID);
+			var jobInfoRecord = new jobInfoModel(req.body);
+			jobInfoRecord.save(function(err, result) {
+				if (err) {
+					res.send('error')
+				} else {
+					console.log("Job Record Saved.");
+					countersModel.update({
+						name : "jobid"
+					}, {
+						seqNum : jobID
+					}, false, function(err, num) {
+						if (num.ok = 1) {
+							console.log('success');
+							res.send('success')
+						} else {
+							console.log('error');
+							res.send('error')
+						}
+					})
+					//res.send(result)
+				}
+			})
 		}
-	})
+	});
 });
 
 app.post('/getEmpJobs', function(req, res) {
@@ -932,6 +1048,7 @@ app.post('/updateJobDet', function(req, res) {
 			}, {
 				title : req.body.title,
 				location : req.body.location,
+				companyName : req.body.companyName,
 				responsibilities : req.body.responsibilities,
 				requirement : req.body.requirement,
 				rate : req.body.rate,
@@ -1447,7 +1564,7 @@ app.post('/forgot', function(req, res) {
 	    	userModel.findOne({ email: req.body.email }, function(err, user) {
 	        if (!user) {
 	          console.log('No account with that email address exists.');
-	          return res.send('NotFound');
+	          res.send('NotFound');
 	        }
 	        userModel.update({
 				email : req.body.email
@@ -1462,7 +1579,7 @@ app.post('/forgot', function(req, res) {
 		        service: 'Gmail',
 		        auth: {
 		          user: serviceUser,
-		          pass: servicePasswd
+		          pass: decrypt(servicePasswd)
 		        }
 		      });
 		      var data = {
@@ -1478,13 +1595,13 @@ app.post('/forgot', function(req, res) {
 		      smtpTransport.sendMail(mailOptions, function(err,response) {
 		        if (err) {
 					console.log(err);
+					smtpTransport.close();
 					res.send(err);
 				 } else {
 					console.log('An e-mail has been sent to ' + req.body.email + ' with further instructions.');
 					console.log("Message sent: " + response.message);
 				 }
 		    	 smtpTransport.close();
-		    	 //res.send("success");
 		      });
 	      });
 	   });
@@ -1514,7 +1631,7 @@ app.post('/empForgot', function(req, res) {
 		        service: 'Gmail',
 		        auth: {
 		          user: serviceUser,
-		          pass: servicePasswd
+		          pass: decrypt(servicePasswd)
 		        }
 		      });
 		      var data = {
@@ -1536,7 +1653,6 @@ app.post('/empForgot', function(req, res) {
 					console.log("Message sent: " + response.message);
 				 }
 		    	 smtpTransport.close();
-		    	 //res.send("success");
 		      });
 	      });
 	   });
@@ -1552,7 +1668,7 @@ app.post('/empForgot', function(req, res) {
 		        service: 'Gmail',
 		        auth: {
 		          user: serviceUser,
-		          pass: servicePasswd
+		          pass: decrypt(servicePasswd)
 		        }
 		      });
 		      var data = {
@@ -1627,7 +1743,7 @@ app.post('/reset', function(req, res) {
 		        service: 'Gmail',
 		        auth: {
 		          user: serviceUser,
-		          pass: servicePasswd
+		          pass: decrypt(servicePasswd)
 		        }
 		      });
 		      var data = {
@@ -1677,7 +1793,7 @@ app.post('/reset', function(req, res) {
 	        service: 'Gmail',
 	        auth: {
 	          user: serviceUser,
-	          pass: servicePasswd
+	          pass: decrypt(servicePasswd)
 	        }
 	      });
 	      var data = {
@@ -1719,7 +1835,7 @@ app.post('/changePasswd', function (req, res) {
     					service : "Gmail",
     					auth : {
     						user : serviceUser,
-    						pass : servicePasswd
+    						pass : decrypt(servicePasswd)
     					}
     				});
     				var data = {

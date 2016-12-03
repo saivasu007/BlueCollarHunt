@@ -210,7 +210,6 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	$scope.register = function (user){
 		
 		if ($scope.user.email == "" || $scope.user.firstName == "" || $scope.user.lastName == "" || $scope.user.passwd1 == "" || $scope.user.passwd2 == "" || $scope.user.zipcode == "") {
-			//alert("We need your complete information! Please fill in all the blanks.");
 			$scope.errorMsg = true;
 			Flash.create('Info', "Please fill in all the blanks.",0, {class: 'alert-info', id: 'custom-id'}, true);
 		}
@@ -286,8 +285,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 				}
 				$http.post('/plans/bluecollarhunt_dev', empData).success(function (resp) {
 					if (resp != "0") {
-						alert("Success! Please check your registered email for UniqueID.");
-						//$rootScope.currentUser = null;					
+						alert("Success! Please check your registered email for UniqueID.");					
 						$location.path('/empSignIn');
 					} else {
 						alert("Ooops, there is a issue and Please try again!!")
@@ -327,24 +325,6 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	  }
 	}
 	
-	/*$scope.stripeResponseHandler = function(status,response) {
-		alert("before call post");
-		alert(response);
-		emp.stripeToken = response.id;
-		alert(emp.stripeToken);
-		$http.post('/plans/bluecollarhunt_dev', emp).success(function (response) {
-			alert("In post");
-			if (response != "0") {
-				alert("Success! Please login with your registered email \"" + user.email + "\" and password you created.");
-				$rootScope.currentUser = response;					
-				$location.path('/login');
-			} else {
-				alert("Sorry, the account \"" + user.email + "\" has already been registered! Please create a new one.")
-			}
-		})
-		return;
-	} */
-	
 	$("#cardInfo").hide();
 	
 	$scope.formatCC = function() {
@@ -374,7 +354,6 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	$scope.getFile = function () {
         fileReader.readAsDataUrl($scope.file, $scope)
                       .then(function(result) {
-                    	  alert(result);
                           $scope.imageSrc = result;
        });
     };
@@ -427,7 +406,6 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 			$scope.noJobs = false;
 			$scope.searchResults = 1;
 		}).error(function (err) {
-			alert(err);
 			console.log(err);
 		});
     }
@@ -473,7 +451,6 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 			
 		}).error(function (err) {
 			if(err == "Unauthorized") {
-				//alert("Email or password does not match! Please login again.");
 				$scope.errorMsg = true;
 				Flash.create('warning', "Email or password does not match!.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 				return;
@@ -552,17 +529,18 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 			email: emailID
 		}
 		$http.post('/forgot', postData).success(function (response){
-			
-			if(response = "NotFound" ) {
+			if(response == "NotFound") {
 				alert("Email ID not registered in Blue Collar Hunt Portal.");
 				return;
 			} else {
 				alert("Please check the registered email for instructions.");
+				$location.url('/login');
 			}
-			$location.url('/login');
 		}).error(function (err) {
-			if(err = "NotFound" ) {
+			if(err == "NotFound" ) {
 				alert("Email ID not registered in Blue Collar Hunt Portal.");
+			} else {
+				alert(err);
 			}
 		})
 	  }
@@ -803,8 +781,10 @@ app.controller('empLoginCtrl', function ($scope, $rootScope, $http, $routeParams
 					$location.url('/empSignIn');
 				}
 			}).error(function (err) {
-				if(err = "NotFound" ) {
+				if(err == "NotFound" ) {
 					alert("Email ID not registered in Blue Collar Hunt Portal.");
+				} else {
+					alert(err);
 				}
 			})
 		}
@@ -1154,16 +1134,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
       pickerApiLoaded = true;
     }
 
-    /*
-    $scope.handleAuthResult = function(authResult) {
-    	alert("handleAuthResult");
-      if (authResult && !authResult.error) {
-        oauthToken = authResult.access_token;
-        $scope.createPicker();
-      }
-    }
-    */
-
     // Create and render a Picker object for searching images.
     $scope.createPicker = function() {
       if (pickerApiLoaded && oauthToken) {
@@ -1192,17 +1162,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			        	restRequest.then(function(resp) {
 			        		var fileDownloadUrl = resp.result.webContentLink;
 			        		$http.get('/convertStream?filePath='+filePath+'&contents='+fileDownloadUrl).success(function (response) {
-	    			        	 alert("Uploaded Successfully!")
-	    			        	 /*
-	    			        	 window.gapi.client.drive.files.get({
-	  	            	           fileId: fileId,
-	  	            	           alt: 'media'
-	  	            	        }).on('end', function() {
-	  	            	          console.log('Done');
-	  	            	      }).on('error', function(err) {
-	  	            	        console.log('Error during download', err);
-	  	            	      }).pipe(dest);
-	  	            	      */
+	    			        	 alert("Uploaded Successfully!");
 	    			        }).error(function (err) {
 	    			        	if(err) {
 	    			        		alert("Error while uploading file to server and Please try again!.");
@@ -1282,10 +1242,8 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     }
     
     $scope.applyJob = function() {
-    	alert($rootScope.resumeID);
-    	alert($rootScope.jobDetails.jobID);
-
-        var postData = { 
+ 
+    	var postData = { 
         		jobID : $rootScope.jobDetails.jobID,
     			employerEmail : $rootScope.jobDetails.employerID,
     			email : $rootScope.currentUser.email,
@@ -1314,34 +1272,19 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	var begin = (($scope.currentPage - 1) * $scope.numPerPage)
     , end = begin + $scope.numPerPage;
 	
-	$scope.getMaxNumber = function (){
-		$http.get('/getJobMaxNumber').success(function (response){
-			if (response != 0){
-			$scope.maxNum = response;
-			} else if (response == 'error') {
-			alert('error')
-			}
-		}).error(function (err) {
-			console.log(err);
-		})
-	}
 	
 	$scope.addJobInfo = function (jobInfo){
-		$scope.getMaxNumber();
-		if($scope.maxNum == undefined || $scope.maxNum == "") $scope.maxNum = 103;
-		var jobNum = $scope.maxNum;
-		jobNum = jobNum+1;
 		if(jobInfo.activeJob == "1") jobInfo.activeJob = "Y"
 		else jobInfo.activeJob = "N";
 		var postData = { 
 			title : jobInfo.title,
 			location : jobInfo.location,
 			employerID : $scope.currentUser.email,
+			companyName : $scope.companyName,
 			responsibilities : jobInfo.responsibilities,
 			requirement : jobInfo.requirement,
 			rate : jobInfo.rate,
-			jobID : "BCJOB-"+ jobNum,
-			maxNumber : jobNum,
+			jobID : "BCJOB-",
 			activeJob : jobInfo.activeJob,
 			origPostDate : new Date(),
 			salaryType : jobInfo.salaryType
@@ -1349,7 +1292,6 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 
 		$http.post('/addJobDet',postData).success(function (response){
 			if (response != 0){
-			//alert("Job Posted Successfully.");
 				if(!confirm('Post Success.You want to post another job?')) {
 					$scope.isJobQueue = true;
 					$scope.isPostJob = false;
@@ -1374,6 +1316,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isJobQueue = false;
 		$scope.isUpdate = false;
 		$scope.job = undefined;
+		$scope.companyName = $rootScope.currentUser.name;
 		document.getElementById("active").checked = true;
 		$location.url('/empHome');
 	};
@@ -1394,6 +1337,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		var postData = { 
 				title : jobInfo.title,
 				location : jobInfo.location,
+				companyName : $scope.companyName,
 				responsibilities : jobInfo.responsibilities,
 				requirement : jobInfo.requirement,
 				rate : jobInfo.rate,
@@ -1418,25 +1362,29 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	};
 	
 	$scope.getJobQueue = function (emailID){
+		if(emailID == undefined) emailID = "NA";
 		var postData = { 
-				email : $scope.currentUser.email
+				email : emailID
 		};
 		$http.post('/getEmpJobs',postData).success(function (response){
 			if (response != 0){
-				
-			$scope.partialJobs = [];
-			$scope.allEmpJobs = [];
-			$scope.allJobs = response;
-			  for(i=0;i<=$scope.allJobs.length-1;i++) {
-					$scope.allEmpJobs.push($scope.allJobs[i]);
-			  }
-			$scope.partialJobs = $scope.allEmpJobs.slice(begin, end);	
-			$scope.isJobQueue = true;
-			$scope.isPostJob = false;
-			$location.url('/empHome');
-			
+				$scope.partialJobs = [];
+				$scope.allEmpJobs = [];
+				$scope.allJobs = response;
+				  for(i=0;i<=$scope.allJobs.length-1;i++) {
+						$scope.allEmpJobs.push($scope.allJobs[i]);
+				  }
+				$scope.partialJobs = $scope.allEmpJobs.slice(begin, end);	
+				$scope.isJobQueue = true;
+				$scope.isPostJob = false;
+				$location.url('/empHome');
+			} else if (response == "") {
+				$scope.allJobs = response;
+				$scope.isJobQueue = true;
+				$scope.isPostJob = false;
+				$location.url('/empHome');
 			} else if (response == 'error') {
-			alert('error')
+				alert(err);
 			}
 		}).error(function (err) {
 			console.log(err);
@@ -1663,18 +1611,12 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 				search: $scope.search
 		};
 		$http.post('/getUserInfo',postData).success(function (response) {
-			/*$rootScope.user.image = response;
-			$rootScope.currentUser = response;
-			alert($rootScope.currentUser);
-			*/
 			$rootScope.dataUrl = response;
 			$location.url('/profile');
 		}).error(function (err) {
 			console.log(err);
 		})
 	};
-	
-	//$scope.userInfo();
 	
 	$scope.changeProfilePic = function() {
 		$('#imgupload').trigger('click');
@@ -1688,7 +1630,6 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 			if ( !window.FileReader ) {
 				alert( 'FileReader API is not supported by your browser.' );
 			}
-			alert(filename.name);
 			var fr = new FileReader();
 			fr.readAsDataURL(filename);
 			fr.onload = function(e) {
@@ -1816,7 +1757,6 @@ $rootScope.reqLabel = "Add Contact";
 			};
 		}
 		$http.post('/getUsers',postData).success(function (response) {
-			alert(response.toSource());
 			$scope.partialUsers = [];
 			$scope.allUsers = [];
 			$scope.users = response;
@@ -1830,7 +1770,6 @@ $rootScope.reqLabel = "Add Contact";
 			console.log("No Users found for your Search.");
 		  }
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -1842,10 +1781,13 @@ $rootScope.reqLabel = "Add Contact";
 	  });
 	//End Pagination changes here.
 	
-	$scope.sendAddContactReq = function (contactEmail){
+	$scope.sendAddContactReq = function (contact){
 		var postData = { 
 			email : $rootScope.currentUser.email,
-			contactEmail : contactEmail,
+			contactEmail : contact.email,
+			contactFName : contact.firstName,
+			contactLName : contact.lastName,
+			contactZipcode : contact.zipcode,
 			contactStatus : "S",
 			requestDate : new Date()
 		};
@@ -1853,6 +1795,63 @@ $rootScope.reqLabel = "Add Contact";
 		$http.post('/requestAddContact',postData).success(function (response){
 			if (response != 0){
 			   $rootScope.reqLabel = "Request Sent";
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	/*
+	$scope.getAddStatus = function (contactEmail){
+		
+		var postData ={
+				email: contactEmail,
+				currEmail: $rootScope.currentUser.email
+		};
+		
+		$http.post('/getUserAddStatus',postData).success(function (response) {
+			$scope.contactInfo = response;
+			alert($scope.contactInfo.contactStatus);
+			if($scope.contactInfo.contactStatus == "S") {
+				alert("hi")
+				$scope.status = "Pending";
+				$scope.disable = true;
+			} else if($scope.contactInfo.contactStatus == "A") {
+				$scope.status = "Added";
+				$scope.disable = true;
+			} else {
+				alert("noStatus");
+				$scope.status = "Add Contact";
+				$scope.disable = false;
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	*/
+	$scope.listReceivedReqs = function (){
+		$scope.email = $rootScope.currentUser.email;
+		var postData ={
+				email: $scope.email
+		};
+		$http.post('/getContactRequests',postData).success(function (response) {
+			$scope.contactList = response;
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.sendApproval = function (contact){
+		var postData = { 
+			email : contact.email,
+			contactEmail : $rootScope.currentUser.email,
+			contactStatus : "A",
+			approvedDate : new Date()
+		};
+
+		$http.post('/updateContactApproval',postData).success(function (response){
+			if (response != 0){
+				$scope.approvedStat = "A";
+			   console.log("Success");
 			}
 		}).error(function (err) {
 			console.log(err);
@@ -1980,7 +1979,6 @@ app.controller('navCtrl', function ($scope, $http, $location, $rootScope){
 app.controller('testCtrl', function ($scope, $http, $location, $rootScope){
 	alert("test");
 	$scope.saveEndorseMsg = function(endorseInfo) {
-		alert(endorseInfo.message);
 		var postData = {
 				email : "abc@abc.com",
 			    fromEmail: "test@test.com",

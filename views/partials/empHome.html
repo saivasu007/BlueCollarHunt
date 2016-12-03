@@ -12,8 +12,8 @@
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
-            <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="75" style="margin:10px 0px 0px -60px"/>
-			<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-151px -61px 70px;">
+            <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="100" style="margin:10px 0px 0px -60px"/>
+			<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-171px -61px 70px;">
 			<p style="align:right;padding:10px;margin: 0px 0 0px 780px;">
 			<a href="/changePassword" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Password</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		  	<a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -26,12 +26,12 @@
 </div></div></div></div></div>
 
 <div class="container" style="padding-left:0px;">
-<div class="row" style="height:610px;">
+<div class="row" style="height:640px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:634px;">
+<div class="panel panel-default site-panel-box" style="height:664px;">
 <div class="panel-body" style="padding:10px;">
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:612px;width:870px;margin:0 0 0 295px;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:642px;width:870px;margin:0 0 0 295px;">
 <div class="panel-body" style="padding:0px;">
 <div ng-show="isPostJob">
 			<p style="font-size: 18px; font-weight: bold" ng-show="!isUpdate">Add Job Posting Information: </p>
@@ -41,6 +41,12 @@
 				<label for="addCorCh" class="col-sm-4" style="font-size: 14px">* Job Title:</label>
 				<div class="form-group col-sm-8">
                 <input id="addCorCh" style="width: 280px; height: 30px" type="text" ng-model="job.title" class="form-control" placeholder="Enter Job Title" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" ng-required="true">
+            	</div>
+            	</div>
+            	<div class="form-group">
+				<label for="addCorCh" class="col-sm-4" style="font-size: 14px">* Company Name:</label>
+				<div class="form-group col-sm-8">
+                <input id="addCorCh" style="width: 280px; height: 30px" type="text" ng-model="companyName" class="form-control" placeholder="Enter Company Name" ng-required="true">
             	</div>
             	</div>
             	<div class="form-group">
@@ -128,7 +134,7 @@
 					</button></td>
 				</tr>
 				<tr ng-show="allJobs.length <= 0">
-				<td colspan="5" align="center"><h4 style="color:red">No Records Found For Your Search.</h4></td>
+				<td colspan="5" align="center"><h4 style="color:red">No Jobs available for {{currentUser.name}}</h4></td>
 				</tr>
 				</tbody>
 			</table>
@@ -152,7 +158,7 @@
 
 </div></div>
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:612px;width:290px;margin:-610px 0px 0px 0px;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:642px;width:290px;margin:-640px 0px 0px 0px;">
 <div class="panel-body" style="padding:0px;padding-top:5px;">
 <div style="text-align: center">
 		<br>

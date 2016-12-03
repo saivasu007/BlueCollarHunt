@@ -12,8 +12,8 @@
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
-    <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="75" style="margin:10px 0px 0px -60px"/>
-	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-151px -61px 70px;">
+    <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="100" style="margin:10px 0px 0px -60px"/>
+	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-171px -61px 70px;">
 	  <p style="align:right;padding:10px;margin: 0px 0 0px 700px;">
 		<a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		<a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -40,6 +40,10 @@
 					<a href="/home"><button style="width: 92px; height: 36px; font-size: 14px;" class="btn-warning">
 					<span class="glyphicon glyphicon-remove-sign"></span>  Cancel
 					</button></a>
+					</td>
+					<td colspan="2"></td>
+					<td style="padding-left:20px;">
+					<button class="btn btn-info block full-width m-b" style="width:142px;height:36px;padding:1px 11px;border-radius:20px;" data-toggle="modal" data-target="#listRecvRequests"><span class="customSpan">Notifications ({{contactList.length}})</span></button>
 					</td>
 					</tr></table>
 			<br><br>
@@ -73,8 +77,8 @@
 					<td>{{user.lastName}}</td>
 					<td>{{user.activeIn}}</td>
 					<td>{{user.zipcode}}</td>
-					<td><button  class="btn btn-info" ng-click="sendAddContactReq(user.email)">
-					<span class="glyphicon glyphicon-eye-open"></span>{{user.status}}
+					<td><button  class="btn-primary" ng-click="sendAddContactReq(user)">
+					<span class="glyphicon glyphicon-eye-open"></span> Add Contact
 					</button></td>
 				</tr>
 				<tr ng-show="allUsers.length <= 0">
@@ -99,6 +103,52 @@
 			</table>
 			</div>
 	</div></div></div></div>
+	
+	<div  class="modal fade" id="listRecvRequests" role="dialogue">
+	<div class="modal-dialogue" style="width:50%;height:100%;z-index:0;margin-top: 10%;margin-left: 27%" data-ng-init="listReceivedReqs()">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4>Contact Requests received for {{currentUser.lastName}}</h4>
+			</div>
+			<div class="modal-body" style="display:block;">
+				<table class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Email</th>
+					<th>ZipCode</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="contact in contactList" style="padding:10px;">
+					<td style="padding: 0px;cursor: pointer;">{{contact.contactFName}}</td>
+					<td style="padding: 0px;cursor: pointer;">{{contact.contactLName}}</td>
+					<td style="padding: 0px;cursor: pointer;">{{contact.email}}</td>
+					<td style="padding: 0px;cursor: pointer;">{{contact.contactZipcode}}</td>
+					<td ng-show="approvedStat == undefined"><button  class="btn-primary" ng-click="sendApproval(contact)">
+					<span class="glyphicon glyphicon-ok-sign"></span>Approve
+					</button></td>
+					<td ng-show="approvedStat == 'A'"><button  class="btn-primary" disabled="true">
+					<span class="glyphicon glyphicon-ok-sign"></span>Approved
+					</button></td>
+				</tr>
+				<tr ng-show="contactList.length <= 0">
+				<td colspan="5" align="center"><h4 style="color:red">No Contact requests received.</h4></td>
+				</tr>
+				</tbody>
+			</table>
+				
+			</div>
+			<div class="modal-footer" style="text-align:center;">
+				<button class="btn btn-success" data-dismiss="modal" ng-click="listReceivedReqs()">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+	
 	<!-- Footer -->
 	<footer>
 <div class="container" style="padding-left:0px;">

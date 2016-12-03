@@ -1579,7 +1579,7 @@ app.post('/forgot', function(req, res) {
 		        service: 'Gmail',
 		        auth: {
 		          user: serviceUser,
-		          pass: servicePasswd
+		          pass: decrypt(servicePasswd)
 		        }
 		      });
 		      var data = {

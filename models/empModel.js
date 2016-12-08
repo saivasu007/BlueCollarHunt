@@ -12,6 +12,7 @@ var empSchema = new mongoose.Schema({
     activeIn: String,
     expiryDate: String,
     saveCC: String,
+    userType: String,
     resetPasswordToken: String,
     resetPasswordExpires: Date
 });

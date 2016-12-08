@@ -334,8 +334,8 @@ hr {
 }.btn.active span.glyphicon {				
 	opacity: 1;				
 }.profileImage{
-  width: 40px;
-  height: 40px;
+  width: 55px;
+  height: 55px;
   border-radius: 45%;
   background-position: center center;
   background-size: cover;
@@ -400,6 +400,28 @@ hr {
 .nav-side-menu ul .sub-menu li:hover,
 .nav-side-menu li .sub-menu li:hover {
   background-color: #020203;
+}
+
+.btnCustom {
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 20px;
+  background: #63c1ff;
+  padding: 10px 20px 10px 20px;
+  border: solid #4db2f0 2px;
+  text-decoration: none;
+}
+.btnCustom:hover {
+  background: #3cb0fd;
+  background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+  text-decoration: none;
 }
 .nav-side-menu ul .sub-menu li:before,
 .nav-side-menu li .sub-menu li:before {

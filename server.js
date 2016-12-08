@@ -74,6 +74,10 @@ var resetConfirmSubject = properties.get("app.email.subjectConfirmResetPwd");
 var resetConfirmTemplate = properties.get("app.email.resetConfirmTem");
 var forgotUniqueIDSubject = properties.get("app.email.subjectForgotUniqueID");
 var forgotUniqueIDTemplate = properties.get("app.email.forgotUniqueIDTem");
+var deactivateUsrAcctTemplate = properties.get("app.email.deactivateUserAcctTem");
+var reactivateUsrAcctTemplate = properties.get("app.email.reactivateUserAcctTem");
+var deactivateUsrSubject = properties.get("app.email.subjectDeactivateUsrAcct");
+var reactivateUsrSubject = properties.get("app.email.subjectReactivateUsrAcct");
 
 //Function added for encrypting the passwords in the Portal.
 function encrypt(pass){
@@ -101,6 +105,56 @@ function randomNumber() {
 	var num;
 	num = parseInt((Math.random() * 9 + 1) * Math.pow(10,4), 10);
 	return num;
+}
+
+function sendEmail(user,template,info){
+	var handle = "";
+	var host = ";"
+	if(template == deactivateUsrAcctTemplate) handle = info;
+	if(template == reactivateUsrAcctTemplate || template == empRegTemplate) host = info;
+	var smtpTransport = mailer.createTransport(emailTransport, {
+        service: 'Gmail',
+        auth: {
+          user: serviceUser,
+          pass: decrypt(servicePasswd)
+        }
+      });
+	if(template == deactivateUsrAcctTemplate) {
+	      var data = {
+			  email: user.email,
+			  name: user.firstName,
+			  handle: handle
+		  }
+	 } else if(template == reactivateUsrAcctTemplate) {
+		   var data = {
+				  email: user.email,
+				  name: user.firstName,
+				  forgotUrl: "http://"+host+"/forgetPasswd",
+			  }
+	 } else if(template == reactivateUsrAcctTemplate) {
+		   var data = {
+					  email: user.email,
+					  name: user.firstName,
+					  url: "http://"+host+"/empSignIn",
+				  }
+	 }
+      var mailOptions = {
+        to: user.email,
+        from: emailFrom,
+        subject: reactivateUsrSubject,
+        html: renderTemplate(template,data)
+      };
+      smtpTransport.sendMail(mailOptions, function(err,response) {
+        if (err) {
+			console.log(err);
+			smtpTransport.close();
+			res.send(err);
+		 } else {
+			console.log('An e-mail has been sent to ' + user.email + ' with further instructions.');
+			console.log("Message sent: " + response.message);
+		 }
+    	 smtpTransport.close();
+      });
 }
 
 app.use(bodyParser.json({limit: '50mb'}));
@@ -606,50 +660,27 @@ app.post("/plans/bluecollarhunt_dev", function(req, res) {
 		if (result) {
 			res.send("0");
 		} else {
-			var newUser = new empModel(req.body);
-			newUser.save(function(err, user) {
-				req.login(user, function() {
-					res.json(user);
-				});
-				/*
-				//send email after successful registration.
-				var smtpTransport = mailer.createTransport(emailTransport, {
-					service : "Gmail",
-					auth : {
-						user : serviceUser,
-						pass : servicePasswd
-					}
-				});
-				var data = {
-						email: user.email,
-			            password: decrypt(user.password),
-			            url: "http://"+req.headers.host+"/login",
-			            name: user.firstName
-				}
-				var mail = {
-					from : emailFrom,
-					to : req.body.email,
-					subject : emailSubject,
-					html: renderTemplate(regTemplate,data)
-				}
-
-				smtpTransport.sendMail(mail, function(error, response) {
-					if (error) {
-						console.log(error);
-					} else {
-						console.log("Message sent: " + response.message);
-					}
-				   smtpTransport.close();
-				});
-			    //End email communication here.
-			    */
-			});
 			if(req.body.saveCC == "Y" && req.body.amount != 0) { 
-			var newPayment = new paymentModel(req.body.card);
-			newPayment.save(function(err, user) {
-				if(err) console.log("ERROR:paymet "+err);
-				console.log("Payment Source added successfully");
-			});
+				var newPayment = new paymentModel(req.body.card);
+				newPayment.save(function(err, user) {
+					if(err) {
+						console.log("ERROR:paymet "+err);
+						res.send(err);
+					}
+					console.log("Payment Source added successfully");
+					var newUser = new empModel(req.body);
+					newUser.save(function(err, user) {
+						/* Disabled Auto Login after successful registration
+						req.login(user, function() {
+							res.json(user);
+						});
+						*/
+						//send email after successful registration.
+						sendEmail(user,empRegTemplate,req.headers.host);
+					    //End email communication here.	
+						res.send('success');
+					});
+				});
 			}
 	  } 
 	});
@@ -682,6 +713,7 @@ app.post("/empFreeRegister", function(req, res) {
 	req.body.empUniqueID = empUniqueID;
 	var password = encrypt(req.body.password);
 	req.body.password = password;
+	console.log("UserType while register is "+req.body.userType);
 	empModel.findOne({
 		email : req.body.email
 	}, function(err, result) {
@@ -690,9 +722,11 @@ app.post("/empFreeRegister", function(req, res) {
 		} else {
 			var newUser = new empModel(req.body);
 			newUser.save(function(err, user) {
+				/* Disabled Auto Login after successful registration
 				req.login(user, function() {
 					res.json(user);
 				});
+				*/
 				//Email communication after successful registration.
 				var smtpTransport = mailer.createTransport(emailTransport, {
 					service : "Gmail",
@@ -705,7 +739,7 @@ app.post("/empFreeRegister", function(req, res) {
 						email: user.email,
 			            password: decrypt(user.password),
 			            uniqueID: user.empUniqueID,
-			            url: "http://"+req.headers.host+"/empLogin",
+			            url: "http://"+req.headers.host+"/empSignIn",
 			            name: user.name
 				}
 				var mail = {
@@ -983,6 +1017,18 @@ app.post('/getEndorsements', function(req, res) {
 	});
 });
 
+app.post('/getRecoJobs', function(req, res) {
+	console.log(req.body.search);
+	var query = req.body.search ? {
+		title : {$regex: req.body.search,$options:"$i"}
+	} : {
+		title : {$regex: req.body.search,$options:"$i"}
+	}
+	jobInfoModel.find(query).exec(function(err, result) {
+		res.send(result);
+	})
+});
+
 app.post('/addJobDet', function(req, res) {
 	countersModel.findOne({
 		name: "jobid"
@@ -1114,7 +1160,8 @@ app.post('/updateUserProfile', function(req, res) {
 				firstName : req.body.firstName,
 				lastName : req.body.lastName,
 				zipcode : req.body.zipcode,
-				socialYN : req.body.socialYN
+				socialYN : req.body.socialYN,
+				primarySkill : req.body.primarySkill
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
@@ -1142,6 +1189,7 @@ app.post('/deactivateProfile', function(req, res) {
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
+					sendEmail(result,deactivateUsrAcctTemplate,encrypt(handle));
 					res.send('success')
 				} else {
 					console.log('error');
@@ -1167,6 +1215,7 @@ app.post('/activateUser', function(req, res) {
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
+					sendEmail(result,reactivateUsrAcctTemplate,req.headers.host);
 					res.send('success')
 				} else {
 					console.log('error');
@@ -1316,6 +1365,7 @@ app.post('/checkProfileVideoCount', function(req, res) {
 				    		res.send('success')
 				    	} else {
 				    		console.log("No Video Found");
+				    		db.close();
 				    		res.send('NoVideo');
 				    	}
 				    }
@@ -1565,7 +1615,7 @@ app.post('/forgot', function(req, res) {
 	        if (!user) {
 	          console.log('No account with that email address exists.');
 	          res.send('NotFound');
-	        }
+	        } else {
 	        userModel.update({
 				email : req.body.email
 			}, {
@@ -1603,6 +1653,7 @@ app.post('/forgot', function(req, res) {
 				 }
 		    	 smtpTransport.close();
 		      });
+	    	}
 	      });
 	   });
 	});

@@ -209,7 +209,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	
 	$scope.register = function (user){
 		
-		if ($scope.user.email == "" || $scope.user.firstName == "" || $scope.user.lastName == "" || $scope.user.passwd1 == "" || $scope.user.passwd2 == "" || $scope.user.zipcode == "") {
+		if ($scope.user.email == "" || $scope.user.firstName == "" || $scope.user.lastName == "" || $scope.user.passwd1 == "" || $scope.user.passwd2 == "" || $scope.user.zipcode == "" || $scope.user.skill == "") {
 			$scope.errorMsg = true;
 			Flash.create('Info', "Please fill in all the blanks.",0, {class: 'alert-info', id: 'custom-id'}, true);
 		}
@@ -424,6 +424,12 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 			console.log(err);
 		})
 	};
+	
+	$scope.pressEnter = function (e,jobInfo) {
+		if (e.keyCode == 13){
+			$scope.search(jobInfo);
+		}
+	};
 });
 
 app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $location,Flash) {
@@ -607,7 +613,7 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 				Flash.create('warning', "User not registered or still active in Portal.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 				return;
 			}
-			alert("User Account Activated. Please Login with your credentials");
+			alert("User Account Activated. Please follow the instructions sent to your email");
 			$location.url('/login');
 		}).error(function (err) {
 			if(err) {
@@ -863,6 +869,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		
 		$http.post('/uploadProfileResume',postData).success(function (response) {
 			alert("Upload resume Success");
+			$scope.uploadCV();
 		}).error(function (err) {
 			if(err) {
 				alert("Error while uploading resume and Please try again!.");
@@ -988,7 +995,8 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 					lastName : cUser.lastName,
 					zipcode : cUser.zipcode,
 					email : cUser.email,
-					socialYN : cUser.socialYN
+					socialYN : cUser.socialYN,
+					primarySkill : cUser.primarySkill
 			};
 			
 			$http.post('/updateUserProfile',postData).success(function (response){
@@ -1038,6 +1046,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		var options = {
 			    // Required. Called when a user selects an item in the Chooser.
 			    success: function(files) {
+			    	alert(files[0].toSource());
 			        if(files[0].name.substring(files[0].name.indexOf(".") == "PDF")) fileType = "application/pdf";
 			        else if(files[0].name.substring(files[0].name.indexOf(".") == "DOC")) fileType = "application/msword";
 			        else if(files[0].name.substring(files[0].name.indexOf(".") == "DOCX")) fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -1263,6 +1272,9 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 });
 
 app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location, $interval) {
+	$scope.result1 = '';
+	$scope.options1 = null;
+	$scope.details1 = '';
 	$rootScope.wrong = 0;
 	$rootScope.report = {type:'',wrong:[]};
 	$scope.isJobQueue = false;
@@ -1274,6 +1286,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	
 	
 	$scope.addJobInfo = function (jobInfo){
+		alert(jobInfo.location);
 		if(jobInfo.activeJob == "1") jobInfo.activeJob = "Y"
 		else jobInfo.activeJob = "N";
 		var postData = { 
@@ -1326,6 +1339,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isPostJob = true;
 		$scope.isJobQueue = false;
 		$scope.isUpdate = true;
+		$scope.companyName = $scope.job.companyName;
 		if(jobInfo.activeJob == "Y") $scope.job.activeJob = "1";
 		else $scope.job.activeJob = "0";
 		$location.url('/empHome');
@@ -1526,6 +1540,18 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 				console.log(err);
 			});
 	}
+		
+		$scope.logout = function () {
+			var path = "";
+			if($rootScope.currentUser.userType == "E") path = "/empSignIn";
+			else path = "/login";
+			$http.post('/logout',$rootScope.user).success(function () {				
+				$rootScope.currentUser = undefined;
+				$rootScope.user = undefined;
+				$location.url(path);
+			})
+		};
+		
 });
 
 
@@ -1702,6 +1728,36 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		$http.post('/getEndorsements',postData).success(function (response) {
 			$scope.endorseList = response;
 			//$location.url('/profile#listEndorses');
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.listRecoJobs = function (skill){
+		$scope.search = skill;
+		var postData ={
+				search: $scope.search
+		};
+		$http.post('/getRecoJobs',postData).success(function (response) {
+			$scope.recoJobsList = response;
+			if($scope.recoJobsList.length <=0) $scope.noJobs = true;
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.getRecoJobInfo = function (jobID) {
+		var postData = {
+				search: jobID
+		}
+		$http.post('/getJobInfo',postData).success(function (response) {
+			$scope.jobInfo = response;
+			//$rootScope.jobsList = response;
+			$rootScope.jobInfo = response;
+			$rootScope.jobID = $scope.jobInfo.jobID;
+			$rootScope.jobResults = 2;
+			$rootScope.searchResults = 1;
+			$location.url('/home');
 		}).error(function (err) {
 			console.log(err);
 		})
@@ -2047,7 +2103,8 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		var deferred = $q.defer();
 		$http.get('/loggedin').success(function (user) {
 			$rootScope.errorMessage = null;
-			if (user !== '0'){
+			if (user != '0'){
+				alert("user is not 0");
 				$rootScope.currentUser =  user;
 				$rootScope.currentUser.passwd1 = "";
 				$rootScope.isLoggedIn = (user != 0);

@@ -11,7 +11,7 @@
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
-	<img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="100" style="margin:10px 0px 0px -60px"/>
+	<a href="/home"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
 	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-171px -61px 70px;">
 	  <p style="align:right;padding:10px;margin: 0px 0 0px 700px;">
 		<a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -54,18 +54,43 @@
 <div class="panel-body" style="padding:10px;">
 <!-- <img class="banner" src="img/BlueCollar_Profile.png" alt="background" width="100%" height="530px"/> -->
 <!-- For Profile Image and Details -->
-<div class="panel panel-default site-panel-box" style="width:220px;height:530px;margin:35px 0 0 20px;float:left">
+<div class="panel panel-default site-panel-box" style="width:220px;height:562px;margin:3px 0 0 5px;float:left">
 <div class="panel-body" style="padding:20px;">
 <img ng-src="{{dataUrl | trustUrl}}" style="height:125px;width:175px;border-radius: 60%;background-position: center center;background-size: cover;" />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="" ng-click="changeProfilePic()">Edit</a>
 <input type="file" id="imgupload" ng-model="Image" accept="image/jpeg,image/png" placeholder="Change Profile Image" style="display:none">
+<br/>
+<br/>
+<br/>
+<br/>
+<table>
+<tr>
+<td>
+<p style="padding-left:5px;"><strong>Zip Code : </strong></p>
+</td>
+<td><p style="padding-left:5px;"><strong>{{currentUser.zipcode}}</strong></p></td>
+</tr>
+<tr><td nowrap>
+<p style="padding-left:5px;"><strong>Primary Skill : </strong></p>
+</td>
+<td><p style="padding-left:5px;"><strong>{{currentUser.primarySkill}}</strong></p></td>
+</tr>
+<tr><td>
+<p style="padding-left:5px;"><strong>Email : </strong></p>
+</td>
+<td><p><strong>{{currentUser.email}}</strong></p></td>
+</tr></table>
 </div></div>
 <!-- For Most Talented Skills and Recommendations/Views -->
-<div class="panel panel-default site-panel-box" style="width:900px;height:380px;margin:35px 0 0 250px;">
-<div class="panel-body" style="padding:5px;">
-<h3>{{currentUser.firstName}} {{currentUser.lastName}}</h3>
-<h4>@{{currentUser.lastName}}</h4>
-<div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:-85px 0 0 450px;float:right;border:2px dotted">
+<div class="panel panel-default site-panel-box" style="width:928px;height:380px;margin:3px 0 0 232px;">
+<div class="panel-body" style="padding:3px;padding-top:0px;">
+<h3>{{currentUser.firstName}} {{currentUser.lastName}} <img src="img/like_image.jpeg" style="width:90px;height:70px;padding-bottom:20px;"></h3>
+<h4 style="margin:-30px 0px 0px 0px">@{{currentUser.lastName}}</h4>
+<div class="form-group" style="margin:10px 0px 0px 0px;">
+<textarea name="message" id="coverMsg" class="form-control" rows="12" cols="26" required="required"
+                                placeholder="CoverPage Info Wall" ng-model="user.coverInfo" style="width:312px;height:270px;"></textarea>
+</div>
+<div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:-360px 0 0 450px;float:right;border:2px dotted">
 <div class="panel-body" style="padding:0px;" data-ng-init="checkProfileVideo()">
 
 <div ng-show="!showVideo">
@@ -88,14 +113,35 @@
 </div></div>
 </div></div>
 <!-- For endorsements -->
-<div class="panel panel-default site-panel-box" style="width:404px;height:55px;margin:-65px 0 0 740px;">
+<div class="panel panel-default site-panel-box" style="width:404px;height:55px;margin:-65px 0 0 754px;">
 <div class="panel-body" style="padding:0px;">
 <button class="btn btn-info block full-width m-b" style="width:145px;height:52px;" data-toggle="modal" data-target="#listEndorses"><span class="customSpan">Endorsements</span></button>
 </div></div>
 <!-- For Recommended Jobs list -->
-<div class="panel panel-default site-panel-box" style="width:900px;height:142px;margin:18px 0 0 250px;">
-<div class="panel-body" style="padding:20px;">
-</div></div>
+<div class="panel panel-default site-panel-box" style="width:928px;height:173px;margin:18px 0 0 234px;" data-ng-init="listRecoJobs(currentUser.primarySkill)">
+<strong style="color:blue;">Recommended Jobs for your skill : {{currentUser.primarySkill}}</strong>
+<div class="panel-body" style="padding:8px;">
+<table class="table table-striped">
+<tr class="info" ng-repeat="job in recoJobsList" style="margin-bottom: 0px;cursor: pointer;" ng-click="getRecoJobInfo(job.jobID)">
+<td>
+<font size="3"><strong>&nbsp;&nbsp;&nbsp;{{job.title}}</strong></font> 
+</td>
+<td>
+<p style="width:300px; white-space: nowrap;overflow: hidden;text-overflow:ellipsis;"><strong>{{job.requirement}}</strong></p>
+</td>
+<td>
+<font color="black" size="2"><strong>{{job.companyName}}</strong></font>
+</td>
+<td>
+<font color="black" size="2"><strong>{{job.location}}</strong></font>
+</td>
+</tr>
+</table>
+<div ng-show="noJobs" style="text-align:center;padding-top:20px;">
+	<h5 style="color:black">No Job Recommendations available for your skill.</h5>
+</div>
+</div>
+</div>
 </div></div></div></div></div></div>
 
 <div  class="modal fade" id="listEndorses" role="dialogue">

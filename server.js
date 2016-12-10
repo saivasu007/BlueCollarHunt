@@ -157,7 +157,7 @@ function sendEmail(user,template,info,request){
 					  jobID: user.jobID,
 					  title: user.title,
 					  employer: user.companyName,
-					  url: "http://"+request.headers.host+"/searchJob";
+					  url: "http://"+request.headers.host+"/searchJob"
 				  }
 	 }
       var mailOptions = {

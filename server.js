@@ -109,7 +109,7 @@ function randomNumber() {
 	return num;
 }
 
-function sendEmail(user,template,info){
+function sendEmail(user,template,info,request){
 	var handle = "";
 	var host = "";
 	var subject = "";
@@ -157,7 +157,7 @@ function sendEmail(user,template,info){
 					  jobID: user.jobID,
 					  title: user.title,
 					  employer: user.companyName,
-					  url: "http://127.0.0.1:1337"
+					  url: "http://"+request.headers.host+"/searchJob";
 				  }
 	 }
       var mailOptions = {
@@ -170,7 +170,6 @@ function sendEmail(user,template,info){
         if (err) {
 			console.log(err);
 			smtpTransport.close();
-			res.send(err);
 		 } else {
 			console.log('An e-mail has been sent to ' + user.email + ' with further instructions.');
 			console.log("Message sent: " + response.message);
@@ -1186,7 +1185,7 @@ app.post('/applyJobPosting', function(req, res) {
 			console.log(err);
 			res.send('error');
 		} else {
-			sendEmail(result,applyJobConfirmTemplate,req.body.name);
+			sendEmail(result,applyJobConfirmTemplate,req.body.name,req);
 			res.send("success");
 		}
 	})

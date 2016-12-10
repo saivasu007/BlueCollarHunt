@@ -3,7 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>BlueCollarHunt Registration Successful.</title>
+<title>BlueCollarHunt Apply Job Confirmation.</title>
 <style>
 /* -------------------------------------
     GLOBAL
@@ -133,7 +133,7 @@ ol li {
 }
 /* Set the padding on the td rather than the div for Outlook compatibility */
 .body-wrap .container {
-  padding: 20px;
+  padding: 10px;
 }
 /* This should also be a block element, so that it will fill 100% of the .container */
 .content {
@@ -169,15 +169,16 @@ ol li {
             <br/>
             <p>Hi <b><%= locals.name %></b>,</p>
             <p>Welcome to Blue Collar Hunt website!.A perfect website for you to search and get the blue collar jobs.</p>
-            <p>You have been successfully registered into Blue Collar Hunt Portal. Please find your login credentials as given below.</p>
-            <p></p>
-            <h6>Username&emsp;&emsp;:&emsp;&emsp;<%= locals.email %></h6>
-            <h6>Password&emsp;&emsp;:&emsp;&emsp;<%= locals.password %></h6>
-            <br/><br/>
-            <p><b style="color:blue;">Login to see it in action?</b>. Login using <b><a href="<%= locals.url %>">Blue Collar Hunt</a></b>.</p>
+            <p>You have been successfully applied for the job <b><%= locals.title %></b> in Blue Collar Hunt Portal. Please find the Job Application details as given below.</p>
             <br/>
+            <h6 style="padding-left:3em">JOBID&emsp;&emsp;&emsp;&emsp;:&emsp;<a href="<%= locals.url %>?jobID=<%= locals.jobID %>"><%= locals.jobID %></a></h6>
+            <h6 style="padding-left:3em">POSITION&emsp;&emsp;:&emsp;<%= locals.title %></h6>
+            <h6 style="padding-left:3em">EMPLOYER&emsp;:&emsp;<%= locals.employer %></h6>
+            <br/><br/>
+            <p><b style="color:blue;">Login to apply millions of jobs in portal?</b>. It's easy and Click the <b><a href="<%= locals.url %>">Blue Collar Hunt</a></b>.</p>
             <br/>
             <p>If you have any questions or encounter any problems logging in, please contact a site administrator at <b><a href="mailto:thungathurti.srinivas@bluecollarhunt.com">BlueCollarHunt Team.</a></b></p>
+            <br/>
             <div style="width:100%;height:30px;border:0px solid #000;background-color:#3399FF;"></div>
           </td>
         </tr>

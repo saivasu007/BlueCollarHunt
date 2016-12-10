@@ -76,8 +76,10 @@ var forgotUniqueIDSubject = properties.get("app.email.subjectForgotUniqueID");
 var forgotUniqueIDTemplate = properties.get("app.email.forgotUniqueIDTem");
 var deactivateUsrAcctTemplate = properties.get("app.email.deactivateUserAcctTem");
 var reactivateUsrAcctTemplate = properties.get("app.email.reactivateUserAcctTem");
+var applyJobConfirmTemplate = properties.get("app.email.applyJobConfirmTem");
 var deactivateUsrSubject = properties.get("app.email.subjectDeactivateUsrAcct");
 var reactivateUsrSubject = properties.get("app.email.subjectReactivateUsrAcct");
+var confirmJobApplySubject = properties.get("app.email.subjectConfirmJobApply");
 
 //Function added for encrypting the passwords in the Portal.
 function encrypt(pass){
@@ -109,9 +111,21 @@ function randomNumber() {
 
 function sendEmail(user,template,info){
 	var handle = "";
-	var host = ";"
-	if(template == deactivateUsrAcctTemplate) handle = info;
-	if(template == reactivateUsrAcctTemplate || template == empRegTemplate) host = info;
+	var host = "";
+	var subject = "";
+	if(template == deactivateUsrAcctTemplate) {
+		handle = info;
+		subject = deactivateUsrSubject;
+	} else if(template == reactivateUsrAcctTemplate) {
+		host = info;
+		subject = reactivateUsrSubject;
+	} else if(template == empRegTemplate) {
+		host = info;
+		subject = emailEmpRegSubject;
+	} else if(template == applyJobConfirmTemplate) {
+		host = info;
+		subject = confirmJobApplySubject+" "+user.title;
+	}
 	var smtpTransport = mailer.createTransport(emailTransport, {
         service: 'Gmail',
         auth: {
@@ -129,19 +143,27 @@ function sendEmail(user,template,info){
 		   var data = {
 				  email: user.email,
 				  name: user.firstName,
-				  forgotUrl: "http://"+host+"/forgetPasswd",
+				  forgotUrl: "http://"+host+"/forgetPasswd"
 			  }
-	 } else if(template == reactivateUsrAcctTemplate) {
+	 } else if(template == empRegTemplate) {
 		   var data = {
 					  email: user.email,
 					  name: user.firstName,
-					  url: "http://"+host+"/empSignIn",
+					  url: "http://"+host+"/empSignIn"
+				  }
+	 } else if(template == applyJobConfirmTemplate) {
+		   var data = {
+					  name: host,
+					  jobID: user.jobID,
+					  title: user.title,
+					  employer: user.companyName,
+					  url: "http://127.0.0.1:1337"
 				  }
 	 }
       var mailOptions = {
         to: user.email,
         from: emailFrom,
-        subject: reactivateUsrSubject,
+        subject: subject,
         html: renderTemplate(template,data)
       };
       smtpTransport.sendMail(mailOptions, function(err,response) {
@@ -984,6 +1006,17 @@ app.post('/getJobInfo', function(req, res) {
 	});
 });
 
+app.post('/getUserJobStatus', function(req, res) {
+	console.log("Status for JobID "+req.body.search);
+	userJobInfoModel.findOne({
+		jobID : req.body.search,
+		email : req.body.email
+	}, function(err, result) {
+		if(result && result.jobID) res.send("applied");
+		else res.send("notYetApplied");
+	});
+});
+
 app.post('/checkJobPost', function(req, res) {
 	userJobInfoModel.find({
 			jobID : req.body.jobID,
@@ -1013,6 +1046,15 @@ app.post('/getEndorsements', function(req, res) {
 	endorsementModel.find({
 		email : req.body.email
 	}, function(err, result) {
+		res.send(result);
+	});
+});
+
+app.post('/getAppliedJobs', function(req, res) {
+	console.log(req.body.email);
+	userJobInfoModel.find({
+		email : req.body.email
+	}).sort({dateApplied: -1}).exec(function(err, result) {
 		res.send(result);
 	});
 });
@@ -1144,6 +1186,7 @@ app.post('/applyJobPosting', function(req, res) {
 			console.log(err);
 			res.send('error');
 		} else {
+			sendEmail(result,applyJobConfirmTemplate,req.body.name);
 			res.send("success");
 		}
 	})
@@ -1230,16 +1273,49 @@ app.post('/activateUser', function(req, res) {
 });
 
 app.post('/saveEndorse', function(req, res) {
-	var endorseRecord = new endorsementModel(req.body);
-	endorseRecord.save(function(err, result) {
-		if (err) {
-			console.log(err);
-			res.send('error')
-		} else {
-			console.log(result);
-			res.send(result)
-		}
-	})
+	if(req.body.saveFlag == "add") {
+		var endorseRecord = new endorsementModel(req.body);
+		endorseRecord.save(function(err, result) {
+			if (err) {
+				console.log(err);
+				res.send('error')
+			} else {
+				console.log(result);
+				res.send(result)
+			}
+		})
+	} else if(req.body.saveFlag == "update") {
+		endorsementModel.findOne({
+			email : req.body.email,
+			fromEmail : req.body.fromEmail
+		}, function(err, result) {
+			if (result && result.email) {
+				endorsementModel.update({
+					email : req.body.email,
+					fromEmail : req.body.fromEmail
+				}, {
+					message: req.body.message
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						res.send('success')
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			}
+		});
+	 }
+});
+
+app.post('/getEndorseInfo', function(req, res) {
+	endorsementModel.findOne({
+		email : req.body.email,
+		fromEmail : req.body.fromEmail
+	}, function(err, result) {
+		res.send(result);
+	});
 });
 
 app.post('/ClearCurrentProfile', function(req, res) {

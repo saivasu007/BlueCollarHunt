@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 
 var userJobInfoSchema = new mongoose.Schema({
     jobID: String,
+    title: String,
     email: String,
     companyName: String,
     employerEmail: String,

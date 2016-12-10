@@ -161,27 +161,29 @@ ol li {
       <table>
         <tr>
           <td>
-            <hr size=15 color="#3399FF">
+            <div style="width:100%;height:30px;border:0px solid #000;background-color:#3399FF;">
+			<p style="text-align:center;color:white;font-weight:bold;font-size:20px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
+			BLUE COLLAR HUNT
+			</p>
+			</div>
             <br/>
-            <p>Welcome onboard employer <b><%= locals.name %></b>,</p>
+            <p>Welcome onboard <b><%= locals.name %></b>,</p>
             <p>Blue Collar Hunt Portal is a perfect website for employers to post the blue collar jobs and get the more suitable candidates.</p>
             <p>You have been successfully registered into Blue Collar Hunt Portal. Please find your login credentials as given below.</p>
             <p></p>
-            <h6>Username : <%= locals.email %></h6>
-            <h6>Password : <%= locals.password %></h6>
-            <h6>UniqueID : <%= locals.uniqueID %></h6>
+            <h6 style="padding-left:0.5em">Username&emsp;:&emsp;&emsp;<%= locals.email %></h6>
+            <h6 style="padding-left:0.5em">Password&emsp;: &emsp;&emsp;<%= locals.password %></h6>
+            <h6 style="padding-left:0.5em">UniqueID &emsp;: &emsp;&emsp;<%= locals.uniqueID %></h6>
             <br/>
             <br/>
-            <hr size=15 color="#3399FF">
-            <p><b style="color:blue;">Login to see it in action?</b></p>
-            <p>Please go-ahead and Login using <b><a href="<%= locals.url %>">Blue Collar Hunt</a></b>.</p>
+            <p><b style="color:blue;">Login to see it in action?</b>. Login using <b><a href="<%= locals.url %>">Blue Collar Hunt</a></b>.</p>
             <br/>
+            <p>If you have any questions or encounter any problems logging in, please contact a site administrator at <b><a href="mailto:thungathurti.srinivas@bluecollarhunt.com">BlueCollarHunt Team.</a></b></p>
             <br/>
-            <p style="color:#5BC0DE;font-weight:bold;">Blue Collar Hunt Team</p>
+            <div style="width:100%;height:30px;border:0px solid #000;background-color:#3399FF;"></div>
           </td>
         </tr>
       </table>
-      <br/>
     </td>
     <td></td>
   </tr>

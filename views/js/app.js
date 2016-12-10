@@ -498,6 +498,7 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 		if($scope.user.email == undefined) $scope.user.email="";
         if($scope.user.email != "") {
            $scope.loginEmailErr = !re.test($scope.user.email);
+           $scope.ClearMessages(Flash);
            if($scope.loginEmailErr) {
         	   $scope.errorMsg = true;
            		Flash.create('warning', "Invalid email address format.",0, {class: 'alert-warning', id: 'custom-id'}, true);
@@ -869,6 +870,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		
 		$http.post('/uploadProfileResume',postData).success(function (response) {
 			alert("Upload resume Success");
+			$scope.listProfileResume();
 			$scope.uploadCV();
 		}).error(function (err) {
 			if(err) {
@@ -1250,14 +1252,34 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     	$rootScope.resumeID = resume._id;
     }
     
+    $scope.getJobStatus = function (jobID){
+		$scope.search = jobID;
+		if(jobID != undefined) {
+			var postData ={
+					search: $scope.search,
+					email: $rootScope.currentUser.email
+			};
+			$http.post('/getUserJobStatus',postData).success(function (response) {
+				if(response == "applied") $rootScope.applyLabel = "APPLIED";
+				else if(response == "notYetApplied") $rootScope.applyLabel = "APPLY";
+				else $rootScope.applyLabel = "N/A";
+			}).error(function (err) {
+				console.log(err);
+			})
+		}
+	};
+    
     $scope.applyJob = function() {
  
     	var postData = { 
         		jobID : $rootScope.jobDetails.jobID,
+        		title : $rootScope.jobDetails.title,
     			employerEmail : $rootScope.jobDetails.employerID,
+    			companyName : $rootScope.jobDetails.companyName,
     			email : $rootScope.currentUser.email,
     			dateApplied : new Date(),
-    			files_id: $rootScope.resumeID
+    			files_id: $rootScope.resumeID,
+    			name: $rootScope.currentUser.firstName
     	};
         
         $http.post('/applyJobPosting',postData).success(function (response){
@@ -1763,6 +1785,50 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		})
 	};
 	
+	$scope.saveEndorseMsg = function(endorseInfo) {
+		
+		var saveFlag = "";
+		if($rootScope.isAdd == true) saveFlag = "add";
+		else if($rootScope.isUpdate == true) saveFlag = "update";
+		else saveFlag = "";
+		
+		var postData = {
+				email : $rootScope.currentUser.email,
+			    fromEmail: "test@test.com",
+			    message: endorseInfo.message,
+			    origPostDate: new Date(),
+			    saveFlag: saveFlag
+		};
+
+		$http.post('/saveEndorse',postData).success(function (response){
+				if (response != 0){
+					alert("Successfully Endorsed!");
+				}
+		}).error(function (err) {
+				console.log(err);
+		});
+	};
+	
+	$scope.getEndorseMsg = function() {
+		var postData = {
+				email : $rootScope.currentUser.email,
+			    fromEmail: "test@test.com"//$rootScope.contactUser.email
+		};
+
+		$http.post('/getEndorseInfo',postData).success(function (response){
+				if (response != "") {
+					$scope.endorse = response;
+					$rootScope.isUpdate = true;
+					$rootScope.isAdd = false;
+				} else {
+					$rootScope.isAdd = true;
+					$rootScope.isUpdate = false;
+				}
+		}).error(function (err) {
+				console.log(err);
+		});
+	};
+	
 	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
@@ -1913,6 +1979,67 @@ $rootScope.reqLabel = "Add Contact";
 			console.log(err);
 		})
 	};
+});
+
+app.controller('jobsCtrl', function ($q, $scope, $rootScope, $http, $location) {
+	$scope.currentPage = 1;
+	$scope.numPerPage = 10;
+	$scope.maxSize = 5;
+	var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+    , end = begin + $scope.numPerPage;
+	
+	$scope.jobHistory = function(user) {
+		var postData = { 
+				email : user.email
+		};
+		
+		$http.post('/getAppliedJobs',postData).success(function (response) {
+			$scope.partialHist = [];
+			$scope.allHist = [];
+			$scope.jobsHist = response;
+			for(i=0;i<=$scope.jobsHist.length-1;i++) {
+				$scope.allHist.push($scope.jobsHist[i]);
+			}
+			$scope.partialHist = $scope.allHist.slice(begin, end);
+			if ($scope.jobsHist[0] == undefined) {
+				console.log("You have not applied for any jobs.");
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialHist = $scope.allHist.slice(begin, end);
+	});
+	//End Pagination changes for Jobs History here.
+	
+	$scope.getJobInfo = function (jobID) {
+
+		var postData = {
+				search: jobID
+		}
+		$http.post('/getJobInfo',postData).success(function (response) {
+			$scope.jobInfo = response;
+			$rootScope.jobInfo = response;
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.logout = function () {
+		var path = "";
+		if($rootScope.currentUser.userType == "E") path = "/empSignIn";
+		else path = "/login";
+		$http.post('/logout',$rootScope.user).success(function () {				
+			$rootScope.currentUser = undefined;
+			$rootScope.user = undefined;
+			$location.url(path);
+		})
+	};
+	
 });
 
 app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $location,Flash) {
@@ -2066,7 +2193,8 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		var deferred = $q.defer();
 		$http.get('/loggedin').success(function (user) {
 			$rootScope.errorMessage = null;
-			if (user !== '0'){
+			//alert(user);
+			if (user != 0){
 				$rootScope.currentUser =  user;
 				$rootScope.currentUser.passwd1 = "";
 				$rootScope.isLoggedIn = (user != 0);
@@ -2104,13 +2232,15 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		$http.get('/loggedin').success(function (user) {
 			$rootScope.errorMessage = null;
 			if (user != '0'){
-				alert("user is not 0");
 				$rootScope.currentUser =  user;
 				$rootScope.currentUser.passwd1 = "";
 				$rootScope.isLoggedIn = (user != 0);
 				if($rootScope.currentUser.role == "admin") $location.url('/admin');
 				else $location.url('/home');
 				deferred.resolve();
+			} else {
+				deferred.reject();
+				$location.url('/login');
 			}
 		})
 	};
@@ -2214,6 +2344,13 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		when('/editProfile', {
 			templateUrl: 'partials/editProfile.html',
 			controller: 'homeCtrl',
+			resolve: {
+				loggedin: checkLoggedIn
+			}
+		}).
+		when('/jobHistory', {
+			templateUrl: 'partials/jobHistory.html',
+			controller: 'jobsCtrl',
 			resolve: {
 				loggedin: checkLoggedIn
 			}

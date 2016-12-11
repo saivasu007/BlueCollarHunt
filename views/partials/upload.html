@@ -99,7 +99,7 @@
 					<th>File Type</th>
 					<th>Size</th>
 					<th>Upload Date</th>
-					<th></th>
+					<th ng-show="isLinkToJob == true"></th>
 					<th>Action</th>
 				</tr>
 				</thead>
@@ -109,12 +109,19 @@
 					<td>{{resume.contentType}}</td>
 					<td>{{resume.length}}</td>
 					<td>{{resume.uploadDate}}</td>
-					 <td>
-					 <input id="resume" type="checkbox" autocomplete="off" ng-model="resume.selection" ng-click="setResumeID(resume)">
+					 <td ng-show="isLinkToJob == true">
+					 <input id="resume" type="radio" autocomplete="off" ng-model="resumeID" value="{{resume._id}}" ng-true-value="{{resumeID}}" ng-change="setResumeID(resumeID)">
 					 </td>
-					<td><button  class="btn btn-info" ng-click="deleteResume(resume.filename)">
+					<td>
+					<!-- 
+					<button  class="btn btn-info" ng-click="deleteResume(resume.filename)">
 					<span class="glyphicon glyphicon-eye-open"></span>Remove 
-					</button></td>
+					</button>
+					-->
+					<button class="btnCustom btn-warning" style="width:92px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border-color: #eea236" ng-click="deleteResume(resume.filename)">
+					Remove
+					</button>
+					</td>
 				</tr>
 				</tbody>
 			</table>

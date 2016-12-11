@@ -29,7 +29,7 @@
 			            </li>
 			            <!-- Add any additional bootstrap header items.  This is a drop-down from an icon -->
 			            <li class="dropdown pull-right">
-			              <a href="#" data-toggle="dropdown" style="color:#777; margin: -30px 0px 0px 0px; padding:10px;" class="dropdown-toggle">
+			              <a href="#" data-toggle="dropdown" style="color:#777; margin: -30px -20px 0px 0px; padding:10px;" class="dropdown-toggle">
 			              <img class="profileImage" ng-src="{{dataUrl | trustUrl}}"/>
 			              <b class="caret"></b></a>
 			              <ul class="dropdown-menu">
@@ -68,27 +68,34 @@
 <table>
 <tr>
 <td>
-<p style="padding-left:5px;"><strong>Zip Code : </strong></p>
+<strong>Zip Code : </strong>
 </td>
-<td><p style="padding-left:5px;"><strong>{{currentUser.zipcode}}</strong></p></td>
+<td></td>
+<td>
+<strong>{{currentUser.zipcode}}</strong>
+</td>
 </tr>
-<tr><td nowrap>
-<p style="padding-left:5px;"><strong>Primary Skill : </strong></p>
+<tr>
+<td nowrap>
+<strong>Skill : </strong>
 </td>
-<td><p style="padding-left:5px;"><strong>{{currentUser.primarySkill}}</strong></p></td>
+<td></td>
+<td>
+<strong>{{currentUser.primarySkill}}</strong>
+</td>
 </tr>
 </table>
 <br/><br/><br/><br/>
-<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;margin-top:120px;margin-left:40px;" data-toggle="modal" data-target="#submitEndorses">Endorse</button>
 </div></div>
 <!-- For Most Talented Skills and Recommendations/Views -->
 <div class="panel panel-default site-panel-box" style="width:928px;height:380px;margin:3px 0 0 232px;">
 <div class="panel-body" style="padding:3px;padding-top:0px;">
-<h3>{{currentUser.firstName}} {{currentUser.lastName}} <img src="img/like_image.jpeg" style="width:90px;height:70px;padding-bottom:20px;"></h3>
-<h4 style="margin:-30px 0px 0px 0px">@{{currentUser.lastName}}</h4>
+<h3>{{currentUser.firstName}} {{currentUser.lastName}} <!-- <img src="img/like_image.jpeg" style="width:90px;height:70px;padding-bottom:20px;"></h3> -->
+<button class="btnCustom" style="width:87px;height:28px;padding:0px;border-radius:20px;margin-top:0px;margin-left:10px;" data-toggle="modal" data-target="#submitEndorses">Endorse</button>
+<h4 style="margin:-10px 0px 0px 0px">@{{currentUser.lastName}}</h4>
 <div class="form-group" style="margin:10px 0px 0px 0px;">
 <textarea name="message" id="coverMsg" class="form-control" rows="12" cols="26" required="required"
-                                placeholder="Cover Letter Info Wall" ng-model="user.coverInfo" style="width:440px;height:270px;resize: none;"></textarea>
+                                placeholder="Cover Letter Info Wall" ng-model="user.coverInfo" style="width:440px;height:290px;resize: none;"></textarea>
 </div>
 <div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:-360px 0 0 450px;float:right;border:2px dotted">
 <div class="panel-body" style="padding:0px;" data-ng-init="checkProfileVideo()">
@@ -146,7 +153,7 @@
 
 <!-- Section to list the Job Seekers current endorsement messages -->
 <div  class="modal fade" id="listEndorses" role="dialogue">
-	<div class="modal-dialogue" style="width:45%;height:100%;z-index:0;margin-top: 10%;margin-left: 27%" data-ng-init="listEndorsements()">
+	<div class="modal-dialogue" style="width:33%;height:100%;z-index:0;margin-top: 10%;margin-left: 34%" data-ng-init="listEndorsements()">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -175,7 +182,7 @@
 				</table>
 			</div>
 			<div class="modal-footer" style="text-align:center;">
-				<button class="btn btn-success" data-dismiss="modal">Close</button>
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
@@ -190,7 +197,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4>Endorsement for {{contactUser.lastName}}</h4>
 			</div>
-			<div class="modal-body" style="margin:10px 0px 0px 80px;">
+			<div class="modal-body" style="margin:10px 0px 0px 20px;">
 				<div class="form-group">
                   <label for="name">
                                 <font color="red">*</font>&nbsp;Endorse From</label>
@@ -203,9 +210,10 @@
                                 placeholder="Message" ng-model="endorse.message" style="width:450px;height:180px;resize:none;"></textarea>
             	</div>
 			</div>
-			<div class="modal-footer" style="text-align:center;">
-				<button class="btn btn-info" ng-click="saveEndorseMsg(endorse)" style="width:80px;">Endorse</button>
-				<button class="btn btn-success" data-dismiss="modal" style="width:80px;">Cancel</button>
+			<div class="modal-footer" style="text-align:right;">
+				<!-- <button class="btn btn-info" ng-click="saveEndorseMsg(endorse)" style="width:80px;">Endorse</button> -->
+				<button class="btnCustom" style="width:105px;height:33px;padding:0px;border-radius:20px;" ng-click="saveEndorseMsg(endorse)">Endorse</button>
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Cancel</button>
 			</div>
 		</div>
 	</div>

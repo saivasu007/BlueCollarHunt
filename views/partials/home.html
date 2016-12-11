@@ -24,20 +24,20 @@
 			<table style="margin: 70px 0px 0px 120px;">
 				<tr>
 				    <td nowrap class="form-group has-feedback" style="vertical-align:bottom">
-						<input type="text" ng-model="user.search" class="form-control" style="width:320px" placeholder="Jobs" ng-change="testLoginName()" ng-required="true">
+						<input type="text" ng-model="job.search" class="form-control" style="width:320px" placeholder="Jobs" ng-change="testLoginName()" ng-required="true">
             			<i class="glyphicon form-control-feedback"></i>
 					</td>
 					<td style="width:10px"></td>
 					<td class="form-group has-feedback">
-						<input type="text" id="Autocomplete" ng-model="user.location" style="width:320px" class="form-control" placeholder="Location" ng-autocomplete="result1" details="details1" options="options1" />
+						<input type="text" id="Autocomplete" ng-model="job.location" style="width:320px" class="form-control" placeholder="Location" ng-autocomplete="result1" details="details1" options="options1" />
             			<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
 					</td>
 					<td class="form-group has-feedback" style="padding-left:10px;">
-            			<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;" ng-click="search(user.search)">Search</button>
+            			<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;" ng-click="search(job)">Search</button>
 					</td>
 				</tr>
 			</table>
-		<div style="text-align:center;margin: -30px 0px 0px 70px;">
+		<div style="text-align:center;margin: -30px -42px 0px 70px;">
             <div class="navbar-header pull-right">
 			     <ul class="nav pull-left">
 			            <!-- This works well for static text, like a username -->
@@ -115,7 +115,7 @@
 </div>
 </div>
 <div ng-show="noJobs" style="text-align:center;padding-top:40px;">
-	<h4 style="color:white">No Jobs Found For Your Search.</h4>
+	<h4 style="color:white">Sorry, No Jobs Found For Your Search.</h4>
 </div>
 </div>
 </div>

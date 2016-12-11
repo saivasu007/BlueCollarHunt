@@ -18,6 +18,7 @@
 		<span class="color customLink"><a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
 		<span class="color customLink"><a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a> | </span>
 		<span class="color customLink"><a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a> | </span>
+		<span class="color customLink" ng-show="currentUser.socialYN == 'Y'"><a href="/socialContacts"  style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Socialize</font></a> | </span>
 		<span class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a> | </span>
 		<span class="color customLink"><a href="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></span>
 	</p>
@@ -40,6 +41,7 @@
 					<th>Company Name</th>
 					<th>Applied Date</th>
 					<th>Resume Title</th>
+					<th></th>
 				</tr>
 				</thead>
 				<tbody>
@@ -49,9 +51,10 @@
 					<td>{{hist.companyName}}</td>
 					<td>{{hist.dateApplied}}</td>
 					<td>NA</td>
+					<td><a href="" ng-click="getJobInfo(hist.jobID)" data-toggle="modal" data-target="#referJob">Refer Job</a></td>
 				</tr>
 				<tr ng-show="allHist.length <= 0">
-				<td colspan="5" align="center"><h4 style="color:red">You have't applied any jobs yet.</h4></td>
+				<td colspan="6" align="center"><h4 style="color:red">You have't applied any jobs yet.</h4></td>
 				</tr>
 				</tbody>
 			</table>
@@ -114,6 +117,12 @@
 					<td>{{jobInfo.requirement}}</td>
 				</tr>
 				<tr>
+					<td><strong>Responsibilities</strong></td>
+					<td></td>
+					<td></td>
+					<td>{{jobInfo.responsibilities}}</td>
+				</tr>
+				<tr>
 					<td><strong>Salary Type</strong></td>
 					<td></td>
 					<td></td>
@@ -123,12 +132,47 @@
 				</table>
 			</div>
 			<div class="modal-footer" style="text-align:right;">
-				<button class="btn btn-success" data-dismiss="modal">Close</button>
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
 </div>
 <!-- End list of the Job Seekers current endorsement messages -->
+
+<!-- Section to refer the selected Job Information to friends -->
+<div  class="modal fade" id="referJob" role="dialogue">
+	<div class="modal-dialogue" style="width:32%;height:100%;z-index:0;margin-top: 10%;margin-left: 35%">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4>Refer/Share Job requirement for {{jobInfo.jobID}} {{jobInfo.title}}</h4>
+			</div>
+			<div class="modal-body" style="margin:10px 0px 0px 10px;">
+				<div class="form-group">
+                  <label for="rName">
+                                <font color="red">*</font>&nbsp;Friends Name</label>
+                      <input type="text" id="rName" autofocus="true" ng-model="name" class="form-control" style="width:450px" placeholder="Name of your Friend">
+            	</div>
+            	<div class="form-group">
+                  <label for="toEmail">
+                                <font color="red">*</font>&nbsp;To Email</label>
+                      <input type="text" id="toEmail" autofocus="true" ng-model="referEmail" class="form-control" style="width:450px" placeholder="Friends Email">
+            	</div>
+            	<div class="form-group">
+                  <label for="message">
+                                <font color="red">*</font>&nbsp;Refer Comments</label>
+                      <textarea name="message" id="message" class="form-control" rows="3" cols="3" required="required"
+                                placeholder="Message" ng-model="comments" style="width:450px;height:85px;resize:none;"></textarea>
+            	</div>
+			</div>
+			<div class="modal-footer" style="text-align:right;">
+				<button class="btnCustom" style="width:105px;height:33px;padding:0px;border-radius:20px;" ng-click="sendJobReference(jobInfo)">Refer Job</button>
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End refer job here -->
 	
 	<!-- Footer -->
 	<footer>

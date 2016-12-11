@@ -1,0 +1,523 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>BlueCollarHunt Refer a Job to Friend.</title>
+<style>
+/* -------------------------------------
+    GLOBAL
+------------------------------------- */
+* {
+  font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+  font-size: 100%;
+  line-height: 1.6em;
+  margin: 0;
+  padding: 0;
+}
+img {
+  max-width: 600px;
+  width: 100%;
+}
+body {
+  -webkit-font-smoothing: antialiased;
+  height: 100%;
+  -webkit-text-size-adjust: none;
+  width: 100% !important;
+}
+/* -------------------------------------
+    ELEMENTS
+------------------------------------- */
+a {
+  color: #348eda;
+}
+.btn-primary {
+  Margin-bottom: 10px;
+  width: auto !important;
+}
+.btn-primary td {
+  background-color: #348eda; 
+  border-radius: 25px;
+  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-size: 14px; 
+  text-align: center;
+  vertical-align: top; 
+}
+.btn-primary td a {
+  background-color: #348eda;
+  border: solid 1px #348eda;
+  border-radius: 25px;
+  border-width: 10px 20px;
+  display: inline-block;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: bold;
+  line-height: 2;
+  text-decoration: none;
+}
+.last {
+  margin-bottom: 0;
+}
+.first {
+  margin-top: 0;
+}
+.padding {
+  padding: 10px 0;
+}
+/* -------------------------------------
+    BODY
+------------------------------------- */
+table.body-wrap {
+  padding: 20px;
+  width: 100%;
+}
+table.body-wrap .container {
+  border: 1px solid #f0f0f0;
+}
+/* -------------------------------------
+    FOOTER
+------------------------------------- */
+table.footer-wrap {
+  clear: both !important;
+  width: 100%;  
+}
+.footer-wrap .container p {
+  color: #666666;
+  font-size: 12px;
+}
+table.footer-wrap a {
+  color: #999999;
+}
+/* -------------------------------------
+    TYPOGRAPHY
+------------------------------------- */
+h1, 
+h2, 
+h3 {
+  color: #111111;
+  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 200;
+  line-height: 1.2em;
+  margin: 40px 0 10px;
+}
+h1 {
+  font-size: 36px;
+}
+h2 {
+  font-size: 28px;
+}
+h3 {
+  font-size: 22px;
+}
+p, 
+ul, 
+ol {
+  font-size: 14px;
+  font-weight: normal;
+  margin-bottom: 10px;
+}
+ul li, 
+ol li {
+  margin-left: 5px;
+  list-style-position: inside;
+}
+/* ---------------------------------------------------
+    RESPONSIVENESS
+------------------------------------------------------ */
+/* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */
+.container {
+  clear: both !important;
+  display: block !important;
+  Margin: 0 auto !important;
+  max-width: 600px !important;
+}
+/* Set the padding on the td rather than the div for Outlook compatibility */
+.body-wrap .container {
+  padding: 10px;
+}
+/* This should also be a block element, so that it will fill 100% of the .container */
+.content {
+  display: block;
+  margin: 0 auto;
+  max-width: 600px;
+}
+/* Let's make sure tables in the content area are 100% wide */
+.content table {
+  width: 100%;
+}
+
+table {
+  background-color: transparent;
+}
+caption {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  color: #777;
+  text-align: left;
+}
+th {
+  text-align: left;
+}
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+}
+.table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #ddd;
+}
+.table > caption + thead > tr:first-child > th,
+.table > colgroup + thead > tr:first-child > th,
+.table > thead:first-child > tr:first-child > th,
+.table > caption + thead > tr:first-child > td,
+.table > colgroup + thead > tr:first-child > td,
+.table > thead:first-child > tr:first-child > td {
+  border-top: 0;
+}
+.table > tbody + tbody {
+  border-top: 2px solid #ddd;
+}
+.table .table {
+  background-color: #fff;
+}
+.table-condensed > thead > tr > th,
+.table-condensed > tbody > tr > th,
+.table-condensed > tfoot > tr > th,
+.table-condensed > thead > tr > td,
+.table-condensed > tbody > tr > td,
+.table-condensed > tfoot > tr > td {
+  padding: 5px;
+}
+.table-bordered {
+  border: 1px solid #ddd;
+}
+.table-bordered > thead > tr > th,
+.table-bordered > tbody > tr > th,
+.table-bordered > tfoot > tr > th,
+.table-bordered > thead > tr > td,
+.table-bordered > tbody > tr > td,
+.table-bordered > tfoot > tr > td {
+  border: 1px solid #ddd;
+}
+.table-bordered > thead > tr > th,
+.table-bordered > thead > tr > td {
+  border-bottom-width: 2px;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+.table-hover > tbody > tr:hover {
+  background-color: #f5f5f5;
+}
+table col[class*="col-"] {
+  position: static;
+  display: table-column;
+  float: none;
+}
+table td[class*="col-"],
+table th[class*="col-"] {
+  position: static;
+  display: table-cell;
+  float: none;
+}
+.table > thead > tr > td.active,
+.table > tbody > tr > td.active,
+.table > tfoot > tr > td.active,
+.table > thead > tr > th.active,
+.table > tbody > tr > th.active,
+.table > tfoot > tr > th.active,
+.table > thead > tr.active > td,
+.table > tbody > tr.active > td,
+.table > tfoot > tr.active > td,
+.table > thead > tr.active > th,
+.table > tbody > tr.active > th,
+.table > tfoot > tr.active > th {
+  background-color: #f5f5f5;
+}
+.table-hover > tbody > tr > td.active:hover,
+.table-hover > tbody > tr > th.active:hover,
+.table-hover > tbody > tr.active:hover > td,
+.table-hover > tbody > tr:hover > .active,
+.table-hover > tbody > tr.active:hover > th {
+  background-color: #e8e8e8;
+}
+.table > thead > tr > td.success,
+.table > tbody > tr > td.success,
+.table > tfoot > tr > td.success,
+.table > thead > tr > th.success,
+.table > tbody > tr > th.success,
+.table > tfoot > tr > th.success,
+.table > thead > tr.success > td,
+.table > tbody > tr.success > td,
+.table > tfoot > tr.success > td,
+.table > thead > tr.success > th,
+.table > tbody > tr.success > th,
+.table > tfoot > tr.success > th {
+  background-color: #dff0d8;
+}
+.table-hover > tbody > tr > td.success:hover,
+.table-hover > tbody > tr > th.success:hover,
+.table-hover > tbody > tr.success:hover > td,
+.table-hover > tbody > tr:hover > .success,
+.table-hover > tbody > tr.success:hover > th {
+  background-color: #d0e9c6;
+}
+.table > thead > tr > td.info,
+.table > tbody > tr > td.info,
+.table > tfoot > tr > td.info,
+.table > thead > tr > th.info,
+.table > tbody > tr > th.info,
+.table > tfoot > tr > th.info,
+.table > thead > tr.info > td,
+.table > tbody > tr.info > td,
+.table > tfoot > tr.info > td,
+.table > thead > tr.info > th,
+.table > tbody > tr.info > th,
+.table > tfoot > tr.info > th {
+  background-color: #d9edf7;
+}
+.table-hover > tbody > tr > td.info:hover,
+.table-hover > tbody > tr > th.info:hover,
+.table-hover > tbody > tr.info:hover > td,
+.table-hover > tbody > tr:hover > .info,
+.table-hover > tbody > tr.info:hover > th {
+  background-color: #c4e3f3;
+}
+.table > thead > tr > td.warning,
+.table > tbody > tr > td.warning,
+.table > tfoot > tr > td.warning,
+.table > thead > tr > th.warning,
+.table > tbody > tr > th.warning,
+.table > tfoot > tr > th.warning,
+.table > thead > tr.warning > td,
+.table > tbody > tr.warning > td,
+.table > tfoot > tr.warning > td,
+.table > thead > tr.warning > th,
+.table > tbody > tr.warning > th,
+.table > tfoot > tr.warning > th {
+  background-color: #fcf8e3;
+}
+.table-hover > tbody > tr > td.warning:hover,
+.table-hover > tbody > tr > th.warning:hover,
+.table-hover > tbody > tr.warning:hover > td,
+.table-hover > tbody > tr:hover > .warning,
+.table-hover > tbody > tr.warning:hover > th {
+  background-color: #faf2cc;
+}
+.table > thead > tr > td.danger,
+.table > tbody > tr > td.danger,
+.table > tfoot > tr > td.danger,
+.table > thead > tr > th.danger,
+.table > tbody > tr > th.danger,
+.table > tfoot > tr > th.danger,
+.table > thead > tr.danger > td,
+.table > tbody > tr.danger > td,
+.table > tfoot > tr.danger > td,
+.table > thead > tr.danger > th,
+.table > tbody > tr.danger > th,
+.table > tfoot > tr.danger > th {
+  background-color: #f2dede;
+}
+.table-hover > tbody > tr > td.danger:hover,
+.table-hover > tbody > tr > th.danger:hover,
+.table-hover > tbody > tr.danger:hover > td,
+.table-hover > tbody > tr:hover > .danger,
+.table-hover > tbody > tr.danger:hover > th {
+  background-color: #ebcccc;
+}
+.table-responsive {
+  min-height: .01%;
+  overflow-x: auto;
+}
+@media screen and (max-width: 767px) {
+  .table-responsive {
+    width: 100%;
+    margin-bottom: 15px;
+    overflow-y: hidden;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid #ddd;
+  }
+  .table-responsive > .table {
+    margin-bottom: 0;
+  }
+  .table-responsive > .table > thead > tr > th,
+  .table-responsive > .table > tbody > tr > th,
+  .table-responsive > .table > tfoot > tr > th,
+  .table-responsive > .table > thead > tr > td,
+  .table-responsive > .table > tbody > tr > td,
+  .table-responsive > .table > tfoot > tr > td {
+    white-space: nowrap;
+  }
+  .table-responsive > .table-bordered {
+    border: 0;
+  }
+  .table-responsive > .table-bordered > thead > tr > th:first-child,
+  .table-responsive > .table-bordered > tbody > tr > th:first-child,
+  .table-responsive > .table-bordered > tfoot > tr > th:first-child,
+  .table-responsive > .table-bordered > thead > tr > td:first-child,
+  .table-responsive > .table-bordered > tbody > tr > td:first-child,
+  .table-responsive > .table-bordered > tfoot > tr > td:first-child {
+    border-left: 0;
+  }
+  .table-responsive > .table-bordered > thead > tr > th:last-child,
+  .table-responsive > .table-bordered > tbody > tr > th:last-child,
+  .table-responsive > .table-bordered > tfoot > tr > th:last-child,
+  .table-responsive > .table-bordered > thead > tr > td:last-child,
+  .table-responsive > .table-bordered > tbody > tr > td:last-child,
+  .table-responsive > .table-bordered > tfoot > tr > td:last-child {
+    border-right: 0;
+  }
+  .table-responsive > .table-bordered > tbody > tr:last-child > th,
+  .table-responsive > .table-bordered > tfoot > tr:last-child > th,
+  .table-responsive > .table-bordered > tbody > tr:last-child > td,
+  .table-responsive > .table-bordered > tfoot > tr:last-child > td {
+    border-bottom: 0;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- body -->
+<div class="content">
+<table class="body-wrap" bgcolor="#f6f6f6">
+  <tr>
+    <td class="container" bgcolor="#FFFFFF">
+
+      <!-- content -->
+      
+      <table>
+        <tr>
+          <td>
+            <div style="width:100%;height:30px;border:0px solid #000;background-color:#3399FF;">
+			<p style="text-align:center;color:white;font-weight:bold;font-size:20px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
+			BLUE COLLAR HUNT
+			</p>
+			</div>
+            <br/>
+            <p>Hi <b><%= locals.name %></b>,</p>
+            <p>Welcome to Blue Collar Hunt website!.A perfect website for you to search and get the blue collar jobs.</p>
+            <p>Your friend would like to share the Job Details from Blue Collar Hunt Portal. Please find the Job Requirement details as given below.</p>
+            <p>Friends Comments : <%= locals.comments %></p>
+            <br/>
+            <table class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th></th><th></th><th></th><th></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td><strong>Job Title</strong></td>
+					<td></td>
+					<td></td>
+					<td><%= locals.title %></td>
+				</tr>
+				<tr>
+					<td><strong>Company</strong></td>
+					<td></td>
+					<td></td>
+					<td><%= locals.employer %></td>
+				</tr>
+				<tr>
+					<td><strong>Location</strong></td>
+					<td></td>
+					<td></td>
+					<td><%= locals.location %></td>
+				</tr>
+				<tr>
+					<td><strong>Requirement</strong></td>
+					<td></td>
+					<td></td>
+					<td><%= locals.requirement %></td>
+				</tr>
+				<tr>
+					<td><strong>Salary Type</strong></td>
+					<td></td>
+					<td></td>
+					<td>$<%= locals.salary %></td>
+				</tr>
+				<tr>
+					<td><strong>Posted Date</strong></td>
+					<td></td>
+					<td></td>
+					<td><%= locals.postDate %></td>
+				</tr>
+				<tr>
+					<td><strong>Job Link</strong></td>
+					<td></td>
+					<td></td>
+					<td><a href="<%= locals.url %>?jobID=<%= locals.jobID %>"><%= locals.url %>?jobID=<%= locals.jobID %></a></td>
+				</tr>
+				</tbody>
+				</table>
+            <!-- <h6 style="padding-left:1em">JOBID&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;:&emsp;<%= locals.jobID %></a></h6>
+            <h6 style="padding-left:1em">POSITION&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;:&emsp;<%= locals.title %></h6>
+            <h6 style="padding-left:1em">EMPLOYER&emsp;&emsp;&emsp;&emsp;&emsp;:&emsp;<%= locals.employer %></h6>
+            <h6 style="padding-left:1em">LOCATION&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;:&emsp;<%= locals.location %></h6>
+            <h6 style="padding-left:1em">REQUIREMENT&emsp;&emsp;&emsp;:&emsp;<%= locals.requirement %></h6>
+            <h6 style="padding-left:1em">RESPONSIBILITIES&emsp;:&emsp;<%= locals.responsibilities %></h6>
+            <h6 style="padding-left:1em">POSTED-DATE&emsp;&emsp;&emsp;&nbsp;&nbsp;:&emsp;<%= locals.postDate %></h6>
+            <h6 style="padding-left:1em">JOB-LINK&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;:&emsp;<a href="<%= locals.url %>?jobID=<%= locals.jobID %>"><%= locals.url %>?jobID=<%= locals.jobID %></a></h6> -->
+            <br/><br/>
+            <p><b style="color:blue;">Login to apply millions of jobs in portal?</b>. It's easy and Click the <b><a href="<%= locals.url %>">Blue Collar Hunt</a></b>.</p>
+            <br/>
+            <p>If you have any questions or encounter any problems logging in, please contact a site administrator at <b><a href="mailto:thungathurti.srinivas@bluecollarhunt.com">BlueCollarHunt Team.</a></b></p>
+            <br/>
+            <div style="width:100%;height:30px;border:0px solid #000;background-color:#3399FF;"></div>
+          </td>
+        </tr>
+      </table>
+    </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+<!-- /body -->
+
+<!-- footer -->
+<div class="content">
+<table class="footer-wrap">
+  <tr>
+    <td class="container">
+      
+      <!-- content -->
+      
+        <table>
+          <tr>
+            <td align="center">
+              <p>This e-mail and any files transmitted with it may contain privileged or confidential information.
+				 It is solely for use by the individual for whom it is intended, even if addressed incorrectly.
+				 If you received this e-mail in error, please notify the sender.Any other use of this e-mail is prohibited.
+				 Thank you for your compliance.</p>
+			     <p align="center">© 2016 Blue Collar Hunt Inc.</p>
+              </p>
+            </td>
+          </tr>
+        </table>
+      
+      <!-- /content -->
+      
+    </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+<!-- /footer -->
+
+</body>
+</html>

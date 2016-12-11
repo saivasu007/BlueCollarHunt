@@ -77,9 +77,11 @@ var forgotUniqueIDTemplate = properties.get("app.email.forgotUniqueIDTem");
 var deactivateUsrAcctTemplate = properties.get("app.email.deactivateUserAcctTem");
 var reactivateUsrAcctTemplate = properties.get("app.email.reactivateUserAcctTem");
 var applyJobConfirmTemplate = properties.get("app.email.applyJobConfirmTem");
+var referJobTemplate = properties.get("app.email.referJobTem");
 var deactivateUsrSubject = properties.get("app.email.subjectDeactivateUsrAcct");
 var reactivateUsrSubject = properties.get("app.email.subjectReactivateUsrAcct");
 var confirmJobApplySubject = properties.get("app.email.subjectConfirmJobApply");
+var referJobSubject = properties.get("app.email.subjectReferJob");
 
 //Function added for encrypting the passwords in the Portal.
 function encrypt(pass){
@@ -125,7 +127,10 @@ function sendEmail(user,template,info,request){
 	} else if(template == applyJobConfirmTemplate) {
 		host = info;
 		subject = confirmJobApplySubject+" "+user.title;
+	} else if(template == referJobTemplate) {
+		subject = referJobSubject;
 	}
+	
 	var smtpTransport = mailer.createTransport(emailTransport, {
         service: 'Gmail',
         auth: {
@@ -159,7 +164,22 @@ function sendEmail(user,template,info,request){
 					  employer: user.companyName,
 					  url: "http://"+request.headers.host+"/searchJob"
 				  }
+	 } else if(template == referJobTemplate) {
+		   var data = {
+				   	  name: user.name,
+					  jobID: user.jobInfo.jobID,
+					  title: user.jobInfo.title,
+					  employer: user.jobInfo.companyName,
+					  location: user.jobInfo.location,
+					  requirement: user.jobInfo.requirement,
+					  responsibilities: user.jobInfo.responsibilities,
+					  salary: user.jobInfo.rate+" "+user.jobInfo.salaryType,
+					  postDate: user.jobInfo.origPostDate,
+					  comments: user.comments,
+					  url: "http://"+request.headers.host+"/searchJob"
+				  }
 	 }
+	
       var mailOptions = {
         to: user.email,
         from: emailFrom,
@@ -697,7 +717,7 @@ app.post("/plans/bluecollarhunt_dev", function(req, res) {
 						});
 						*/
 						//send email after successful registration.
-						sendEmail(user,empRegTemplate,req.headers.host);
+						sendEmail(user,empRegTemplate,req.headers.host,req);
 					    //End email communication here.	
 						res.send('success');
 					});
@@ -965,19 +985,41 @@ app.post('/getUserInfo', function(req, res) {
 });
 
 app.post('/getJobs', function(req, res) {
-	if(req.body.search != undefined) {
-	var query = req.body.search ? {
-		title : {$regex: req.body.search,$options:"$i"}
-	} : {
-		title : {$regex: req.body.search,$options:"$i"}
-	}
-	jobInfoModel.find(query).exec(function(err, result) {
-		res.send(result);
-	})
+	if(req.body.name == "" && req.body.location == "") {
+		jobInfoModel.find().exec(function(err, result) {
+			res.send(result);
+		});
 	} else {
-	jobInfoModel.find().exec(function(err, result) {
-		res.send(result);
-	})
+		if(req.body.name != "" && req.body.location != "") {
+			var query = req.body.name ? {
+				title : {$regex: req.body.name,$options:"$i"},
+				location : {$regex: req.body.location,$options:"$i"}
+			} : {
+				title : {$regex: req.body.name,$options:"$i"},
+				location : {$regex: req.body.location,$options:"$i"}
+			}
+			jobInfoModel.find(query).exec(function(err, result) {
+				res.send(result);
+			})
+		} else if(req.body.name != "") {
+			var query = req.body.name ? {
+				title : {$regex: req.body.name,$options:"$i"}
+			} : {
+				title : {$regex: req.body.name,$options:"$i"}
+			}
+			jobInfoModel.find(query).exec(function(err, result) {
+				res.send(result);
+			})
+		} else if(req.body.location != "") {
+			var query = req.body.location ? {
+				location : {$regex: req.body.location,$options:"$i"}
+			} : {
+				location : {$regex: req.body.location,$options:"$i"}
+			}
+			jobInfoModel.find(query).exec(function(err, result) {
+				res.send(result);
+			})
+		}
 	}
 });
 
@@ -1056,6 +1098,11 @@ app.post('/getAppliedJobs', function(req, res) {
 	}).sort({dateApplied: -1}).exec(function(err, result) {
 		res.send(result);
 	});
+});
+
+app.post('/referJobDetails', function(req, res) {
+	sendEmail(req.body,referJobTemplate,null,req);
+	res.send('success');
 });
 
 app.post('/getRecoJobs', function(req, res) {
@@ -1203,7 +1250,9 @@ app.post('/updateUserProfile', function(req, res) {
 				lastName : req.body.lastName,
 				zipcode : req.body.zipcode,
 				socialYN : req.body.socialYN,
-				primarySkill : req.body.primarySkill
+				primarySkill : req.body.primarySkill,
+				contactNum : req.body.contactNum,
+				gender : req.body.gender
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
@@ -1231,7 +1280,7 @@ app.post('/deactivateProfile', function(req, res) {
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
-					sendEmail(result,deactivateUsrAcctTemplate,encrypt(handle));
+					sendEmail(result,deactivateUsrAcctTemplate,encrypt(handle),req);
 					res.send('success')
 				} else {
 					console.log('error');
@@ -1257,7 +1306,7 @@ app.post('/activateUser', function(req, res) {
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
-					sendEmail(result,reactivateUsrAcctTemplate,req.headers.host);
+					sendEmail(result,reactivateUsrAcctTemplate,req.headers.host,req);
 					res.send('success')
 				} else {
 					console.log('error');

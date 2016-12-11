@@ -347,8 +347,14 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 		else $("#cardInfo").hide();
 	}
 	
-	$scope.formatContactNum = function(emp) {
-		
+	$scope.formatContactNum = function(obj) {
+		var numbers = obj.replace(/\D/g, ''),
+        char = {0:'(',3:') ',6:' - '};
+		obj = '';
+		for (var i = 0; i < numbers.length; i++) {
+			obj += (char[i]||'') + numbers[i];
+		}
+		$scope.emp.contactNum = obj;	
 	}
 
 	$scope.getFile = function () {
@@ -373,14 +379,38 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
     $scope.details1 = '';
     
     $scope.search = function (searchInfo) {
-    	var data = {
-    			search : searchInfo
+    	if(searchInfo == undefined) {
+    		var data = {
+        			name : "",
+        			location: ""
+        	}
+    	} else if(searchInfo.search != undefined && searchInfo.location == undefined) {
+    		var data = {
+        			name : searchInfo.search,
+        			location : ""
+        	}
+    	} else if(searchInfo.search == undefined && searchInfo.location != undefined) {
+    		var data = {
+        			name : "",
+        			location : searchInfo.location
+        	}
+    	} else if(searchInfo.search != undefined && searchInfo.location != undefined) {
+    		var data = {
+        			name : searchInfo.search,
+        			location : searchInfo.location
+        	}
     	}
+    	
     	$http.post('/getJobs',data).success(function (response){
 			$scope.jobsList = response;
-			if($scope.jobsList.length <= 0) $scope.noJobs = true;
-			$scope.noJobs = false;
-			$scope.searchResults = 1;
+			if($scope.jobsList.length <= 0) {
+				$scope.noJobs = true;
+				$scope.searchResults = 3;
+				$scope.jobResults = 3;
+			} else {
+				$scope.noJobs = false;
+				$scope.searchResults = 1;
+			}
 			$location.url('/');
 		}).error(function (err) {
 			console.log(err);
@@ -427,7 +457,7 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 	
 	$scope.pressEnter = function (e,jobInfo) {
 		if (e.keyCode == 13){
-			$scope.search(jobInfo);
+			//$scope.search(jobInfo);
 		}
 	};
 });
@@ -887,17 +917,51 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     	('#fileDialog').trigger('click');
     }
     
-    $scope.isSelected = true;
+    $rootScope.isSelected = true;
+    
+    $scope.formatPhone = function(obj) {
+        var numbers = obj.replace(/\D/g, ''),
+            char = {0:'(',3:') ',6:' - '};
+        obj = '';
+        for (var i = 0; i < numbers.length; i++) {
+            obj += (char[i]||'') + numbers[i];
+        }
+        $rootScope.currentUser.contactNum = obj;
+    }
     
     $scope.search = function (searchInfo) {
-    	var data = {
-    			search : searchInfo
+    	if(searchInfo == undefined) {
+    		var data = {
+        			name : "",
+        			location: ""
+        	}
+    	} else if(searchInfo.search != undefined && searchInfo.location == undefined) {
+    		var data = {
+        			name : searchInfo.search,
+        			location : ""
+        	}
+    	} else if(searchInfo.search == undefined && searchInfo.location != undefined) {
+    		var data = {
+        			name : "",
+        			location : searchInfo.location
+        	}
+    	} else if(searchInfo.search != undefined && searchInfo.location != undefined) {
+    		var data = {
+        			name : searchInfo.search,
+        			location : searchInfo.location
+        	}
     	}
+    	
     	$http.post('/getJobs',data).success(function (response){
 			$scope.jobsList = response;
-			if($scope.jobsList.length <= 0) $scope.noJobs = true;
-			$scope.noJobs = false;
-			$scope.searchResults = 1;
+			if($scope.jobsList.length <= 0) {
+				$scope.noJobs = true;
+				$scope.searchResults = 3;
+				$scope.jobResults = 3;
+			} else {
+				$scope.noJobs = false;
+				$scope.searchResults = 1;
+			}
 			$location.url('/home');
 		}).error(function (err) {
 			console.log(err);
@@ -998,7 +1062,9 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 					zipcode : cUser.zipcode,
 					email : cUser.email,
 					socialYN : cUser.socialYN,
-					primarySkill : cUser.primarySkill
+					primarySkill : cUser.primarySkill,
+					contactNum : cUser.phone,
+					gender : cUser.gender
 			};
 			
 			$http.post('/updateUserProfile',postData).success(function (response){
@@ -1246,10 +1312,13 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		})
     }
     
-    $scope.setResumeID = function(resume) {
-    	if(resume.selection == true) $scope.isSelected = false;
-    	else $scope.isSelected = true;
-    	$rootScope.resumeID = resume._id;
+    $scope.setResumeID = function(fileID) {
+    	alert(fileID);
+    	//if($('#resume').prop('checked') == true) alert($('#resume').val());
+    	//if(resume.selection == true) $scope.isSelected = false;
+    	//else $scope.isSelected = true;
+    	$scope.isSelected = false;
+    	$rootScope.resumeID = fileID;
     }
     
     $scope.getJobStatus = function (jobID){
@@ -1285,6 +1354,8 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         $http.post('/applyJobPosting',postData).success(function (response){
 			if (response != 0){
 				alert("Job application subimitted successfully.");
+				$rootScope.isLinkToJob = false;
+				$rootScope.jobDetails = undefined;
 				$location.url("/home");
 			}
 		}).error(function (err) {
@@ -2028,6 +2099,22 @@ app.controller('jobsCtrl', function ($q, $scope, $rootScope, $http, $location) {
 			console.log(err);
 		})
 	};
+	
+	$scope.sendJobReference = function(jobInfo) {
+		var postData = {
+				name : $scope.name,
+				email : $scope.referEmail,
+				comments : $scope.comments,
+				jobInfo : jobInfo
+		};
+		$http.post('/referJobDetails',postData).success(function (response){
+				if (response != 0){
+					alert("Success");
+				}
+		}).error(function (err) {
+				console.log(err);
+		});
+	}
 	
 	$scope.logout = function () {
 		var path = "";

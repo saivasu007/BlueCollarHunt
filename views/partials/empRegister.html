@@ -59,7 +59,7 @@
                 <input type="text" ng-model="emp.name" class="form-control" placeholder="Employer Name" style="width:302px">
             </div>
             <div class="form-group has-feedback">
-                <input type="text" id="phone" ng-model="emp.contactNum" class="form-control" placeholder="Contact Number" ng-blur="formatContactNum(emp)" style="width:302px">
+                <input type="text" id="phone" ng-model="emp.contactNum" class="form-control" placeholder="Contact Number" ng-blur="formatContactNum(emp.contactNum)" style="width:302px">
             	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
             </div>
             <div class="form-group has-feedback">
@@ -84,9 +84,9 @@
                 <input type="Radio" ng-model="emp.amount"  ng-value="1999" ng-click="disableCardInfo(emp)"><b>&nbsp;$19.99/mo</b>
             </div>
             <br/>
-            <button ng-click="empRegister(emp)" ng-disabled="error" class="btn btn-info block full-width m-b">Register</button>
+            <button ng-click="empRegister(emp)" ng-disabled="error" class="btn btn-primary block full-width m-b">Register</button>
             <br/><br/>
-            <button ng-click="empClear(emp)" ng-disabled="error" class="btn btn-info block full-width m-b">Clear</button>
+            <button ng-click="empClear(emp)" ng-disabled="error" class="btn btn-warning block full-width m-b">Clear</button>
       </div></div>
      </div>
 </div>

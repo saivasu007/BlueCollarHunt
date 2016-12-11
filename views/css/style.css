@@ -422,7 +422,7 @@ hr {
   background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
   background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
   text-decoration: none;
-} .clickDiv:hover {
+}.clickDiv:hover {
   background: #3399FF;
   background-image: -webkit-linear-gradient(top, #3399FF, #3cb0fd);
   background-image: -moz-linear-gradient(top, #3399FF, #3cb0fd);

@@ -48,9 +48,9 @@
 		</div>
 </div></div></div></div></div>
 <div class="container" style="padding-left:0px;">
-<div class="row" style="height:677px;">
+<div class="row" style="height:727px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:670px;">
+<div class="panel panel-default site-panel-box" style="height:725px;">
 <div class="middle-box" style="padding-top:25px;">
         <div class="panel-body" style="padding:0px;">
         
@@ -65,7 +65,7 @@
 		</div>
 		</div>
         
-        <div class="panel panel-default site-panel-box" style="height:625px;">
+        <div class="panel panel-default site-panel-box" style="height:685px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
 			<h5>Personal Information Update</h5>
@@ -80,11 +80,20 @@
             <div class="form-group">
                 <input id="lName" type="text" ng-model="currentUser.lastName" class="form-control" placeholder="Last Name" style="width:300px">
             </div>
+            <div class="form-group has-feedback">
+                <input id="phonenumber" type="text" ng-model="currentUser.contactNum" class="form-control" placeholder="Mobile Number" style="width:300px" ng-blur="formatPhone(currentUser.contactNum)">
+            	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
+            </div>
             <div class="form-group">
                 <input type="text" id="zip" ng-model="currentUser.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
             </div>
             <div class="form-group">
                 <input id="skill" type="text" ng-model="currentUser.primarySkill" class="form-control" placeholder="Primary Skill" style="width:300px">
+            </div>
+            <div class="form-group">
+                <input type="radio" ng-model="currentUser.gender"  ng-value="M" style="align:left"><b>&nbsp;Male</b>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="radio" ng-model="currentUser.gender"  ng-value="F"><b>&nbsp;Female</b>
             </div>
             <div class="form-group">
                 <input id="social" type="checkbox" ng-model="currentUser.socialYN"  ng-checked="isSocial" style="align:left;"><b>&nbsp;&nbsp;Connect with other applicants?</b>
@@ -95,11 +104,11 @@
             <br/>
             <button ng-click="saveProfileInfo(currentUser)" ng-disabled="error" class="btn btn-info block full-width m-b">Save</button>
             <br/><br/>
-            <button ng-click="deleteAccount(currentUser)" class="btn btn-warning block full-width m-b">Delete Account</button>
+            <button ng-click="deleteAccount(currentUser)" class="btn btn-danger block full-width m-b">Delete Account</button>
             <br/><br/>
-            <a href="/home"><button class="btn btn-info block full-width m-b">Cancel</button></a>
+            <a href="/home"><button class="btn btn-warning block full-width m-b">Cancel</button></a>
         </div>
-        <p class="panel-footer" style="padding:10px 0px 45px 0px;"></p>
+        <p class="panel-footer" style="padding:0px 0px 28px 0px;"></p>
         </div></div>
 </div>
 

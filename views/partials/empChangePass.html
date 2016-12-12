@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
-    <title>Blue Collar Hunt Re-Activate User Account Page</title>
+    <title>Blue Collar Hunt Change Password Page for Employer</title>
   </head>
 <body>
 <div class="container" style="padding-left:0px;">
@@ -12,14 +12,13 @@
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
-	<img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/>
+	<a href="/home"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
 	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -62px 70px;">
-	  		<p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
-					<span class="color customLink"><a href="/" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
-					<span class="color customLink"><a href="/login" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Seeker</font></a> | </span>
-					<span class="color customLink"><a href="/empSignIn" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Employer</font></a> | </span>
-					<span class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></span>
-	     	</p>
+	  <p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
+		  	<span class="color customLink"><a href="/empHome" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
+			<span class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a> | </span>
+	  		<span class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></span>
+	  </p>
 	</div>
 </div></div></div></div></div>
 <div class="container" style="padding-left:0px;">
@@ -31,27 +30,32 @@
 <div class="panel panel-default site-panel-box" style="height:50%;">
 	<div class="panel-body" style="padding:10px;padding-bottom:20px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
-			<h5>Re-Activate User Account</h5>
+			<h5>Employer Password Change Screen</h5>
 			</div>
 			<hr/>
 			<div class="form-group has-feedback" style="padding-top:10px;">
 				<span class="icon-lock"></span>
-                <input id="email" class="form-control" autofocus="true" style="width: 280px; display:inline-block; height:32px" type="text" ng-model="user.email" placeholder="Username or Email" ng-required="true">
+                <input id="pw2" class="form-control" autofocus="true" style="width: 280px; display:inline-block; height:32px" type="password" ng-model="currentUser.oldPassword" placeholder="Old Password" ng-required="true" ng-blur="testPasswordLen()">
             	<i class="glyphicon glyphicon-lock form-control-feedback"  style="padding-top:10px;"></i>
             </div>
 			<div class="form-group has-feedback" style="padding-top:10px;">
 				<span class="icon-lock"></span>
-                <input id="handle" class="form-control" autofocus="true" style="width: 280px; display:inline-block; height:32px" type="text" ng-model="user.handle" placeholder="Enter Secret Handle" ng-required="true">
+                <input id="pw2" class="form-control" autofocus="true" style="width: 280px; display:inline-block; height:32px" type="password" ng-model="currentUser.password1" placeholder="New Password" ng-required="true" ng-blur="testPasswordLen()">
+            	<i class="glyphicon glyphicon-lock form-control-feedback"  style="padding-top:10px;"></i>
+            </div>
+            <div class="form-group has-feedback" style="padding-top:10px;">
+				<span class="icon-lock"></span>
+                <input id="pw2" class="form-control" style="width: 280px; display:inline-block; height:32px" type="password" ng-model="currentUser.password2" placeholder="Repeat New Password" ng-required="true" ng-blur="testPassword()">
             	<i class="glyphicon glyphicon-lock form-control-feedback"  style="padding-top:10px;"></i>
             </div>
 			<div style="padding-top:30px;">
-            <button ng-click="actUserAccount(user)" class="btn btn-primary block full-width m-b" style="width:280px">Activate</button>
+            <button ng-click="empPassSave(currentUser)" class="btn btn-primary block full-width m-b" style="width:280px">Save</button>
             <br/><br/>
-            <a class="btn btn-warning btn-block" href="/login">Cancel</a>
+            <a class="btn btn-warning btn-block" href="/empHome">Cancel</a>
             </div>
 	</div>
-     <!-- <div class="panel-footer" style="margin-top:-30px;padding:30px;text-align:center;"> </div>  -->
-     <div class="panel-footer" style="margin-top:0.5%;padding:8%;text-align:center;"> </div>
+     <!-- <div class="panel-footer" style="margin-top:-30px;padding:30px;text-align:center;"> </div> -->
+     <div class="panel-footer" style="margin-top:2%;padding:8%;text-align:center;"> </div>
 </div>
 </div>
 </div>
@@ -71,10 +75,11 @@
 		<div class="panel panel-default site-panel-box" style="height:155px;width:360px;margin:0 0 10px 0px;margin-top:80px;">
 		<div class="panel-body" style="padding:0px;">
 		<div class="form-group">
-		<ul style="font-size:12px;padding:10px 0 0px 30px;text-align:left;color:667C26;"> <strong style="color:blue;">Note :</strong>
-		<li style="padding-top:10px;">Username or Email is registered user Email ID deactivated earlier.</li>
-		<li>Enter Secret handle as received via registered email at the time of deactivation.</li>
-		<li>For any other issues contact Administrator.</li>
+		<ul style="font-size:12px;padding:10px 0 0px 30px;text-align:left;color:667C26;"> <strong style="color:blue;">Password Tips :</strong>
+		<li style="padding-top:10px;">Password must be at least 6 characters.</li>
+		<li>Enter a combination of at least six numbers,<br>letters and punctuation marks.</li>
+		<li>Password may not not too obvious.</li>
+		<li>Password must contain at least two of the following: <br><strong>uppercase or lowercase letters, numbers and symbols.</strong></li>
 		</ul>
 		</div>
 		</div>

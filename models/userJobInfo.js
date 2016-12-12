@@ -7,6 +7,7 @@ var userJobInfoSchema = new mongoose.Schema({
     email: String,
     companyName: String,
     employerEmail: String,
+    filename: String,
     dateApplied: Date,
     files_id: Object
 });

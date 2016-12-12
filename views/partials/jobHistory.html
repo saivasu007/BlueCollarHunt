@@ -13,7 +13,7 @@
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
     <a href="/home"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
-	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-171px -61px 70px;">
+	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -61px 70px;">
 	  <p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
 		<span class="color customLink"><a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
 		<span class="color customLink"><a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a> | </span>
@@ -46,11 +46,11 @@
 				</thead>
 				<tbody>
 				<tr ng-repeat="hist in partialHist">
-					<td><a href="" ng-click="getJobInfo(hist.jobID)" data-toggle="modal" data-target="#showJobInfo">{{hist.jobID}}</a></td>
+					<td><a href="" ng-click="getJobInfo(hist.jobID)" data-toggle="modal" data-target="#showJobInfo"><strong>{{hist.jobID}}</strong></a></td>
 					<td>{{hist.title}}</td>
-					<td>{{hist.companyName}}</td>
+					<td><strong>{{hist.companyName.toUpperCase()}}</strong></td>
 					<td>{{hist.dateApplied}}</td>
-					<td>NA</td>
+					<td>{{hist.filename}}</td>
 					<td><a href="" ng-click="getJobInfo(hist.jobID)" data-toggle="modal" data-target="#referJob">Refer Job</a></td>
 				</tr>
 				<tr ng-show="allHist.length <= 0">
@@ -102,7 +102,7 @@
 					<td><strong>Company</strong></td>
 					<td></td>
 					<td></td>
-					<td>{{jobInfo.companyName}}</td>
+					<td>{{jobInfo.companyName.toUpperCase()}}</td>
 				</tr>
 				<tr>
 					<td><strong>Location</strong></td>
@@ -128,6 +128,12 @@
 					<td></td>
 					<td>${{jobInfo.rate}} {{jobInfo.salaryType}}</td>
 				</tr>
+				<tr>
+					<td><strong>Posted Date</strong></td>
+					<td></td>
+					<td></td>
+					<td>{{jobInfo.origPostDate}}</td>
+				</tr>
 				</tbody>
 				</table>
 			</div>
@@ -148,6 +154,14 @@
 				<h4>Refer/Share Job requirement for {{jobInfo.jobID}} {{jobInfo.title}}</h4>
 			</div>
 			<div class="modal-body" style="margin:10px 0px 0px 10px;">
+				<!-- Error Message Area ng-show="errorMsg" -->
+				<div class="form-group" ng-show="errorMsg" style="width:450px">
+								<flash-message
+					    			duration="5000"
+					    			show-close="true"
+					    			on-dismiss="ClearMessages(flash)"></flash-message>
+			    </div>
+				<!-- Error Message Area End -->
 				<div class="form-group">
                   <label for="rName">
                                 <font color="red">*</font>&nbsp;Friends Name</label>
@@ -160,7 +174,7 @@
             	</div>
             	<div class="form-group">
                   <label for="message">
-                                <font color="red">*</font>&nbsp;Refer Comments</label>
+                                &nbsp;Refer Comments</label>
                       <textarea name="message" id="message" class="form-control" rows="3" cols="3" required="required"
                                 placeholder="Message" ng-model="comments" style="width:450px;height:85px;resize:none;"></textarea>
             	</div>

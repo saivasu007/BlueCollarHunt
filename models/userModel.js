@@ -23,6 +23,7 @@ var userSchema = new mongoose.Schema({
     userType: String,
     authType: String,
     primarySkill: String,
+    coverPageInfo: String,
     activateHandle: String,
     resetPasswordToken: String,
     resetPasswordExpires: Date

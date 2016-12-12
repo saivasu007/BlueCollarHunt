@@ -12,7 +12,7 @@
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
 	<a href="/home"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
-	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-171px -61px 70px;">
+	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -61px 70px;">
 	  <p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
 		<span class="color customLink"><a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
 		<span class="color customLink"><a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a> | </span>
@@ -59,7 +59,7 @@
 <div class="panel-body" style="padding:20px;">
 <img ng-show="dataUrl == 'NoProfilePic'" src="img/blank.jpeg" style="height:125px;width:175px;border-radius: 60%;background-position: center center;background-size: cover;" />
 <img ng-show="dataUrl != 'NoProfilePic'" ng-src="{{dataUrl | trustUrl}}" style="height:125px;width:175px;border-radius: 60%;background-position: center center;background-size: cover;" />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="" ng-click="changeProfilePic()" ng-show="dataUrl != 'NoProfilePic'">Edit</a><a href="" ng-click="changeProfilePic()" ng-show="dataUrl == 'NoProfilePic'">Add Image</a>
+<div style="text-align:center;"><a href="" ng-click="changeProfilePic()" ng-show="dataUrl != 'NoProfilePic'">Edit</a><a href="" ng-click="changeProfilePic()" ng-show="dataUrl == 'NoProfilePic'">Add Image</a></div>
 <input type="file" id="imgupload" ng-model="Image" accept="image/jpeg,image/png" placeholder="Change Profile Image" style="display:none">
 <br/>
 <br/>
@@ -68,20 +68,29 @@
 <table>
 <tr>
 <td>
-<strong>Zip Code : </strong>
+<strong>Zipcode</strong>
 </td>
-<td></td>
-<td>
+<td style="padding-left:10px;"> :</td>
+<td style="padding-left:10px;">
 <strong>{{currentUser.zipcode}}</strong>
 </td>
 </tr>
 <tr>
 <td nowrap>
-<strong>Skill : </strong>
+<strong>Main Skill</strong>
 </td>
-<td></td>
-<td>
+<td style="padding-left:10px;"> :</td>
+<td style="padding-left:10px;">
 <strong>{{currentUser.primarySkill}}</strong>
+</td>
+</tr>
+<tr>
+<td>
+<strong>Mobile</strong>
+</td>
+<td style="padding-left:10px;"> :</td>
+<td style="padding-left:10px;" nowrap>
+<strong>{{currentUser.contactNum}}</strong>
 </td>
 </tr>
 </table>
@@ -91,11 +100,11 @@
 <div class="panel panel-default site-panel-box" style="width:928px;height:380px;margin:3px 0 0 232px;">
 <div class="panel-body" style="padding:3px;padding-top:0px;">
 <h3>{{currentUser.firstName}} {{currentUser.lastName}} <!-- <img src="img/like_image.jpeg" style="width:90px;height:70px;padding-bottom:20px;"></h3> -->
-<button class="btnCustom" style="width:87px;height:28px;padding:0px;border-radius:20px;margin-top:0px;margin-left:10px;" data-toggle="modal" data-target="#submitEndorses">Endorse</button>
+<button class="btnCustom" ng-show="isContactProfile" style="width:87px;height:28px;padding:0px;border-radius:20px;margin-top:0px;margin-left:10px;" data-toggle="modal" data-target="#submitEndorses">Endorse</button>
 <h4 style="margin:-10px 0px 0px 0px">@{{currentUser.lastName}}</h4>
 <div class="form-group" style="margin:10px 0px 0px 0px;">
 <textarea name="message" id="coverMsg" class="form-control" rows="12" cols="26" required="required"
-                                placeholder="Cover Letter Info Wall" ng-model="user.coverInfo" style="width:440px;height:290px;resize: none;"></textarea>
+                                placeholder="Cover Letter Info Wall" ng-model="coverPageInfo" style="width:440px;height:290px;resize: none;border:3px ridge #5BC0DE;"></textarea>
 </div>
 <div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:-360px 0 0 450px;float:right;border:2px dotted">
 <div class="panel-body" style="padding:0px;" data-ng-init="checkProfileVideo()">
@@ -126,7 +135,7 @@
 </div></div>
 <!-- For Recommended Jobs list -->
 <div class="panel panel-default site-panel-box" style="width:928px;height:173px;margin:18px 0 0 234px;" data-ng-init="listRecoJobs(currentUser.primarySkill)">
-<p style="text-align:center;"><strong style="color:blue;">Recommended Jobs for your skill : {{currentUser.primarySkill}}</strong></p>
+<!-- <p style="text-align:center;"><strong style="color:blue;">Recommended Jobs for your skill : {{currentUser.primarySkill}}</strong></p> -->
 <div class="panel-body" style="padding:8px;">
 <table class="table table-striped">
 <tr class="info" ng-repeat="job in recoJobsList" style="margin-bottom: 0px;cursor: pointer;" ng-click="getRecoJobInfo(job.jobID)">
@@ -137,7 +146,7 @@
 <p style="width:300px; white-space: nowrap;overflow: hidden;text-overflow:ellipsis;"><strong>{{job.requirement}}</strong></p>
 </td>
 <td>
-<font color="black" size="2"><strong>{{job.companyName}}</strong></font>
+<font color="black" size="2"><strong>{{job.companyName.toUpperCase()}}</strong></font>
 </td>
 <td>
 <font color="black" size="2"><strong>{{job.location}}</strong></font>
@@ -198,6 +207,14 @@
 				<h4>Endorsement for {{contactUser.lastName}}</h4>
 			</div>
 			<div class="modal-body" style="margin:10px 0px 0px 20px;">
+				<!-- Error Message Area ng-show="errorMsg" -->
+				<div class="form-group" ng-show="errorMsg" style="width:450px">
+								<flash-message
+					    			duration="5000"
+					    			show-close="true"
+					    			on-dismiss="ClearMessages(flash)"></flash-message>
+			    </div>
+				<!-- Error Message Area End -->
 				<div class="form-group">
                   <label for="name">
                                 <font color="red">*</font>&nbsp;Endorse From</label>

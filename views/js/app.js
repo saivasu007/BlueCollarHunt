@@ -84,7 +84,6 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
         	$("#profPic").val('');
         	$("#profPicDisplay").hide();
         	$scope.noImage = true;
-        	$scope.user = undefined;
         }
     };
     
@@ -209,7 +208,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 	
 	$scope.register = function (user){
 		
-		if ($scope.user.email == "" || $scope.user.firstName == "" || $scope.user.lastName == "" || $scope.user.passwd1 == "" || $scope.user.passwd2 == "" || $scope.user.zipcode == "" || $scope.user.skill == "") {
+		if ($scope.user.email == "" || $scope.user.firstName == "" || $scope.user.lastName == "" || $scope.user.passwd1 == "" || $scope.user.passwd2 == "" || $scope.user.zipcode == "" || $scope.user.skill == "" || $scope.user.image == undefined) {
 			$scope.errorMsg = true;
 			Flash.create('Info', "Please fill in all the blanks.",0, {class: 'alert-info', id: 'custom-id'}, true);
 		}
@@ -1312,13 +1311,13 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		})
     }
     
-    $scope.setResumeID = function(fileID) {
-    	alert(fileID);
+    $scope.setResumeID = function(file) {
     	//if($('#resume').prop('checked') == true) alert($('#resume').val());
     	//if(resume.selection == true) $scope.isSelected = false;
     	//else $scope.isSelected = true;
     	$scope.isSelected = false;
-    	$rootScope.resumeID = fileID;
+    	$rootScope.resumeID = file._id;
+    	$rootScope.resumeName = file.filename;
     }
     
     $scope.getJobStatus = function (jobID){
@@ -1346,6 +1345,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     			employerEmail : $rootScope.jobDetails.employerID,
     			companyName : $rootScope.jobDetails.companyName,
     			email : $rootScope.currentUser.email,
+    			filename : $rootScope.resumeName,
     			dateApplied : new Date(),
     			files_id: $rootScope.resumeID,
     			name: $rootScope.currentUser.firstName
@@ -1648,8 +1648,10 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 });
 
 
-app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location, FileUploader) {
+app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location, $timeout, FileUploader, Flash) {
 	
+	/* To enable and disable the Endorse button */
+	$scope.isContactProfile = false;
 	var uploader = $scope.uploader = new FileUploader();
 	uploader.onWhenAddingFileFailed = function(item, filter, options) {
         console.log('onWhenAddingFileFailed', item, filter, options);
@@ -1862,6 +1864,12 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		if($rootScope.isAdd == true) saveFlag = "add";
 		else if($rootScope.isUpdate == true) saveFlag = "update";
 		else saveFlag = "";
+		$scope.ClearMessages(Flash);
+		if(endorseInfo.message == "" || endorseInfo.message == undefined) {
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Endorse Message.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} 
 		
 		var postData = {
 				email : $rootScope.currentUser.email,
@@ -1900,6 +1908,42 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		});
 	};
 	
+	/* Autosave for Profile Cover Page Information */
+	var secondsToWaitBeforeSave = 2;
+	var timeout = null;
+	$scope.coverPageInfo = $scope.currentUser.coverPageInfo;
+	  
+	var saveCoverInfoUpdates = function() {
+		var postData = { 
+				coverPageInfo : $scope.coverPageInfo,
+				email : $rootScope.currentUser.email,
+		};
+		$http.post('/updateUserCoverpageInfo',postData).success(function (response){
+				if (response != 0){
+					$rootScope.coverPageInfo = postData.coverPageInfo;
+				   console.log("updateUserCoverpageInfo::Updated user cover page information.");
+				}
+		}).error(function (err) {
+				console.log(err);
+		});
+	};
+	
+	var autoSaveUpdate = function(newVal, oldVal) {
+	    if (newVal != oldVal) {
+	      if (timeout) {
+	        $timeout.cancel(timeout);
+	      }
+	      timeout = $timeout(saveCoverInfoUpdates, secondsToWaitBeforeSave * 1000);
+	    }
+	};
+	  
+	$scope.$watch('coverPageInfo', autoSaveUpdate);
+	/* End Coverpage Information Updates */
+	
+	$scope.ClearMessages = function(flash) {
+		$scope.errorMsg = false;
+		Flash.clear();
+	}
 	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
@@ -2052,7 +2096,7 @@ $rootScope.reqLabel = "Add Contact";
 	};
 });
 
-app.controller('jobsCtrl', function ($q, $scope, $rootScope, $http, $location) {
+app.controller('jobsCtrl', function ($q, $scope, $rootScope, $http, $location, Flash) {
 	$scope.currentPage = 1;
 	$scope.numPerPage = 10;
 	$scope.maxSize = 5;
@@ -2101,6 +2145,21 @@ app.controller('jobsCtrl', function ($q, $scope, $rootScope, $http, $location) {
 	};
 	
 	$scope.sendJobReference = function(jobInfo) {
+		$scope.ClearMessages(Flash);
+		if(($scope.name == "" || $scope.name == undefined) && ($scope.referEmail == "" || $scope.referEmail == undefined)) {
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Friends Name & Email Fields.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if($scope.name == "" || $scope.name == undefined) {
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Friends Name.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if($scope.referEmail == "" || $scope.referEmail == undefined) { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Friends Email.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		}
+		
 		var postData = {
 				name : $scope.name,
 				email : $scope.referEmail,
@@ -2114,6 +2173,11 @@ app.controller('jobsCtrl', function ($q, $scope, $rootScope, $http, $location) {
 		}).error(function (err) {
 				console.log(err);
 		});
+	}
+	
+	$scope.ClearMessages = function(flash) {
+		$scope.errorMsg = false;
+		Flash.clear();
 	}
 	
 	$scope.logout = function () {
@@ -2190,6 +2254,54 @@ app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $locatio
                 alert ('Old Password is not correct!');
                 $scope.currentUser={};
                 $location.url('/changePassword')
+            } else if (response == 'error'){
+                $scope.currentUser={};
+            }
+        })
+    };
+    
+$scope.empPassSave = function (currentUser) {
+		
+		if(currentUser.oldPassword == "" && currentUser.password1 == "" && currentUser.password2 == "") { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter all Password fields.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(currentUser.oldPassword == undefined && currentUser.password1 == undefined && currentUser.password2 == undefined) { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter all Password fields.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(currentUser.oldPassword == "" || currentUser.oldPassword == undefined) { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Old Password.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(currentUser.password1 == "" || currentUser.password1 == undefined) { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter New Password.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(currentUser.password2 == "" || currentUser.password2 == undefined) { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Repeat New Password.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		}
+		
+        var postData = {
+            email: $rootScope.currentUser.email,
+            oldPassword: currentUser.oldPassword,
+            password2: currentUser.password2
+        };
+        
+        $http.post('/changeEmpPasswd', postData).success(function (response) {
+            if (response == 'success'){
+                alert ('Password Updated Successfully!');
+                $scope.currentUser=response;
+                alert("Please connect the BlueCollarHunt appliation using New Password.");
+                $scope.logout();
+            } else if (response == 'incorrect') {
+                //alert ('Old Password is not correct!');
+            	$scope.errorMsg = true;
+    			Flash.create('warning', "Old Password is not correct!",0, {class: 'alert-warning', id: 'custom-id'}, true);
+    			$scope.currentUser={};
+    			return;
             } else if (response == 'error'){
                 $scope.currentUser={};
             }
@@ -2462,6 +2574,13 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 			controller: 'changePwdCtrl',
 			resolve: {
 				loggedin: checkLoggedIn
+			}
+		}).
+		when('/empChangePass', {
+			templateUrl: 'partials/empChangePass.html',
+			controller: 'changePwdCtrl',
+			resolve: {
+				loggedin: checkEmpLoggedIn
 			}
 		}).
 		when('/socialContacts', {

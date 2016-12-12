@@ -1291,6 +1291,28 @@ app.post('/deactivateProfile', function(req, res) {
 	})
 });
 
+app.post('/updateUserCoverpageInfo', function(req, res) {
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (result && result.email) {
+			userModel.update({
+				email : req.body.email
+			}, {
+				coverPageInfo : req.body.coverPageInfo
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send(err)
+				}
+			})
+		}
+	})
+});
+
 app.post('/activateUser', function(req, res) {
 	userModel.findOne({
 		email : req.body.email,
@@ -1998,7 +2020,7 @@ app.post('/reset', function(req, res) {
 });
 //End Forgot Password functionality here.
 
-//Change password fields are moved from Profile and added part of new Screen (Change Password).
+//Change password for Job Seeker
 app.post('/changePasswd', function (req, res) {
 	userModel.find({email:req.body.email, password:encrypt(req.body.oldPassword)}, function (err, result) {
         if (result && result.length != 0) {
@@ -2017,6 +2039,55 @@ app.post('/changePasswd', function (req, res) {
     			            password: req.body.password2,
     			            name: result.firstName,
     			            url: "http://"+req.headers.host+"/login"
+    			            
+    				}
+    				var mail = {
+    					from : emailFrom,
+    					to : req.body.email,
+    					subject : emailChangePwdSubject,
+    					html: renderTemplate(chgPwdTemplate,data)
+    				}
+
+    				smtpTransport.sendMail(mail, function(error, response) {
+    					if (error) {
+    						console.log(error);
+    					} else {
+    						console.log("Message sent: " + response.message);
+    					}
+    				   smtpTransport.close();
+    				});
+    			    //End email communication here.
+                    res.send('success')
+                } else {
+                	console.log('error');
+                    res.send('error')
+                }
+            })
+        } else {
+            res.send('incorrect')
+        }
+    })
+});
+
+//Change password for Employer
+app.post('/changeEmpPasswd', function (req, res) {
+	empModel.find({email:req.body.email, password:encrypt(req.body.oldPassword)}, function (err, result) {
+        if (result && result.length != 0) {
+            empModel.update({email:req.body.email},{$set:{password:encrypt(req.body.password2)}},false,function (err, num){
+                if (num.ok == 1){
+                	console.log('success');
+                	//send email after successful registration.
+    				var smtpTransport = mailer.createTransport(emailTransport, {
+    					service : "Gmail",
+    					auth : {
+    						user : serviceUser,
+    						pass : decrypt(servicePasswd)
+    					}
+    				});
+    				var data = {
+    			            password: req.body.password2,
+    			            name: result.firstName,
+    			            url: "http://"+req.headers.host+"/empSignIn"
     			            
     				}
     				var mail = {

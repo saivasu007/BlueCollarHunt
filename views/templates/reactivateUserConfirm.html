@@ -68,7 +68,7 @@ a {
     BODY
 ------------------------------------- */
 table.body-wrap {
-  padding: 20px;
+  padding: 10px;
   width: 100%;
 }
 table.body-wrap .container {
@@ -161,20 +161,21 @@ ol li {
       <table>
         <tr>
           <td>
-            <hr size=15 color="#3399FF">
+            <div style="width:100%;height:30px;border:0px solid #000;background-color:#3399FF;">
+			<p style="text-align:center;color:white;font-weight:bold;font-size:20px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
+			BLUE COLLAR HUNT
+			</p>
+			</div>
             <br/>
             <p>Hi <b><%= locals.name %></b>,</p>
             <p>This is a confirmation that your account <b> <%= locals.email %> </b> has been reactivated in Blue Collar Hunt Portal.For security reasons you may not able to use the same password as before.</p>
-            <p>Please use the Forgot Password link <b><a href="<%= locals.forgotUrl %>">Forgot Password</a></b> and reset your password</p>
-            <br/>
-            <br/>
-            <br/>
-            <hr size=15 color="#3399FF">
-            <br/>       
+            <p>Please use the Forgot Password link <b><a href="<%= locals.forgotUrl %>">Forgot Password</a></b> and reset your password.</p>
+            <br/>   
             <p>If you did not request this, please ignore this email and if you have any questions or encounter any problems, please contact a site administrator at <b><a href="mailto:thungathurti.srinivas@bluecollarhunt.com">BlueCollarHunt Team.</a></b></p>
-          </td>
+            </td>
         </tr>
       </table>
+            <div style="width:100%;height:30px;border:0px solid #000;background-color:#3399FF;"></div>
       <!-- /content -->
       </td>
     <td></td>

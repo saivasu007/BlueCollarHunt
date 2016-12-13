@@ -3,22 +3,22 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
-    <title>Blue Collar Hunt Employer Registration Page</title>
+    <title>Blue Collar Hunt Employer Profile Update Page</title>
   </head>
 <body>
+<ng-form id="register_form">
 <div class="container" style="padding-left:0px;">
 <div class="row" style="height:201px;">
 <br/>
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
-		 <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/>
+		 <a href="/empHome"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
 	     <div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -62px 70px;">
 		  <p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
-				<span class="color customLink"><a href="/" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
-				<span class="color customLink"><a href="/login" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Seeker</font></a> | </span>
-				<span class="color customLink"><a href="/empSignIn" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Employer</font></a> | </span>
-				<span class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></span>
+		  	<span class="color customLink"><a href="/empHome" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
+			<span class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a> | </span>
+		  	<span class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></span>
 		  </p>
 		</div>
 </div></div></div></div></div>
@@ -40,49 +40,35 @@
 		</div>
 		</div>
 	
-	<div class="panel panel-default site-panel-box" style="height:525px;">
+	<div class="panel panel-default site-panel-box" style="height:50%px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#5BC0DE;">
 			<h3 class="panel-title">Employer Registration Form</h3>
 			</div>
-			<!-- 
-            <div class="form-group has-feedback" style="padding-top:10px;">
-				<input type="text" ng-model="emp.uid" class="form-control controls-width" placeholder="Employer User ID" style="width:280px">
-				<i class="glyphicon glyphicon-user form-control-feedback" style="padding-top:10px;"></i>
-			</div>
-			-->
 			<div class="form-group has-feedback" style="padding-top:10px;">
-				<input type="text" ng-model="emp.email" class="form-control" placeholder="Email Address" ng-change="" style="width:302px">
+				<input type="text" ng-model="currentUser.email" class="form-control" placeholder="Email Address" ng-disabled="true" style="width:302px">
 				<i class="glyphicon glyphicon-envelope form-control-feedback" style="padding-top:10px;"></i>
 			</div>
 			<div class="form-group">
-                <input type="text" ng-model="emp.name" class="form-control" placeholder="Employer Name" style="width:302px">
+                <input type="text" ng-model="currentUser.name" class="form-control" placeholder="Employer Name" style="width:302px">
             </div>
             <div class="form-group has-feedback">
-                <input type="text" id="phone" ng-model="emp.contactNum" class="form-control" placeholder="Contact Number" ng-blur="formatContactNum(emp.contactNum)" style="width:302px">
+                <input type="text" id="phone" ng-model="currentUser.contactNum" class="form-control" placeholder="Contact Number" ng-blur="formatContactNum(emp.contactNum)" style="width:302px">
             	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
             </div>
             <div class="form-group has-feedback">
-            	<input type="text" ng-model="emp.address1" style="width:302px" class="form-control" placeholder="Address" ng-autocomplete="result1" details="details1" options="options1" />
+            	<input type="text" ng-model="currentUser.address" style="width:302px" class="form-control" placeholder="Address" ng-autocomplete="result1" details="details1" options="options1" />
             	<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
             </div>
-            <div class="form-group has-feedback">
-                <span class="{{myClass}}"><input type="password" ng-model="emp.passwd1" class="form-control" placeholder="New Password" ng-change="testPassword()" style="width:302px" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
-            	<i class="glyphicon glyphicon-lock form-control-feedback"></i>
-            </div>
-            <div class="form-group has-feedback">
-                <span class="{{myClass}}"><input type="password" ng-model="emp.passwd2" ng-change="testPassword2()" class="form-control" placeholder="Confirm Password" style="width:302px" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
-            	<i class="glyphicon glyphicon-lock form-control-feedback"></i>
-            </div>
             <div class="form-group">
-                <input type="Radio" ng-model="emp.amount"  ng-value="0" style="align:left" ng-click="disableCardInfo(emp)"><b>&nbsp;Free Trial</b>
+                <input type="Radio" ng-model="currentUser.amount"  ng-value="0" style="align:left" ng-disabled="true"><b>&nbsp;Free Trial</b>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="Radio" ng-model="emp.amount"  ng-value="1999" ng-click="disableCardInfo(emp)"><b>&nbsp;$19.99/mo</b>
+                <input type="Radio" ng-model="currentUser.amount"  ng-value="1999" ng-disabled="true"><b>&nbsp;$19.99/mo</b>
             </div>
             <br/>
-            <button ng-click="empRegister(emp)" ng-disabled="error" class="btn btn-primary block full-width m-b">Register</button>
+            <button ng-click="saveProfileInfo(currentUser)" ng-disabled="error" class="btn btn-primary block full-width m-b">Save</button>
             <br/><br/>
-            <button ng-click="empClear(emp)" ng-disabled="error" class="btn btn-warning block full-width m-b">Clear</button>
+            <a href="/empHome"><button class="btn btn-warning block full-width m-b">Cancel</button></a>
       </div></div>
      </div>
 </div>
@@ -154,7 +140,7 @@
                         <div class="row">
                             <div class="col-xs-12">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" ng-model="emp.cardName" placeholder="Name on the card"/>
+                                    <input type="text" class="form-control" ng-model="emp.cardName" ng-change="emp.cardName = emp.cardName.toUpperCase()" placeholder="Name on the card"/>
                                 </div>
                             </div>                        
                         </div>
@@ -175,22 +161,6 @@
             </div> 
             </div></div>
             </div> 
-
-<div id="PassPolicy" class="right-box text-center" style="margin:300px 0 0 -380px;">
-		<div class="panel panel-default site-panel-box" style="height:155px;width:360px;margin:0 0 0px -20px;margin-top:80px;">
-		<div class="panel-body" style="padding:0px;">
-		<div class="form-group">
-		<ul style="font-size:12px;padding:10px 0 0px 30px;text-align:left;color:667C26;"> <strong style="color:blue;">Password Tips :</strong>
-		<li style="padding-top:10px;">Password must be at least 6 characters.</li>
-		<li>Enter a combination of at least six numbers,<br>letters and punctuation marks.</li>
-		<li>Password may not not too obvious.</li>
-		<li>Password must contain at least two of the following: <br><strong>uppercase or lowercase letters, numbers and symbols.</strong></li>
-		</ul>
-		</div>
-		</div>
-		</div>
-</div>
-
 </div>
 </div></div></div>
 <footer>

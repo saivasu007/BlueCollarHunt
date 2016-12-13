@@ -859,6 +859,7 @@ function download(url) {
 	  });
 }
 
+/*
 app.post('/getUsers', function(req, res) {
 	if(req.body.email != undefined) {
 	var query = req.body.search ? {
@@ -888,6 +889,49 @@ app.post('/getUsers', function(req, res) {
 	userModel.find( { socialYN : "Y" }).exec(function(err, result) {
 		res.send(result)
 	})
+	}
+});
+*/
+
+app.post('/getUsers', function(req, res) {
+	if(req.body.email != undefined) {
+	var query = req.body.search ? {
+		email : req.body.email,
+		socialYN : "Y"
+	} : {
+		email : req.body.email,
+		socialYN : "Y"
+	}
+	userModel.find(query).exec(function(err, result) {
+		//res.send(result);
+		if(result && result.email) {
+			
+			userContactsModel.findOne({
+				email : req.body.currEmail,
+				contactEmail : req.body.email
+			}, function (err, result1) {
+		        if (err) return done(err);
+		        if (result1) {
+		            result.push(result1.contactStatus);
+		        }
+		    })
+		}
+		res.send(result);
+	})
+	} else {
+		userModel.aggregate( [
+		                         {
+		                             $lookup: {
+		                                 from: "contactModel",
+		                                 localField: "email",
+		                                 foreignField: "email",
+		                                 as: "userContacts"
+		                             }
+		                         }
+		                     ], function(err, result) {
+			console.log(result);
+		         res.send(result);
+		});
 	}
 });
 
@@ -986,35 +1030,41 @@ app.post('/getUserInfo', function(req, res) {
 
 app.post('/getJobs', function(req, res) {
 	if(req.body.name == "" && req.body.location == "") {
-		jobInfoModel.find().exec(function(err, result) {
+		jobInfoModel.find({activeJob : "Y"}).exec(function(err, result) {
 			res.send(result);
 		});
 	} else {
 		if(req.body.name != "" && req.body.location != "") {
 			var query = req.body.name ? {
 				title : {$regex: req.body.name,$options:"$i"},
-				location : {$regex: req.body.location,$options:"$i"}
+				location : {$regex: req.body.location,$options:"$i"},
+				activeJob : "Y"
 			} : {
 				title : {$regex: req.body.name,$options:"$i"},
-				location : {$regex: req.body.location,$options:"$i"}
+				location : {$regex: req.body.location,$options:"$i"},
+				activeJob : "Y"
 			}
 			jobInfoModel.find(query).exec(function(err, result) {
 				res.send(result);
 			})
 		} else if(req.body.name != "") {
 			var query = req.body.name ? {
-				title : {$regex: req.body.name,$options:"$i"}
+				title : {$regex: req.body.name,$options:"$i"},
+				activeJob : "Y"
 			} : {
-				title : {$regex: req.body.name,$options:"$i"}
+				title : {$regex: req.body.name,$options:"$i"},
+				activeJob : "Y"
 			}
 			jobInfoModel.find(query).exec(function(err, result) {
 				res.send(result);
 			})
 		} else if(req.body.location != "") {
 			var query = req.body.location ? {
-				location : {$regex: req.body.location,$options:"$i"}
+				location : {$regex: req.body.location,$options:"$i"},
+				activeJob : "Y"
 			} : {
-				location : {$regex: req.body.location,$options:"$i"}
+				location : {$regex: req.body.location,$options:"$i"},
+				activeJob : "Y"
 			}
 			jobInfoModel.find(query).exec(function(err, result) {
 				res.send(result);
@@ -1026,9 +1076,11 @@ app.post('/getJobs', function(req, res) {
 app.post('/getJobsByLoc', function(req, res) {
 	if(req.body.search != undefined) {
 		var query = req.body.search ? {
-			location : {$regex: req.body.search,$options:"$i"}
+			location : {$regex: req.body.search,$options:"$i"},
+			activeJob : "Y"
 		} : {
-			location : {$regex: req.body.search,$options:"$i"}
+			location : {$regex: req.body.search,$options:"$i"},
+			activeJob : "Y"
 		}
 		jobInfoModel.find(query).exec(function(err, result) {
 			res.send(result);
@@ -1072,7 +1124,7 @@ app.post('/checkJobPost', function(req, res) {
 });
 
 app.get('/getJobLocList', function(req, res) {
-	jobInfoModel.aggregate( { "$match": { "location": { "$ne": null } }},
+	jobInfoModel.aggregate( { "$match": { "location": { "$ne": null },activeJob : "Y" }},
 		    				{ "$group": {
 		    						"_id": {
 					            "location": "$location"
@@ -1153,12 +1205,22 @@ app.post('/addJobDet', function(req, res) {
 });
 
 app.post('/getEmpJobs', function(req, res) {
-	console.log(req.body.email);
-	jobInfoModel.find({
-		employerID : req.body.email
-	}, function(err, result) {
-		res.send(result);
-	});
+	console.log("Emp Email "+req.body.email);
+	console.log("Emp Job Title "+req.body.title);
+	if(req.body.title == "" || req.body.title == undefined) {
+		jobInfoModel.find({
+			employerID : req.body.email
+		}, function(err, result) {
+			res.send(result);
+		});
+	} else {
+		jobInfoModel.find({
+			employerID : req.body.email,
+			title : {$regex: req.body.title,$options:"$i"}
+		}, function(err, result) {
+			res.send(result);
+		});
+	}
 });
 
 app.post('/deleteJobInfo', function(req, res) {
@@ -1260,6 +1322,30 @@ app.post('/updateUserProfile', function(req, res) {
 				} else {
 					console.log('error');
 					res.send('error')
+				}
+			})
+		}
+	})
+});
+
+app.post('/updateEmpProfile', function(req, res) {
+	empModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (result && result.email) {
+			empModel.update({
+				email : req.body.email
+			}, {
+				name : req.body.name,
+				contactNum : req.body.contactNum,
+				address1 : req.body.address1
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send(err)
 				}
 			})
 		}

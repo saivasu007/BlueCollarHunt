@@ -1213,6 +1213,13 @@ app.post('/getEmpJobs', function(req, res) {
 		}, function(err, result) {
 			res.send(result);
 		});
+	} else if(req.body.relativeSearch) {
+		jobInfoModel.find({
+			employerID : req.body.email,
+			jobID : {$regex: req.body.title,$options:"$i"}
+		}, function(err, result) {
+			res.send(result);
+		});
 	} else {
 		jobInfoModel.find({
 			employerID : req.body.email,
@@ -1285,6 +1292,24 @@ app.post('/updatePublishStat', function(req, res) {
 			})
 		}
 	})
+});
+
+app.post('/getJobTrackInfo', function(req, res) {
+	console.log("Emp Email "+req.body.email);
+	jobInfoModel.find({
+			employerID : req.body.email
+		}).sort({origPostDate: -1}).exec(function(err, result) {
+			res.send(result);
+		});
+});
+
+app.post('/getCandidateList', function(req, res) {
+	console.log("Job ID "+req.body.jobID);
+	userJobInfoModel.find({
+			jobID : req.body.jobID
+		}, function(err, result) {
+			res.send(result);
+		});
 });
 
 app.post('/applyJobPosting', function(req, res) {
@@ -1731,6 +1756,15 @@ app.post('/getProfileVideo', function(req, res) {
 				});
 			});
 		}
+	});
+});
+
+app.post('/getUserDetails', function(req, res) {
+	console.log(req.body.search);
+	userModel.findOne({
+		email : req.body.search
+	}, function(err, result) {
+		res.send(result);
 	});
 });
 

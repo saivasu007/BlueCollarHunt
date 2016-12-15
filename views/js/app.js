@@ -3,7 +3,7 @@
  * @author : Srinivas Thungathurti
  * @description : Created for Capstone Project Blue Collar Hunt
  */
-var app = angular.module('blueCollarApp', ['ngRoute', 'highcharts-ng','toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash']);
+var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash']);
 
 
 app.directive("ngFileSelect",function(){
@@ -314,8 +314,10 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 						alert("Success! Please check your registered email for UniqueID.");
 						$rootScope.currentUser = null;					
 						$location.path('/empSignIn');
+					} else if(resp == "0"){
+						alert("Employer "+emp.email+" already registered in the portal.");
 					} else {
-						alert("Ooops, there is a issue and Please try again!!")
+						alert("Ooops, there is an issue and Please try again!!");
 					}
 				}).error(function (err) {
 					alert("ERROR: "+err.message);
@@ -1349,7 +1351,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     			filename : $rootScope.resumeName,
     			dateApplied : new Date(),
     			files_id: $rootScope.resumeID,
-    			name: $rootScope.currentUser.firstName
+    			name: $rootScope.currentUser.firstName+" "+$rootScope.currentUser.lastName
     	};
         
         $http.post('/applyJobPosting',postData).success(function (response){
@@ -1380,8 +1382,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	
 	
 	$scope.addJobInfo = function (jobInfo){
-		alert(jobInfo.location);
-		if(jobInfo.activeJob == "1") jobInfo.activeJob = "Y"
+		if(document.getElementById("publish").checked == true) jobInfo.activeJob = "Y";
 		else jobInfo.activeJob = "N";
 		var postData = { 
 			title : jobInfo.title,
@@ -1396,12 +1397,12 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			origPostDate : new Date(),
 			salaryType : jobInfo.salaryType
 		};
-
 		$http.post('/addJobDet',postData).success(function (response){
 			if (response != 0){
 				if(!confirm('Post Success.You want to post another job?')) {
 					$scope.isJobQueue = true;
 					$scope.isPostJob = false;
+					$scope.isJobTrack = false;
 					$scope.getJobQueue($scope.currentUser.email);
 					$location.url('/empHome');
 				} else {
@@ -1421,10 +1422,12 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	$scope.displayJobEntry = function (jobInfo){
 		$scope.isPostJob = true;
 		$scope.isJobQueue = false;
+		$scope.isJobTrack = false;
 		$scope.isUpdate = false;
 		$scope.job = undefined;
 		$scope.companyName = $rootScope.currentUser.name;
-		document.getElementById("active").checked = true;
+		//document.getElementById("active").checked = true;
+		document.getElementById("publish").checked = true;
 		$location.url('/empHome');
 	};
 	
@@ -1432,10 +1435,11 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.job = jobInfo;
 		$scope.isPostJob = true;
 		$scope.isJobQueue = false;
+		$scope.isJobTrack = false;
 		$scope.isUpdate = true;
 		$scope.companyName = $scope.job.companyName;
-		if(jobInfo.activeJob == "Y") $scope.job.activeJob = "1";
-		else $scope.job.activeJob = "0";
+		if(jobInfo.activeJob == "Y") document.getElementById("publish").checked = true;
+		else document.getElementById("publish").checked = false;
 		$location.url('/empHome');
 	};
 	
@@ -1459,6 +1463,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				alert("Success");
 				$scope.isJobQueue = true;
 				$scope.isPostJob = false;
+				$scope.isJobTrack = false;
 				$scope.getJobQueue($scope.currentUser.email);
 				$location.url('/empHome');
 				} else if (response == 'error') {
@@ -1485,11 +1490,13 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.partialJobs = $scope.allEmpJobs.slice(begin, end);	
 				$scope.isJobQueue = true;
 				$scope.isPostJob = false;
+				$scope.isJobTrack = false;
 				$location.url('/empHome');
 			} else if (response == "") {
 				$scope.allJobs = response;
 				$scope.isJobQueue = true;
 				$scope.isPostJob = false;
+				$scope.isJobTrack = false;
 				$location.url('/empHome');
 			} else if (response == 'error') {
 				alert(err);
@@ -1507,9 +1514,11 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	//End Pagination changes here.
 	
 	$scope.searchEmpJobs = function (searchInfo){
+		if(searchInfo == undefined) searchInfo = "";
 		var postData = { 
 				title : searchInfo,
-				email : $rootScope.currentUser.email
+				email : $rootScope.currentUser.email,
+				relativeSearch : searchInfo.indexOf("BCJOB-") != -1
 		};
 		$http.post('/getEmpJobs',postData).success(function (response){
 			if (response != 0){
@@ -1537,25 +1546,22 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	};
 	
 	$scope.getJobTracking = function (emailID){
+		
 		if(emailID == undefined) emailID = "NA";
 		var postData = { 
 				email : emailID
 		};
-		
-		$('#tree').treeview({data: "{}"});
-		$scope.isJobQueue = false;
-		scope.isPostJob = false;
-		$scope.isJobTrack = true;
-		$location.url('/empHome');
-		/*
+
 		$http.post('/getJobTrackInfo',postData).success(function (response){
 			if (response != 0){
-				alert(success);
+				$scope.jobTrackList = response;
+				$scope.isJobQueue = false;
+				$scope.isPostJob = false;
+				$scope.isJobTrack = true;
 			} 
 		}).error(function (err) {
 			console.log(err);
 		})
-		*/
 	};
 	
 	$scope.publish = function (jobID){
@@ -1574,6 +1580,28 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				console.log(err);
 		})
 	};
+	
+	$scope.getCandidateList = function (jobID){
+		var postData = { 
+				jobID : jobID
+		};
+
+		$http.post('/getCandidateList',postData).success(function (response){
+			if (response != 0){
+				$scope.jobSeekerList = response;
+				$scope.isJobQueue = false;
+				$scope.isPostJob = false;
+				$scope.isJobTrack = true;
+			} 
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.displayCandidateProfile = function(emailID) {
+		$rootScope.candidateEmail = emailID;
+		$location.url('reviewProfile');
+	}
 	
 	$scope.unPublish = function (jobID){
 		var postData = { 
@@ -1619,9 +1647,10 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
     };
     
     $scope.clear = function () {
-    	if($scope.emp.search != undefined || $scope.emp.search != "") {
+    	if($scope.emp.search != undefined) {
 	        if(confirm("Are you sure to clear the form?")) { 
 	        	$scope.emp.search = "";
+	        	$scope.searchEmpJobs();
 	        }
     	}
     };
@@ -1694,6 +1723,96 @@ app.controller('empProfileCtrl', function ($q, $scope, $rootScope, $http, $locat
 			});
 		}
 		
+		//Candidate Profile review related information.
+		$scope.checkCandidateProfileVideo = function (){
+	    	$scope.email = $rootScope.candidateEmail;
+	    	var postData ={
+					email: $scope.email
+			};
+	    	$http.post('/checkProfileVideoCount',postData).success(function (response) {
+				if(response == 'success') $rootScope.showVideo = true;
+				else $rootScope.showVideo = false;
+			}).error(function (err) {
+				console.log(err);
+			})
+	    }
+		
+		$scope.candidateProfileInfo = function (){
+			$scope.search = $rootScope.candidateEmail;
+			var postData ={
+					search: $scope.search
+			};
+			$http.post('/getUserInfo',postData).success(function (response) {
+				$rootScope.dataUrl = response;
+				$location.url('/reviewProfile');
+			}).error(function (err) {
+				console.log(err);
+			})
+		};
+		
+		$scope.candidateProfileDetails = function (){
+			$scope.search = $rootScope.candidateEmail;
+			var postData ={
+					search: $scope.search
+			};
+			$http.post('/getUserDetails',postData).success(function (response) {
+				$rootScope.candidate = response;
+			}).error(function (err) {
+				console.log(err);
+			})
+		};
+		
+		$scope.getProfileVideo = function() {
+			
+			var postData = {
+					email: $rootScope.candidateEmail
+			};
+			
+			$http.post('/getProfileVideo',postData).success(function (response) {
+				if(response == "NoVideo") $rootScope.showVideo = false;
+				else {
+					$rootScope.videoSrc = response;
+					$rootScope.showVideo = true;
+				}
+			}).error(function (err) {
+				alert(err);
+				console.log(err);
+			});
+		}
+		
+		$scope.listEndorsements = function (){
+			$scope.email = $rootScope.candidateEmail;
+			var postData ={
+					email: $scope.email
+			};
+			$http.post('/getEndorsements',postData).success(function (response) {
+				$scope.endorseList = response;
+				//$location.url('/profile#listEndorses');
+			}).error(function (err) {
+				console.log(err);
+			})
+		};
+		
+		$scope.getJobTracking = function (emailID){
+			
+			if(emailID == undefined) emailID = "NA";
+			var postData = { 
+					email : emailID
+			};
+
+			$http.post('/getJobTrackInfo',postData).success(function (response){
+				if (response != 0){
+					$rootScope.jobTrackList = response;
+					$rootScope.isJobQueue = false;
+					$rootScope.isPostJob = false;
+					$rootScope.isJobTrack = true;
+					$location.url('/empHome')
+				} 
+			}).error(function (err) {
+				console.log(err);
+			})
+		};
+		
 		$scope.formatCC = function() {
 			var input = document.getElementById('cardNum');
 			payform.cardNumberInput(input);
@@ -1724,12 +1843,21 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.options1 = null;
 		$scope.details1 = '';
 			
-		$http.get('/loggedin').success(function (user) {
+		/*$http.get('/loggedin').success(function (user) {
 				if(user != undefined) {
 					$scope.contact = user;
 					$scope.contact.name = user.firstName+" "+user.lastName;
 				}
-		});
+		});*/
+		if($rootScope.currentUser != undefined) {
+			if($rootScope.currentUser.userType == "U") {
+					$scope.contact = $rootScope.currentUser;
+					$scope.contact.name = $rootScope.currentUser.firstName+" "+$rootScope.currentUser.lastName;
+			} else if($rootScope.currentUser.userType == "E") {
+				$scope.contact = $rootScope.currentUser;
+				$scope.contact.name = $rootScope.currentUser.name.toUpperCase();
+			}
+		}
 		
 		$scope.ClearMessages = function(flash) {
 			$scope.errorMsg = false;
@@ -1794,7 +1922,7 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location, $timeout, FileUploader, Flash) {
 	
 	/* To enable and disable the Endorse button */
-	$scope.isContactProfile = false;
+	$scope.isCandidateProfile = false;
 	var uploader = $scope.uploader = new FileUploader();
 	uploader.onWhenAddingFileFailed = function(item, filter, options) {
         console.log('onWhenAddingFileFailed', item, filter, options);
@@ -2511,6 +2639,14 @@ app.controller('navCtrl', function ($scope, $http, $location, $rootScope){
 
 app.controller('testCtrl', function ($scope, $http, $location, $rootScope){
 	alert("test");
+	
+	$(".Collapsable").click(function () {
+		alert("hi")
+        $(this).parent().children().toggle();
+        $(this).toggle();
+
+    });
+	
 	$scope.saveEndorseMsg = function(endorseInfo) {
 		var postData = {
 				email : "abc@abc.com",
@@ -2736,6 +2872,13 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		}).
 		when('/empChangeProfile', {
 			templateUrl: 'partials/empChangeProfile.html',
+			controller: 'empProfileCtrl',
+			resolve: {
+				loggedin: checkEmpLoggedIn
+			}
+		}).
+		when('/reviewProfile', {
+			templateUrl: 'partials/candidateProfile.html',
 			controller: 'empProfileCtrl',
 			resolve: {
 				loggedin: checkEmpLoggedIn

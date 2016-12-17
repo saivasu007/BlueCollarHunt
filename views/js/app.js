@@ -982,7 +982,8 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		$http.post('/uploadProfileResume',postData).success(function (response) {
 			alert("Upload resume Success");
 			$scope.listProfileResume();
-			$scope.uploadCV();
+			if($rootScope.isLinkToJob == true) $scope.uploadAndApply();
+			else $scope.uploadCV();
 		}).error(function (err) {
 			if(err) {
 				alert("Error while uploading resume and Please try again!.");

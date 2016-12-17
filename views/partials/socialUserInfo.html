@@ -55,7 +55,7 @@
 					</td>
 					<td colspan="2"></td>
 					<td style="padding-left:10px;">
-					<button class="btnCustom" style="width:190px;height:36px;padding:0px;border-radius:20px;margin:0px 0px 0px 30px;" data-toggle="modal" data-target="#listRecvRequests"><span class="customSpan">Notifications({{contactList.length}})</span></button>
+					<button class="btnCustom" style="width:184px;height:32px;padding:0px;border-radius:20px;margin:0px 0px 0px 30px;font-size:18px;" data-toggle="modal" data-target="#listRecvRequests">Notifications({{contactList.length}})</button>
 					</td>
 					</tr></table>
 			<br><br>
@@ -89,8 +89,8 @@
 					<td>{{user.lastName}}</td>
 					<td>{{user.activeIn}}</td>
 					<td>{{user.zipcode}}</td>
-					<td><button  class="btnCustom" style="width:92px;height:33px;padding:0px;" ng-click="sendAddContactReq(user)">
-					Add
+					<td><button  class="btnCustom" style="width:80px;height:28px;padding:0px;font-size:16px;" ng-click="sendAddContactReq(user)">
+					+ Add
 					</button></td>
 				</tr>
 				<tr ng-show="allUsers.length <= 0">
@@ -123,7 +123,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4>Contact Requests received for {{currentUser.lastName}}</h4>
 			</div>
-			<div class="modal-body" style="display:block;">
+			<div class="modal-body" style="display:block;padding:12px;">
 				<table class="table table-striped" style="margin-bottom: 10px;">
 				<thead>
 				<tr style="background-color:#D3D3D3">
@@ -136,15 +136,15 @@
 				</thead>
 				<tbody>
 				<tr ng-repeat="contact in contactList" style="padding:10px;">
-					<td style="padding: 0px;cursor: pointer;">{{contact.contactFName}}</td>
-					<td style="padding: 0px;cursor: pointer;">{{contact.contactLName}}</td>
-					<td style="padding: 0px;cursor: pointer;">{{contact.email}}</td>
-					<td style="padding: 0px;cursor: pointer;">{{contact.contactZipcode}}</td>
-					<td ng-show="approvedStat == undefined"><button  class="btn-primary" ng-click="sendApproval(contact)">
-					<span class="glyphicon glyphicon-ok-sign"></span>Approve
+					<td style="padding: 5px;cursor: pointer;">{{contact.contactFName}}</td>
+					<td style="padding: 5px;cursor: pointer;">{{contact.contactLName}}</td>
+					<td style="padding: 5px;cursor: pointer;">{{contact.email}}</td>
+					<td style="padding: 5px;cursor: pointer;">{{contact.contactZipcode}}</td>
+					<td ng-show="approvedStat == undefined"><button  class="btnCustom" ng-click="sendApproval(contact)" style="width:84px;height:24px;padding:0px;border-radius:20px;font-size:16px;">
+					Approve
 					</button></td>
-					<td ng-show="approvedStat == 'A'"><button  class="btn-primary" disabled="true">
-					<span class="glyphicon glyphicon-ok-sign"></span>Approved
+					<td ng-show="approvedStat == 'A'"><button  class="btnCustom" disabled="true" style="width:84px;height:24px;padding:0px;border-radius:20px;font-size:16px;">
+					Approved
 					</button></td>
 				</tr>
 				<tr ng-show="contactList.length <= 0">
@@ -155,7 +155,7 @@
 				
 			</div>
 			<div class="modal-footer" style="text-align:center;">
-				<button class="btn btn-success" data-dismiss="modal" ng-click="listReceivedReqs()">Close</button>
+				<button class="btnCustom" data-dismiss="modal" ng-click="listReceivedReqs()" style="width:80px;height:32px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;">Close</button>
 			</div>
 		</div>
 	</div>

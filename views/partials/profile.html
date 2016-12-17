@@ -162,7 +162,7 @@
 
 <!-- Section to list the Job Seekers current endorsement messages -->
 <div  class="modal fade" id="listEndorses" role="dialogue">
-	<div class="modal-dialogue" style="width:33%;height:100%;z-index:0;margin-top: 10%;margin-left: 34%" data-ng-init="listEndorsements()">
+	<div class="modal-dialogue" style="width:45%;height:100%;z-index:0;margin-top: 13%;margin-left: 27%" data-ng-init="listEndorsements()">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -181,8 +181,8 @@
 				<tbody>
 				<tr ng-repeat="endorse in endorseList">
 					<td colspan="2" style="padding: 0px;cursor: pointer;">{{endorse.message}}</td>
-					<td style="padding: 0px;cursor: pointer;">{{endorse.fromEmail}}</td>
-					<td style="padding: 0px;cursor: pointer;">{{endorse.origPostDate}}</td>
+					<td style="padding: 0px;cursor: pointer;" nowrap>{{endorse.fromEmail}}</td>
+					<td style="padding: 0px;cursor: pointer;" nowrap>{{endorse.origPostDate}}</td>
 				</tr>
 				<tr ng-show="endorseList.length <= 0">
 				<td colspan="4" align="center"><h4 style="color:red">No Endorsements received.</h4></td>

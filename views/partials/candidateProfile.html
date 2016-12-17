@@ -73,7 +73,7 @@
 <h4 style="margin:-10px 0px 0px 0px">@{{candidate.lastName}}</h4>
 <div class="form-group" style="margin:10px 0px 0px 0px;">
 <textarea name="message" id="coverMsg" class="form-control" rows="12" cols="26" ng-disabled="true"
-                                placeholder="Cover Letter Info Wall" ng-model="coverPageInfo" style="width:440px;height:290px;resize: none;border:3px ridge #5BC0DE;"></textarea>
+                                placeholder="Cover Letter Info Wall" ng-model="candidate.coverPageInfo" style="width:440px;height:290px;resize: none;border:3px ridge #5BC0DE;"></textarea>
 </div>
 <div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:-360px 0 0 450px;float:right;border:2px dotted">
 <div class="panel-body" style="padding:0px;" data-ng-init="checkCandidateProfileVideo()">
@@ -99,13 +99,16 @@
 <div class="panel-body" style="padding:0px;">
 <button class="btn btn-info block full-width m-b" style="width:145px;height:52px;" data-toggle="modal" data-target="#listEndorses"><span class="customSpan">Endorsements</span></button>
 </div></div>
-<!-- For Recommended Jobs list -->
+<!-- For Candidate Resume list -->
 <div class="panel panel-default site-panel-box" style="width:928px;height:173px;margin:18px 0 0 234px;">
 <!-- <p style="text-align:center;"><strong style="color:blue;">Recommended Jobs for your skill : {{currentUser.primarySkill}}</strong></p> -->
-<div class="panel-body" style="padding:8px;">
+<div class="panel-body" style="padding:8px;" data-ng-init="listProfileResume()">
+<b>Candidate Resume:</b>
 <table class="table table-striped">
-<tr width="100%" class="info">
-Not Yet Decided (N/A)
+<tr width="100%" class="info" style="margin-bottom: 0px;cursor: pointer;" ng-repeat="resume in resumeList" ng-click="getRecoJobInfo(job.jobID)">
+<td>{{resume.filename}}</td>
+<td>{{resume.contentType}}</td>
+<td>{{resume.uploadDate}}</td>
 </tr>
 </table>
 </div>
@@ -114,11 +117,11 @@ Not Yet Decided (N/A)
 
 <!-- Section to list the Job Seekers current endorsement messages -->
 <div  class="modal fade" id="listEndorses" role="dialogue">
-	<div class="modal-dialogue" style="width:40%;height:100%;z-index:0;margin-top: 14%;margin-left: 31%" data-ng-init="listEndorsements()">
+	<div class="modal-dialogue" style="width:45%;height:100%;z-index:0;margin-top: 13%;margin-left: 27%" data-ng-init="listEndorsements()">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4>Endorsements received for {{currentUser.lastName}}</h4>
+				<h4>Endorsements received for {{candidate.firstName}} {{candidate.lastName}}</h4>
 			</div>
 			<div class="modal-body" style="display:block;">
 				<table class="table table-striped" style="margin-bottom: 10px;">
@@ -133,8 +136,8 @@ Not Yet Decided (N/A)
 				<tbody>
 				<tr ng-repeat="endorse in endorseList">
 					<td colspan="2" style="padding: 0px;cursor: pointer;">{{endorse.message}}</td>
-					<td style="padding: 0px;cursor: pointer;">{{endorse.fromEmail}}</td>
-					<td style="padding: 0px;cursor: pointer;">{{endorse.origPostDate}}</td>
+					<td style="padding: 0px;cursor: pointer;" nowrap>{{endorse.fromEmail}}</td>
+					<td style="padding: 0px;cursor: pointer;" nowrap>{{endorse.origPostDate}}</td>
 				</tr>
 				<tr ng-show="endorseList.length <= 0">
 				<td colspan="4" align="center"><h4 style="color:red">No Endorsements received.</h4></td>

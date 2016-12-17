@@ -36,8 +36,8 @@
 <div class="panel-body" style="padding:0px;">
 <div ng-show="isPostJob" style="float:none;padding-top:8px;">
 				<div  style="border:4px solid #5BC0DE;width:846px;height:44px;margin-left:10px;">
-				<h3 style="text-align:center;margin-top:5px;margin-bottom:0px;" ng-show="!isUpdate">ADD JOB POSTING INFORMATION SCREEN</h3>
-				<h3 style="text-align:center;margin-top:5px;margin-bottom:0px;" ng-show="isUpdate">UPDATE JOB POSTING INFORMATION SCREEN</h3>
+				<h3 style="text-align:center;margin-top:5px;margin-bottom:0px;color:#63c1ff;" ng-show="!isUpdate">ADD JOB POSTING INFORMATION SCREEN</h3>
+				<h3 style="text-align:center;margin-top:5px;margin-bottom:0px;color:#63c1ff;" ng-show="isUpdate">UPDATE JOB POSTING INFORMATION SCREEN</h3>
 				</div>
 				<br/>
 				<table>
@@ -79,7 +79,7 @@
 				<label for="rate" style="font-size: 18px">* Salary Rate:</label>
 				</td><td style="padding-left:70px;">
                 <input id="rate" style="width: 180px; height: 32px;display:inline;" type="text" ng-model="job.rate" class="form-control" placeholder="Enter Salary" ng-change="addQueCorChoice=addQueCorChoice.toUpperCase();" ng-required="true">
-                <select name="salType" ng-model="job.salaryType" style="display:inline;width: 125px; height: 32px;">
+                <select name="salType" ng-model="job.salaryType" style="display:inline;width: 125px; height: 34px;">
 			                <option>Per Day</option>
 			                <option>Per Hour</option>
 			                <option>Per Month</option>
@@ -111,7 +111,7 @@
 
 <div ng-show="isJobQueue" style="text-align:left;margin:0 0 0 10px;padding-top:10px;">
 			<div  style="border:4px solid #5BC0DE;width:846px;height:120px;">
-			<h3 style="text-align:center;margin-top:5px;padding-bottom:20px;">JOB QUEUE INFORMATION SCREEN</h3>
+			<h3 style="text-align:center;margin-top:5px;padding-bottom:20px;color:#63c1ff;">JOB QUEUE INFORMATION SCREEN</h3>
 			<table>
 				<tr>
 				   <td nowrap style="padding-left:80px;">
@@ -146,7 +146,7 @@
 				</thead>
 				<tbody>
 				<tr ng-repeat="job in allJobs">
-					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)"><strong>{{job.title}}</strong></td>
+					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)"><strong>{{job.title.toUpperCase()}}</strong></td>
 					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)">{{job.location}}</td>
 					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)">${{job.rate}} {{job.salaryType}}</td>
 					 <!-- 
@@ -188,12 +188,12 @@
 
 <div ng-show="isJobTrack" style="text-align:left;margin:0 0 0 10px;padding-top:10px;">
 		<div  style="border:4px solid #5BC0DE;width:843px;height:55px;">
-		<h3 style="text-align:center;margin-top:10px;">JOB TRACKING INFORMATION SCREEN</h3>
+		<h3 style="text-align:center;margin-top:10px;color:#63c1ff;">JOB TRACKING INFORMATION SCREEN</h3>
 		</div>
 		<br/>
 		<div class="panel-group" style="padding-right:10px;padding-bottom:0px;" ng-show="jobTrackList.length > 0" id="accordion">
     		<div class="panel panel-default" ng-repeat="job in jobTrackList">
-      			<div class="panel-heading" style="background:#3399FF;">
+      			<div class="panel-heading" style="background:#63c1ff;">
         			<h4 class="panel-title">
           			<a data-toggle="collapse" style="text-decoration:none;" href="" ng-click="getCandidateList(job.jobID)" data-target="#collapse{{job.jobID}}" data-parent="#accordion">
           			<table><tr>
@@ -208,9 +208,78 @@
         		<ul class="list-group" ng-repeat="candidate in jobSeekerList">
 		          <li class="list-group-item" style="font-size:16px;font-weight:bold;padding-left:20px;"><a href="" ng-click="displayCandidateProfile(candidate.email)">{{candidate.name.toUpperCase()}} - {{candidate.email}}</a></li>
         		</ul>
+        		<ul class="list-group" ng-show="jobSeekerList == undefined">
+		          <li class="list-group-item" style="font-size:14px;font-weight:bold;padding-left:20px;">No Candidates Applied for this Job.</li>
+        		</ul>
       		</div>
   		</div>
   		</div>
+</div>
+
+<div ng-show="isCandidateSearch" style="text-align:left;margin:0 0 0 10px;padding-top:10px;">
+			<div  style="border:4px solid #5BC0DE;width:846px;height:120px;">
+			<h3 style="text-align:center;margin-top:5px;padding-bottom:20px;color:#63c1ff;">CANDIDATE SEARCH SCREEN</h3>
+			<table>
+				<tr>
+				   <td nowrap style="padding-left:80px;">
+					<label for="search" style="font-size: 18px;padding-left:25px;">Search Jobs:</label>
+					</td>
+					<td style="width:20px"></td>
+					<td>
+					<input id="search" class="form-control" style="width: 340px; height: 36px" type="text" ng-model="emp.search" placeholder="Search By Job Title" ng-required="true">
+					</td>
+					<td style="padding-left:10px;">
+					<button class="btnCustom" style="width:94px;height:33px;padding:0px;border-radius:20px;" ng-click="searchCandidateInfo(emp.search)">
+					Search
+					</button>
+					</td>
+					<td style="padding-left:10px;">
+					<a href="" ng-click="clearCandidates()"><button class="btnCustom" style="width:94px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;background:#f0ad4e">Clear</button></a>
+					</td>
+				</tr>
+			</table>	    
+			</div>
+			<p style="padding-top:0.1%;"/></p>
+			<div  style="border:3px solid #5BC0DE;width:846px;" ng-show="allCandidates.length >= 0">
+			<table class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Zipcode</th>
+					<th>Skill</th>
+					<th>Contact Number</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="candidate in allCandidates" ng-click="displayCandidateProfile(candidate.email)" style="padding-top: 10px;cursor: pointer;">
+					<td style="padding: 10px;"><strong>{{candidate.firstName}}</strong></td>
+					<td style="padding: 10px;">{{candidate.lastName}}</td>
+					<td style="padding: 10px;">{{candidate.zipcode}}</td>
+					<td style="padding: 10px;">{{candidate.primarySkill}}</td>
+					<td style="padding: 10px;">{{candidate.contactNum}}</td>
+				</tr>
+				<tr ng-show="allCandidates.length <= 0">
+				<td colspan="5" align="center"><h4 style="color:red">No Candidate Profiles available for Job "{{emp.search}}"</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialCandidates.length > 0">
+				<td></td><td></td><td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentPage"
+				      total-items="allEmpCandidates.length"
+				      max-size="maxSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
 </div>
 
 </div></div></div>
@@ -221,15 +290,18 @@
 		<br>
 		<div class="form-group">
 		<!-- <button class="btn-info full-width m-b" style="width:145px;height:45px;" ng-click="displayJobEntry()"><span class="customSpan">Post Job</span></button> -->
-		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="displayJobEntry()"><strong>Post Job</strong></div>
+		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="displayJobEntry()"><font style="color:#e1ffff">Post Job</font></div>
 		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
 		<br>
 		<!-- <button class="btn-info full-width m-b" style="width:145px;height:45px;" ng-click="getJobQueue(currentUser.email)"><span class="customSpan">Job Queue</span></button>-->
-		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="getJobQueue(currentUser.email)"><strong>Job Queue</strong></div>
+		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="getJobQueue(currentUser.email)"><font style="color:#e1ffff">Job Queue</font></div>
 		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
 		<br>
 		<!-- <button class="btn-info full-width m-b" style="width:145px;height:45px;" ng-click="getJobTracking(currentUser.email)"><span class="customSpan">Job Track</span></button>-->
-		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="getJobTracking(currentUser.email)"><strong>Job Track</strong></div>
+		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="getJobTracking(currentUser.email)"><font style="color:#e1ffff">Job Track</font></div>
+		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
+		<br/>
+		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="searchByCategory()"><font style="color:#e1ffff">Candidate Search</font></div>
 		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
 		</div>
 	</div>

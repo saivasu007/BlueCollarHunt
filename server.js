@@ -41,6 +41,7 @@ var endorsementModel = require("./models/endorsementModel.js");
 var userJobInfoModel = require("./models/userJobInfo.js");
 var userContactsModel = require("./models/userContactsModel.js");
 var countersModel = require("./models/countersModel.js");
+var userContactStatusSchema = require("./models/userContactStatusModel.js");
 var fs  = require('fs');
 var FileAPI = require('file-api');
 var File = FileAPI.File;
@@ -162,7 +163,7 @@ function sendEmail(user,template,info,request){
 					  jobID: user.jobID,
 					  title: user.title,
 					  employer: user.companyName,
-					  url: "http://"+request.headers.host+"/searchJob"
+					  url: request.protocol+"://"+request.headers.host+"/searchJobs"
 				  }
 	 } else if(template == referJobTemplate) {
 		   var data = {
@@ -176,7 +177,7 @@ function sendEmail(user,template,info,request){
 					  salary: user.jobInfo.rate+" "+user.jobInfo.salaryType,
 					  postDate: user.jobInfo.origPostDate,
 					  comments: user.comments,
-					  url: "http://"+request.headers.host+"/searchJob"
+					  url: request.protocol+"://"+request.headers.host+"/searchJobs"
 				  }
 	 }
 	
@@ -859,7 +860,6 @@ function download(url) {
 	  });
 }
 
-/*
 app.post('/getUsers', function(req, res) {
 	if(req.body.email != undefined) {
 	var query = req.body.search ? {
@@ -886,54 +886,25 @@ app.post('/getUsers', function(req, res) {
 		res.send(result);
 	})
 	} else {
-	userModel.find( { socialYN : "Y" }).exec(function(err, result) {
-		res.send(result)
-	})
-	}
-});
-*/
-
-app.post('/getUsers', function(req, res) {
-	if(req.body.email != undefined) {
-	var query = req.body.search ? {
-		email : req.body.email,
-		socialYN : "Y"
-	} : {
-		email : req.body.email,
-		socialYN : "Y"
-	}
-	userModel.find(query).exec(function(err, result) {
-		//res.send(result);
-		if(result && result.email) {
-			
-			userContactsModel.findOne({
-				email : req.body.currEmail,
-				contactEmail : req.body.email
-			}, function (err, result1) {
-		        if (err) return done(err);
-		        if (result1) {
-		            result.push(result1.contactStatus);
-		        }
-		    })
-		}
+	userModel.find( { socialYN : "Y", email: { $ne: req.body.currEmail } } ).exec(function(err, result) {
 		res.send(result);
 	})
-	} else {
-		userModel.aggregate( [
-		                         {
-		                             $lookup: {
-		                                 from: "contactModel",
-		                                 localField: "email",
-		                                 foreignField: "email",
-		                                 as: "userContacts"
-		                             }
-		                         }
-		                     ], function(err, result) {
+		/*
+	userModel.aggregate([{
+		    $lookup:{
+		        from:"userContactsModel",
+		        localField:"email",
+		        foreignField:"email",
+		        as:"users_contacts"
+		    }},
+		    { $unwind: "users_contacts" }
+		] , function(err,result) {
 			console.log(result);
-		         res.send(result);
 		});
+	*/
 	}
 });
+
 
 /*
 app.post('/getUserAddStatus', function(req, res) {
@@ -1294,11 +1265,29 @@ app.post('/updatePublishStat', function(req, res) {
 	})
 });
 
+app.post('/getJobsByID', function(req, res) {
+	console.log("Job ID "+req.body.search);
+	jobInfoModel.find({
+			jobID : req.body.search
+		}).sort({origPostDate: -1}).exec(function(err, result) {
+			res.send(result);
+		});
+});
+
 app.post('/getJobTrackInfo', function(req, res) {
 	console.log("Emp Email "+req.body.email);
 	jobInfoModel.find({
 			employerID : req.body.email
 		}).sort({origPostDate: -1}).exec(function(err, result) {
+			res.send(result);
+		});
+});
+
+app.post('/getCandidatesBySkill', function(req, res) {
+	console.log("Primary Skill "+req.body.criteria);
+	userModel.find({
+			primarySkill : {$regex: req.body.criteria,$options:"$i"}
+		}, function(err, result) {
 			res.send(result);
 		});
 });
@@ -1862,14 +1851,24 @@ app.post('/deleteAccount', function(req, res) {
 });
 
 app.post('/requestAddContact', function(req, res) {
-	var userContactsRecord = new userContactsModel(req.body);
-	userContactsRecord.save(function(err, result) {
-		if (err) {
-			res.send('error')
+	userContactsModel.findOne({
+		email : req.body.email,
+		contactEmail : req.body.contactEmail
+	}, function (err, user) {
+		if(user && user.email) {
+			console.log("Not added because contact already exist in your list");
+			res.send("Contact already added");
 		} else {
-			res.send(result)
+			var userContactsRecord = new userContactsModel(req.body);
+			userContactsRecord.save(function(err, result) {
+				if (err) {
+					res.send('error');
+				} else {
+					res.send(result);
+				}
+			});
 		}
-	})
+	});
 });
 
 //User Forgot Password functionality.
@@ -2139,6 +2138,16 @@ app.post('/reset', function(req, res) {
 	}
 });
 //End Forgot Password functionality here.
+
+app.get('/searchJobs/:jobid', function(req, res) {
+		jobInfoModel.findOne({ jobID: req.params.jobid }, function(err, job) {
+		    if (!job) {
+		      console.log('Invalid JOBID and No Job available in blue collar portal');
+		      return res.send('Invalid JOBID and No Job available in blue collar portal.');
+		    }
+		 res.redirect('/searchJobs?jobID='+req.params.jobid);
+		});
+});
 
 //Change password for Job Seeker
 app.post('/changePasswd', function (req, res) {

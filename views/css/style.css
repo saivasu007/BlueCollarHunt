@@ -446,6 +446,15 @@ hr {
   background-image: -o-linear-gradient(top, #3399FF, #3cb0fd);
   background-image: linear-gradient(to bottom, #3399FF, #3cb0fd);
   text-decoration: none;
+}.scrollbar
+{
+	margin-left: 30px;
+	float: left;
+	height: 300px;
+	width: 65px;
+	background: #F5F5F5;
+	overflow-y: scroll;
+	margin-bottom: 25px;
 }.switch {
   position: relative;
   display: inline-block;
@@ -522,7 +531,7 @@ input:checked + .slider:before {
 }
 .nav-side-menu li:hover {
   border-left: 3px solid #d19b3d;
-  background-color: #4f5b69;
+  background-color: #3398F0;
   -webkit-transition: all 1s ease;
   -moz-transition: all 1s ease;
   -o-transition: all 1s ease;

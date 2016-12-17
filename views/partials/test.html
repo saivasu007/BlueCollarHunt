@@ -1,20 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head>
-</head>
-<body>
-
-<h2>Toggle Switch</h2>
-
-<label class="switch">
-  <input type="checkbox">
-  <div class="slider round"></div>
-</label>
-
-<label class="switch">
-  <input type="checkbox" checked>
-  <div class="slider round"></div>
-</label>
-
-</body>
-</html> 
+$scope.searchJobs = function() {
+		alert("searchJobs "+$rootScope.searchJobID);
+		if($rootScope.searchJobID == undefined) {
+			$rootScope.searchJobID = $routeParams.jobID;
+		}
+		var jobID = $rootScope.searchJobID;
+		alert("Before call "+$rootScope.searchJobID);
+		if($rootScope.searchJobID != undefined) {
+			var postData = {
+					search: jobID
+			}
+			$http.post('/getJobInfo',postData).success(function (response) {
+				$rootScope.jobInfo = response;
+				//$rootScope.jobID = $scope.jobInfo.jobID;
+				$rootScope.jobResults = 2;
+				//$location.url('/');
+			}).error(function (err) {
+				console.log(err);
+			});
+			
+			$http.post('/getJobsByID',postData).success(function (response){
+				$rootScope.jobsList = response;
+				if($scope.jobsList.length <= 0) {
+					$rootScope.noJobs = true;
+					$rootScope.searchResults = 3;
+					$rootScope.jobResults = 3;
+				} else {
+					$rootScope.noJobs = false;
+					$rootScope.searchResults = 1;
+				}
+				//$location.url('/');
+			}).error(function (err) {
+				console.log(err);
+			});	
+		}
+	}

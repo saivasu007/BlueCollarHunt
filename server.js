@@ -371,6 +371,7 @@ passPort.use(new LinkedinStrategy({
               newUser.activeIn = "Y";
               newUser.subscriber = "No";
               newUser.authType = "linkedin";
+              newUser.userType = "U";
               // save our user to the database
               newUser.save(function(err) {
 	          if(err) {
@@ -416,6 +417,7 @@ passPort.use(new facebookStrategy({
                   newUser.subscriber = "No";
                   newUser.authType = "facebook";
                   newUser.accessToken = token;
+                  newUser.userType = "U";
                   console.log("Before saving user info");
                   // save our user to the database
                   newUser.save(function(err) {
@@ -451,6 +453,7 @@ passPort.use(new GoogleStrategy({
               	user.activeIn = "Y";
               	user.subscriber = "No";
               	user.authType = "google";
+              	user.userType = "U";
 	        user.save(function(err) {
 	          if(err) {
 	            console.log(err);  // handle errors!

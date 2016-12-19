@@ -21,32 +21,37 @@
 	</style>
   </head>
 <body>
-<div class="container" style="padding-left:0px;">
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+    				<li class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'U'"><a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'E'"><a href="/empHome" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink" ng-show="currentUser == undefined"><a href="/" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink" ng-show="currentUser == undefined"><a href="/login" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Seeker</font></a></li>
+					<li class="color customLink" ng-show="currentUser == undefined"><a href="/empSignIn" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Employer</font></a></li>
+					<li class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'U'"><a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a></li>
+					<li class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'U'"><a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a></li>
+					<li class="color customLink" ng-show="currentUser != undefined && currentUser.socialYN == 'Y' && currentUser.userType == 'U'"><a href="/socialContacts" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Socialize</font></a></li>
+					<li class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'U'"><a href="/jobHistory" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Job History</font></a></li>
+					<li class="color customLink active"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+					<li class="color customLink" ng-show="currentUser != undefined"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></li>
+    			</ul>
+  			</div>
+</div>
+<div class="container" style="padding-left:0px;margin-bottom:-20px;">
 <div class="row" style="height:201px;">
-<br/>
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
 		    <a href="/home" ng-show="currentUser != undefined && currentUser.userType == 'U'"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
 		    <a href="/empHome" ng-show="currentUser != undefined && currentUser.userType == 'E'"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
 		    <a href="/" ng-show="currentUser == undefined"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
-			<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -62px 70px;">
-			<p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
-			<span class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'U'"><a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'E'"><a href="/empHome" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser == undefined"><a href="/" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser == undefined"><a href="/login" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Seeker</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser == undefined"><a href="/empSignIn" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Employer</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'U'"><a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'U'"><a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser != undefined && currentUser.socialYN == 'Y' && currentUser.userType == 'U'"><a href="/socialContacts" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Socialize</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser != undefined && currentUser.userType == 'U'"><a href="/jobHistory" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Job History</font></a> | </span>
-			<span class="color customLink" ng-show="currentUser != undefined"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></span>
-			</p>
-			</div>
 </div></div></div></div></div>
 
-<div class="container" style="padding-left:0px;">
+<div class="container" style="padding-left:0px;margin-bottom:0px;">
 <div class="row" style="height:616px;">
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:610px;padding:20px;">
@@ -67,7 +72,7 @@ Welcome to BlueCollarHunt Inc and we are new trend setting corporation in the Bl
     		</div>
 		</div>
 </div>
-<div class="well well-sm" style="width:740px;height:310px;margin-top:29px;margin-left:20px;float:left;padding:20px;">
+<div class="well well-sm" style="width:740px;height:310px;margin-left:20px;float:left;padding:20px;padding-top:20px;">
                 <form>
                 <div class="row">
                     <div class="col-md-6">
@@ -110,7 +115,7 @@ Welcome to BlueCollarHunt Inc and we are new trend setting corporation in the Bl
                 </div>
                 </form>
                 </div>
-<div class="panel panel-default site-panel-box" style="height:310px;width:330px;float:right;margin:26px;">
+<div class="panel panel-default site-panel-box" style="height:310px;width:330px;float:right;">
 <div class="panel-body" style="padding:10px;">
 <div id="address" class="text-center">
             <legend style="background-color:#63c1ff;margin-bottom:30px;"><span class="glyphicon glyphicon-globe"></span> Our office</legend>
@@ -130,15 +135,22 @@ Welcome to BlueCollarHunt Inc and we are new trend setting corporation in the Bl
         </div>
 </div></div></div></div>
 <footer>
-<div class="container" style="padding-left:0px;">
+<div class="container" style="padding-left:0px;margin-bottom:-30px;">
 <div class="row">
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:55px;">
-<div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
-	<p class="copyright" style="padding-top:10px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+<div style="text-align:right;padding-top:45px;'">
+<b style="font-size:16px;">Also please visit us at</b>&emsp;
+<a target="_blank" href="http://www.facebook.com/bluecollarhunt" title="Facebook"><img style="width:64px;height:64px;" src="img/divi/facebook.png" alt="Social Divi"></a>
+<a target="_blank" href="http://www.twitter.com/bluecollarhunt" title="Twitter"><img style="width:64px;height:64px;padding-left:0px;" src="img/divi/twitter.png" alt="Social Divi">
+<a target="_blank" href="http://www.plus.google.com/bluecollarhunt" title="Google+"><img style="width:56px;height:56px;padding-left:0px;" src="img/divi/googleplus.jpeg" alt="Social Divi">
+<a target="_blank" href="http://www.instagram.com/bluecollarhunt" title="Instagram"><img style="width:59px;height:55px;padding-left:5px;" src="img/divi/instagram.png" alt="Social Divi">
 </div>
 </div></div></div></div></div>
 </footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
 </body>
 </html>

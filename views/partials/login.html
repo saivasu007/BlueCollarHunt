@@ -6,26 +6,31 @@
     <title>Blue Collar Hunt User Login Page</title>
   </head>
 <body>
-<div class="container" style="padding-left:0px;">
-<div class="row" style="height:201px">
-<br/>
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+    				<li class="color customLink"><a href="/" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink active"><a href="/login" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Seeker</font></a></li>
+					<li class="color customLink"><a href="/empSignIn" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Employer</font></a></li>
+					<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+    			</ul>
+  			</div>
+</div>
+<div class="container" style="padding-left:0px;margin-bottom:-15px;">
+<div class="row" style="height:100%">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel panel-default site-panel-box" style="height:100%;">
 <div class="panel-body" style="padding:60px;height:175px;">
 		<img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/>
-		<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -62px 70px;">
-		  <p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
-			<span class="color customLink"><a href="/" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
-			<span class="color customLink"><a href="/empSignIn" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Employer</font></a> | </span>
-			<span class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></span>
-		  </p>
-		</div>
 </div></div></div></div></div>
-<div class="container" style="padding-left:0px;">
+<div class="container" style="padding-left:0px;margin-bottom:-2px;">
 <div class="row" style="height:591px;">
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:584px;">
-<div class="middle-box">
+<div class="middle-box" style="margin-left:260px;">
 <div class="panel-body" style="padding:10px;padding-top:10px;">
 <!-- Error Message Area ng-show="errorMsg" -->
 <div id="errMsgArea" ng-show="errorMsg" style="height:12px;">
@@ -39,37 +44,33 @@
 </div>
 </div>
 <!-- Error Message Area End -->
-<div class="panel panel-default site-panel-box" style="height:50%;margin-top:55px;">
-	<div class="panel-body" style="padding:10px;padding-bottom:40px;">
-			<div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
-			<h5>Log in to your account</h5>
-			</div>
-			<hr/>
-			<div class="form-group has-feedback">
-				<span class="icon-user"></span>
-                <input type="text" id="eml" autofocus="true" ng-model="user.email" class="form-control" style="width:280px" placeholder="User ID" ng-blur="testLoginName()" ng-required="true">
-            	<i class="glyphicon glyphicon-user form-control-feedback"></i>
-            </div>
-            <div class="form-group has-feedback">
-                <span class="icon-lock"></span>
-                <input type="password" id="pwd" ng-model="user.password" ng-keydown="pressEnter($event,user)" class="form-control" style="width:280px" placeholder="Password" ng-blur="testPasswordLen()" ng-required="true">
-            	<i class="glyphicon glyphicon-lock form-control-feedback"></i>
-            </div>
-            <br>
-            <button ng-click="login(user)" class="btn btn-primary block full-width m-b" style="width:280px">Login</button>
-            <br/><br/>
-            <a class="btn btn-info btn-block" href="/register">Sign Up</a>
+<div class="panel panel-default site-panel-box" style="width:450px;height:466px;margin-top:10px;">
+	<div class="panel-body" style="padding:4px;padding-bottom:20px;">
+		<div class="wrapper">
+			<form name="Login_Form" class="form-signin">       
+			    <h3 class="form-signin-heading">Log in to your account</h3>
+				  <hr class="colorgraph"><br>
+				  <input type="text" id="eml" autofocus="true" ng-model="user.email" class="form-control" style="width:350px" placeholder="User ID" ng-blur="testLoginName()" ng-required="true">
+               	  <input type="password" id="pwd" ng-model="user.password" ng-keydown="pressEnter($event,user)" class="form-control" style="width:350px" placeholder="Password" ng-blur="testPasswordLen()" ng-required="true">
+				  <button ng-click="login(user)" class="btn btn-primary block full-width m-b" style="width:280px">Login</button>
+				  <br/><br/>
+            	  <a class="btn btn-info btn-block" href="/register">Sign Up</a>			
+			</form>			
+		</div>
+		<div class="panel-footer" style="margin-top:0.3%;padding:3%;text-align:center;border: 3px dotted rgba(0,0,0,0.1)"><a href="/forgetPasswd"><u><strong>Forgot your password?</strong></a></u></div>
 	</div>
     <!-- <div class="panel-footer" style="margin-top:-30px;height:10.2%;text-align:center;"><a href="/forgetPasswd"><u><strong>Forgot your password?</strong></a></u></div> -->
-    <div class="panel-footer" style="margin-top:0.5%;padding:5%;text-align:center;"><a href="/forgetPasswd"><u><strong>Forgot your password?</strong></a></u></div>
 </div>
 </div>
 </div>
         
-<div id="social" class="right-box text-center" style="margin:0 0 0 -350px;padding-top:150px;">
-	<div class="panel panel-default site-panel-box" style="height:232px;">
-		<div class="panel-body" style="padding:10px;">
-    	<p>
+<div id="social" class="right-box text-center" style="margin:-550px 0px 0px 730px;padding-top:120px;">
+	<div class="panel panel-default site-panel-box" style="height:267px;width:108%">
+		<div class="panel-body" style="padding:5px;">
+    	<div class="wrapper">
+		<form action="" method="post" name="Social" class="form-signin" style="height:36%;width:375px;padding:0px 38px 16px">       
+		    <h3 class="form-signin-heading"></h3>
+			<p style="text-align:center;">
 	    	<img src="img/social.png" usemap = #social border=0>
 			<map name=social>
 			<area shape="poly" Coords="6,4,197,5,197,34,7,35,2,19" href="/auth/google">
@@ -78,54 +79,22 @@
 			</map>
 			<hr width="100%"/>
 		</p>
-		</div>
-		<div class="panel-footer" style="margin-top:-30px;height:36%;text-align:center;font-size:12px;">By signing up, I agree to Blue Collar Hunt <br/>Portal Terms of Service,Privacy Policy<br/> and other Terms.</div>
-</div></div>
-
-<div id="social" class="right-box" style="margin:0 0 0 -1100px;padding-top:175px;">
-    	
-    	<div class="nav-side-menu" style="height:475px;width:250px;margin:-110px 0px 0px 20px;background-color:#3399FF">
-    <div class="brand" style="background-color:#63c1ff"><strong>Quick Links</strong></div>
-    <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
-        <div class="menu-list" style="padding: 0px;cursor: pointer;text-decoration:none;">
-              <ul id="menu-content" class="menu-content">
-              <a href="/">
-                <li style="padding:10px;padding-right:0px;border-left:none;font-size:16px;color:white;">
-                  <i class="fa fa-home fa-lg"></i> Home
-                </li>
-               </a>
-               <a href="/empSignIn">
-                 <li style="padding:10px;padding-right:0px;border-left:none;font-size:16px;color:white;">
-                  <i class="fa fa-user fa-lg"></i> Employer
-                  </li>
-				</a>
-                  <a href="/search">
-                  <li style="padding:10px;padding-right:0px;border-left:none;font-size:16px;color:white;">
-                  <i class="fa fa-search fa-lg"></i> Search Jobs
-                </li>
-                </a>
-                <a href="/contact">
-                 <li style="padding:10px;padding-right:0px;border-left:none;font-size:16px;color:white;">
-                  <i class="fa fa-dashboard fa-lg"></i> Contact Us
-                </li>
-                </a>
-            </ul>
-     </div>
+		<div class="panel-footer" style="margin-top:-35px;height:36%;width:100%;text-align:center;font-size:14.1px;">By signing up, I agree to Blue Collar Hunt <br/>Portal Terms of Service,Privacy Policy<br/> and other Terms.</div>
+				</form>			
 	</div>
-    	
-		</div>
+	</div></div></div>
 
 </div></div></div></div>
 <footer>
-<div class="container" style="padding-left:0px;">
+<div class="container" style="padding-left:0px;margin-bottom:-30px;">
 <div class="row">
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:55px;">
-<div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
-	<p class="copyright" style="padding-top:10px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
-</div>
 </div></div></div></div></div>
 </footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
 </body>
 </html>

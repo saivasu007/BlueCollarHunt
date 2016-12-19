@@ -55,7 +55,8 @@
 					</td>
 					<td colspan="2"></td>
 					<td style="padding-left:10px;">
-					<button class="btnCustom" style="width:184px;height:32px;padding:0px;border-radius:20px;margin:0px 0px 0px 30px;font-size:18px;" data-toggle="modal" data-target="#listRecvRequests">Notifications({{contactList.length}})</button>
+					<button class="btnCustom" style="width:184px;height:32px;padding:0px;border-radius:20px;margin:0px 0px 0px 30px;font-size:18px;" data-toggle="modal" data-target="#listRecvRequests">
+					Notifications <span class="badgeCustom" style="position: relative;top:-2.1px;">{{contactList.length}}</span></button>
 					</td>
 					</tr></table>
 			<br><br>
@@ -69,7 +70,7 @@
 <div class="panel panel-default site-panel-box" style="height:640px;">
 <div class="panel-body" style="padding:40px;">
 			<!-- Content  -->
-			<div  style="border:2px solid #5BC0DE;width:1110px;" ng-show="allUsers.length >= 0" data-ng-init="searchContacts(user)">
+			<div  style="border:3px solid #5BC0DE;width:1110px;" ng-show="allUsers.length >= 0" data-ng-init="searchContacts(user)">
 			<table class="table table-striped">
 				<thead>
 				<tr style="background-color:#D3D3D3">
@@ -169,7 +170,7 @@
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:55px;">
 <div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
-	<p class="copyright" style="padding-top:10px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+	<p class="copyright" style="padding-top:10px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
 </div>
 </div></div></div></div></div>
 </footer>

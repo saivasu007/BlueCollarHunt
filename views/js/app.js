@@ -1440,6 +1440,8 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 				alert("Job application subimitted successfully.");
 				$rootScope.isLinkToJob = false;
 				$rootScope.jobDetails = undefined;
+				$rootScope.jobInfo = undefined;
+				$rootScope.jobsList = undefined;
 				$location.url("/home");
 			}
 		}).error(function (err) {

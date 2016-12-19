@@ -1,36 +1,39 @@
-$scope.searchJobs = function() {
-		alert("searchJobs "+$rootScope.searchJobID);
-		if($rootScope.searchJobID == undefined) {
-			$rootScope.searchJobID = $routeParams.jobID;
-		}
-		var jobID = $rootScope.searchJobID;
-		alert("Before call "+$rootScope.searchJobID);
-		if($rootScope.searchJobID != undefined) {
-			var postData = {
-					search: jobID
-			}
-			$http.post('/getJobInfo',postData).success(function (response) {
-				$rootScope.jobInfo = response;
-				//$rootScope.jobID = $scope.jobInfo.jobID;
-				$rootScope.jobResults = 2;
-				//$location.url('/');
-			}).error(function (err) {
-				console.log(err);
-			});
-			
-			$http.post('/getJobsByID',postData).success(function (response){
-				$rootScope.jobsList = response;
-				if($scope.jobsList.length <= 0) {
-					$rootScope.noJobs = true;
-					$rootScope.searchResults = 3;
-					$rootScope.jobResults = 3;
-				} else {
-					$rootScope.noJobs = false;
-					$rootScope.searchResults = 1;
-				}
-				//$location.url('/');
-			}).error(function (err) {
-				console.log(err);
-			});	
-		}
-	}
+
+<!-- Error Message Area End -->
+<div class="panel panel-default site-panel-box" style="width:450px;height:541px;margin-top:10px;">
+	<div class="panel-body" style="padding:4px;padding-bottom:20px;">
+		<div class="wrapper">
+			<form name="EmpLogin_Form" class="form-signin">       
+			    <h3 class="form-signin-heading">Employer Login Page</h3>
+				  <hr class="colorgraph"><br>
+				  <input type="text" ng-model="user.email" class="form-control" autofocus="true" style="display:inline-block;width:350px;" placeholder="Emp User Email" ng-change="testLoginName()" ng-required="true">
+				  <br/>
+				  <input type="password" ng-model="user.password" ng-keydown="pressEnter($event,user)" class="form-control" placeholder="Password" ng-change="testPassword()" ng-required="true" style="width:350px;">
+				  <input type="text" ng-model="user.empUniqueID" class="form-control" style="display:inline-block;width:350px;" placeholder="Emp Unique ID" ng-required="true">
+				  <br/><br/>
+				  <button ng-click="empLogin(user)" class="btn btn-primary block full-width m-b">Jump In</button>
+            	  <br/><br/>
+            	  <a class="btn btn-info block full-width m-b" href="/empRegister">Register</a>	
+			</form>			
+		</div>
+		<div class="panel-footer" style="margin-top:0.3%;padding:3%;text-align:center;border: 3px dotted rgba(0,0,0,0.1)"><a href="/empForgetPasswd"><strong><u>Recover password or Unique ID?</u></strong></a></div>
+	</div>
+</div>
+
+<div id="social" class="right-box text-center" style="margin:30px 0 0 -380px;padding-top:40px;">
+		<div class="panel panel-default site-panel-box" style="height:155px;width:360px;margin:0 0 10px 0px;margin-top:80px;">
+		<div class="panel-body" style="padding:0px;">
+		<div class="wrapper form-signin">
+		<p>
+		<strong>BlueCollarHunt helps millions of employers find the right fit every day. Start hiring now on the world's best blue collar job site.</strong>
+		</p>
+		</div>
+		<div class="panel-footer" style="margin-top:10px;height:46%;text-align:center;font-size:13px;">
+		<p style="margin:0px -10px 0px -15px">
+		    <input type="checkbox" checked/>
+			By Signing Up, I agree to BlueCollarHunt Terms of Service,Privacy Policy and other Terms related to Usage agreement.
+		</p>
+		</div>
+		</div>
+		</div>
+</div>

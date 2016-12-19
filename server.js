@@ -123,7 +123,6 @@ function sendEmail(user,template,info,request){
 		host = info;
 		subject = reactivateUsrSubject;
 	} else if(template == empRegTemplate) {
-		host = info;
 		subject = emailEmpRegSubject;
 	} else if(template == applyJobConfirmTemplate) {
 		host = info;
@@ -153,9 +152,11 @@ function sendEmail(user,template,info,request){
 			  }
 	 } else if(template == empRegTemplate) {
 		   var data = {
+					  name: user.name,
+					  url: request.protocol+"://"+request.headers.host+"/empSignIn",
 					  email: user.email,
-					  name: user.firstName,
-					  url: "http://"+host+"/empSignIn"
+			          password: decrypt(user.password),
+			          uniqueID: user.empUniqueID,
 				  }
 	 } else if(template == applyJobConfirmTemplate) {
 		   var data = {
@@ -772,6 +773,9 @@ app.post("/empFreeRegister", function(req, res) {
 					res.json(user);
 				});
 				*/
+				sendEmail(newUser,empRegTemplate,null,req);
+				res.send('success');
+				/*
 				//Email communication after successful registration.
 				var smtpTransport = mailer.createTransport(emailTransport, {
 					service : "Gmail",
@@ -803,7 +807,7 @@ app.post("/empFreeRegister", function(req, res) {
 				   smtpTransport.close();
 				});
 			    //End email communication here.
-				
+			    */
 			});
 	  } 
 	});

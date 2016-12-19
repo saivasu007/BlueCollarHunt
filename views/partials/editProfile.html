@@ -28,7 +28,7 @@
 <div class="row" style="height:727px;">
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:725px;">
-<div class="middle-box" style="padding-top:25px;">
+<div class="middle-box" style="padding-top:25px;margin-left:280px;">
         <div class="panel-body" style="padding:0px;">
         
         <div id="errMsgArea" ng-show="errorMsg" class="panel panel-default site-panel-box" style="height:54px;">
@@ -48,35 +48,35 @@
 			<h5>Personal Information Update</h5>
 			</div>
             <div class="form-group has-feedback" style="padding-top:10px;">
-				<input type="text" ng-model="currentUser.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" ng-disabled="true" style="width:300px">
+				<input type="text" ng-model="currentUser.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" ng-disabled="true" style="width:380px">
 				<i class="glyphicon glyphicon-user form-control-feedback" style="padding-top:10px;"></i>
 			</div>
             <div class="form-group">
-                <input id="fName" type="text" ng-model="currentUser.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names" style="width:300px">
+                <input id="fName" type="text" ng-model="currentUser.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names" style="width:380px">
             </div>
             <div class="form-group">
-                <input id="lName" type="text" ng-model="currentUser.lastName" class="form-control" placeholder="Last Name" style="width:300px">
+                <input id="lName" type="text" ng-model="currentUser.lastName" class="form-control" placeholder="Last Name" style="width:380px">
             </div>
             <div class="form-group has-feedback">
-                <input id="phonenumber" type="text" ng-model="currentUser.contactNum" class="form-control" placeholder="Mobile Number" style="width:300px" ng-blur="formatPhone(currentUser.contactNum)">
+                <input id="phonenumber" type="text" ng-model="currentUser.contactNum" class="form-control" placeholder="Mobile Number" style="width:380px" ng-blur="formatPhone(currentUser.contactNum)">
             	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
             </div>
             <div class="form-group">
                 <input type="text" id="zip" ng-model="currentUser.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
             </div>
             <div class="form-group">
-                <input id="skill" type="text" ng-model="currentUser.primarySkill" class="form-control" placeholder="Primary Skill" style="width:300px">
+                <input id="skill" type="text" ng-model="currentUser.primarySkill" class="form-control" placeholder="Primary Skill" style="width:380px">
             </div>
             <div class="form-group">
-                <input type="radio" ng-model="currentUser.gender"  ng-value="M" style="align:left"><b>&nbsp;Male</b>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" ng-model="currentUser.gender"  ng-value="F"><b>&nbsp;Female</b>
+                <input type="radio" ng-model="currentUser.gender"  ng-value="M" style="align:left"><b style="font-size:15px;">&nbsp;Male</b>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="radio" ng-model="currentUser.gender"  ng-value="F"><b style="font-size:15px;">&nbsp;Female</b>
             </div>
             <div class="form-group">
-                <input id="social" type="checkbox" ng-model="currentUser.socialYN"  ng-checked="isSocial" style="align:left;"><b>&nbsp;&nbsp;Connect with other applicants?</b>
+                <input id="social" type="checkbox" ng-model="currentUser.socialYN"  ng-checked="isSocial" style="align:left;"><b style="font-size:15px;">&nbsp;&nbsp;Connect with other applicants?</b>
             </div>
             <div class="form-group">
-                <input id="active" type="checkbox" ng-model="currentUser.activeIn"  style="align:left;"><b style="color:red;">&nbsp;&nbsp;Deactivate Account</b>
+                <input id="active" type="checkbox" ng-model="currentUser.activeIn"  style="align:left;"><b style="color:red;font-size:15px;">&nbsp;&nbsp;Deactivate Account</b>
             </div>
             <br/>
             <button ng-click="saveProfileInfo(currentUser)" ng-disabled="error" class="btn btn-primary block full-width m-b">Save</button>

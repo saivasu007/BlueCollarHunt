@@ -216,7 +216,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 		
 		if ($scope.user.email == "" || $scope.user.firstName == "" || $scope.user.lastName == "" || $scope.user.passwd1 == "" || $scope.user.passwd2 == "" || $scope.user.zipcode == "" || $scope.user.skill == "" || $scope.user.image == undefined) {
 			$scope.errorMsg = true;
-			Flash.create('Info', "Please fill in all the blanks.",0, {class: 'alert-info', id: 'custom-id'}, true);
+			Flash.create('Info', "Please fill in all the blanks.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 		}
 		else {
 			$scope.user.password = $scope.user.passwd1;
@@ -2630,7 +2630,7 @@ app.controller('jobsCtrl', function ($q, $scope, $rootScope, $http, $location, F
 		}
 		$http.post('/getJobInfo',postData).success(function (response) {
 			$scope.jobInfo = response;
-			$rootScope.jobInfo = response;
+			//$rootScope.jobInfo = response;
 		}).error(function (err) {
 			console.log(err);
 		})

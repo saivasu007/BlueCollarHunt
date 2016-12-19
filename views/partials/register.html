@@ -52,10 +52,10 @@
 		 <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/>
 </div></div></div></div></div>
 <div class="container" style="padding-left:0px;margin-bottom:0px;">
-<div class="row" style="height:736px;">
+<div class="row" style="height:836px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:729px;">
-<div class="middle-box" style="padding-top:25px;">
+<div class="panel panel-default site-panel-box" style="height:829px;">
+<div class="middle-box" style="padding-top:25px;margin-left: 325px;">
         <div class="panel-body" style="padding:0px;">
         
         <div id="errMsgArea" ng-show="errorMsg" class="panel panel-default site-panel-box" style="height:54px;">
@@ -69,39 +69,39 @@
 		</div>
 		</div>
         
-        <div class="panel panel-default site-panel-box" style="height:625px;">
+        <div class="panel panel-default site-panel-box" style="height:725px;width:403px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
 			<h5>Job Seeker Registration Form</h5>
 			</div>
             <div class="form-group has-feedback" style="padding-top:10px;">
-				<input type="text" ng-model="user.email" class="form-control" placeholder="Email Address" ng-change="testUsername()">
+				<input type="text" ng-model="user.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" style="width:380px">
 				<i class="glyphicon glyphicon-user form-control-feedback" style="padding-top:10px;"></i>
 				<span ng-show="usernameErr && user.email != ''" style="color:red;display:inline-block;">invalid email address</span>
 			</div>
             <div class="form-group">
-                <input id="fName" type="text" ng-model="user.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names">
+                <input id="fName" type="text" ng-model="user.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names" style="width:380px">
             </div>
             <div class="form-group">
-                <input id="lName" type="text" ng-model="user.lastName" class="form-control" placeholder="Last Name">
+                <input id="lName" type="text" ng-model="user.lastName" class="form-control" placeholder="Last Name" style="width:380px">
             </div>
             <div class="form-group">
-                <input type="text" id="zip" ng-model="user.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
+                <input type="text" id="zip" ng-model="user.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers" style="width:380px">
                 <span ng-show="zipCodeErr && user.zipcode != ''" style="color:red;">Please enter valid Zipcode.</span>
             </div>
             <div class="form-group">
-                <input type="text" id="skill" ng-model="user.primarySkill" class="form-control" placeholder="Enter Primary Skill">
+                <input type="text" id="skill" ng-model="user.primarySkill" class="form-control" placeholder="Enter Primary Skill" style="width:380px">
             </div>
             <div class="form-group">
-                <input type="file" id="profPic" name="myImage" ng-model="user.image" class="form-control" image-with-preview accept="image/jpeg,image/png" placeholder="Upload Profile Image" ng-change="profPicChange()">
+                <input type="file" id="profPic" name="myImage" ng-model="user.image" class="form-control" image-with-preview accept="image/jpeg,image/png" placeholder="Upload Profile Image" ng-change="profPicChange()" style="width:380px">
             </div>
             <div class="form-group has-feedback">
-                <span class="{{myClass}}"><input type="password" ng-model="user.passwd1" class="form-control" placeholder="New Password" ng-change="testPassword()" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
+                <span class="{{myClass}}"><input type="password" ng-model="user.passwd1" class="form-control" placeholder="New Password" ng-change="testPassword()" ng-blur="hidePassPol()" ng-focus="showPassPol()" style="width:380px"></span>
                 <i class="glyphicon glyphicon-lock form-control-feedback"></i>
     			<span ng-show="passwordShort && user.passwd1 != ''" style="color:red">password must be at least 6 characters</span>
             </div>
             <div class="form-group has-feedback">
-                <span class="{{myClass}}"><input type="password" ng-model="user.passwd2" ng-change="testPassword2()" class="form-control" placeholder="Confirm Password" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
+                <span class="{{myClass}}"><input type="password" ng-model="user.passwd2" ng-change="testPassword2()" class="form-control" placeholder="Confirm Password" ng-blur="hidePassPol()" ng-focus="showPassPol()" style="width:380px"></span>
     			 <i class="glyphicon glyphicon-lock form-control-feedback"></i>
     			<span ng-show="passwordErr && user.passwd2 != undefined" style="color:red">password doesn't match</span>
             </div>

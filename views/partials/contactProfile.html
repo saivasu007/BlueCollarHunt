@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <title>Blue Collar Hunt Candidate Profile Page</title>
+    <title>Blue Collar Hunt Contact Profile Page</title>
   </head>
 <body>
-<div class="container" style="padding-left:0px;" data-ng-init="candidateProfileInfo()">
+<div class="container" style="padding-left:0px;" data-ng-init="userInfo()">
 <div class="row" style="height:201px;">
 <br/>
 <div class="col-xs-50 col-md-40">
@@ -14,11 +14,11 @@
 	<a href="/empHome"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
 	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -61px 70px;">
 	  <p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
-		<span class="color customLink"><a href="" ng-click="getJobTracking(currentUser.email)" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">BACK</font></a></span>
+		<span class="color customLink"><a href=""  ng-click="goBack()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">BACK</font></a></span>
 	</p>
 	</div>
 	<div  style="border:4px solid #5BC0DE;width:846px;height:44px;margin-left:120px;margin: -35px 0px 0px 120px;">
-		<h3 style="text-align:center;margin-top:5px;margin-bottom:20px;">{{candidate.firstName.toUpperCase()}} {{candidate.lastName.toUpperCase()}} PROFILE INFORMATION REVIEW SCREEN </h3>
+		<h3 style="text-align:center;margin-top:5px;margin-bottom:20px;">{{contact.firstName.toUpperCase()}} {{contact.lastName.toUpperCase()}} PROFILE INFORMATION SCREEN </h3>
 	</div>
 </div></div></div></div>
 
@@ -41,7 +41,7 @@
 </td>
 <td style="padding-left:10px;"> :</td>
 <td style="padding-left:10px;">
-<strong>{{candidate.zipcode}}</strong>
+<strong>{{contact.zipcode}}</strong>
 </td>
 </tr>
 <tr>
@@ -50,7 +50,7 @@
 </td>
 <td style="padding-left:10px;"> :</td>
 <td style="padding-left:10px;">
-<strong>{{candidate.primarySkill}}</strong>
+<strong>{{contact.primarySkill}}</strong>
 </td>
 </tr>
 <tr>
@@ -59,24 +59,24 @@
 </td>
 <td style="padding-left:10px;"> :</td>
 <td style="padding-left:10px;" nowrap>
-<strong>{{candidate.contactNum}}</strong>
+<strong>{{contact.contactNum}}</strong>
 </td>
 </tr>
 </table>
 <br/><br/><br/><br/>
 </div></div>
 <!-- For Most Talented Skills and Recommendations/Views -->
-<div class="panel panel-default site-panel-box" style="width:928px;height:380px;margin:3px 0 0 232px;" data-ng-init="candidateProfileDetails()">
+<div class="panel panel-default site-panel-box" style="width:928px;height:380px;margin:3px 0 0 232px;" data-ng-init="contactProfileDetails()">
 <div class="panel-body" style="padding:3px;padding-top:0px;">
-<h3>{{candidate.firstName}} {{candidate.lastName}} <!-- <img src="img/like_image.jpeg" style="width:90px;height:70px;padding-bottom:20px;"></h3> -->
-<button class="btnCustom" ng-show="isContactProfile" style="width:87px;height:28px;padding:0px;border-radius:20px;margin-top:0px;margin-left:10px;" data-toggle="modal" data-target="#submitEndorses">Endorse</button>
-<h4 style="margin:-10px 0px 0px 0px">@{{candidate.lastName}}</h4>
+<h3>{{contact.firstName}} {{contact.lastName}} <!-- <img src="img/like_image.jpeg" style="width:90px;height:70px;padding-bottom:20px;"></h3> -->
+<button class="btnCustom" style="width:87px;height:28px;padding:0px;border-radius:20px;margin-top:0px;margin-left:10px;" data-toggle="modal" data-target="#submitEndorses">Endorse</button>
+<h4 style="margin:-10px 0px 0px 0px">@{{contact.lastName}}</h4>
 <div class="form-group" style="margin:10px 0px 0px 0px;">
 <textarea name="message" id="coverMsg" class="form-control" rows="12" cols="26" ng-disabled="true"
-                                placeholder="Cover Letter Info Wall" ng-model="candidate.coverPageInfo" style="width:440px;height:290px;resize: none;border:3px ridge #5BC0DE;"></textarea>
+                                placeholder="Cover Letter Info Wall" ng-model="contact.coverPageInfo" style="width:440px;height:290px;resize: none;border:3px ridge #5BC0DE;"></textarea>
 </div>
 <div class="panel panel-default site-panel-box" style="width:400px;height:305px;margin:-360px 0 0 450px;float:right;border:2px dotted">
-<div class="panel-body" style="padding:0px;" data-ng-init="checkCandidateProfileVideo()">
+<div class="panel-body" style="padding:0px;" data-ng-init="checkProfileVideo()">
 
 <div ng-show="!showVideo">
 <div ng-show="uploader.isHTML5" style="padding-left:0px;">
@@ -99,16 +99,16 @@
 <div class="panel-body" style="padding:0px;">
 <button class="btn btn-info block full-width m-b" style="width:145px;height:52px;" data-toggle="modal" data-target="#listEndorses"><span class="customSpan">Endorsements</span></button>
 </div></div>
-<!-- For Candidate Resume list -->
+<!-- For Contact TBD list -->
 <div class="panel panel-default site-panel-box" style="width:928px;height:173px;margin:18px 0 0 234px;">
 <!-- <p style="text-align:center;"><strong style="color:blue;">Recommended Jobs for your skill : {{currentUser.primarySkill}}</strong></p> -->
-<div ng-if="!isContactProfile" class="panel-body" style="padding:8px;" data-ng-init="listProfileResume()">
-<b>Candidate Resume:</b>
+<div class="panel-body" style="padding:8px;">
+<b>TBD</b>
 <table class="table table-striped">
-<tr width="100%" class="info" style="margin-bottom: 0px;cursor: pointer;" ng-repeat="resume in resumeList" ng-click="getRecoJobInfo(job.jobID)">
-<td>{{resume.filename}}</td>
-<td>{{resume.contentType}}</td>
-<td>{{resume.uploadDate}}</td>
+<tr width="100%" class="info">
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </table>
 </div>
@@ -121,7 +121,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4>Endorsements received for {{candidate.firstName}} {{candidate.lastName}}</h4>
+				<h4>Endorsements received for {{contact.firstName}} {{contact.lastName}}</h4>
 			</div>
 			<div class="modal-body" style="display:block;">
 				<table class="table table-striped" style="margin-bottom: 10px;">
@@ -139,7 +139,7 @@
 					<td style="padding: 0px;cursor: pointer;" nowrap>{{endorse.fromEmail}}</td>
 					<td style="padding: 0px;cursor: pointer;" nowrap>{{endorse.origPostDate}}</td>
 				</tr>
-				<tr ng-show="endorseList.length <= 0">
+				<tr ng-show="endorseList.length <= 0 || endorseList == '0'">
 				<td colspan="4" align="center"><h4 style="color:red">No Endorsements received.</h4></td>
 				</tr>
 				</tbody>
@@ -152,6 +152,45 @@
 	</div>
 </div>
 <!-- End list of the Job Seekers current endorsement messages -->
+
+<!-- Section to Submit the endorsement message for current Job Seeker -->
+<div  class="modal fade" id="submitEndorses" role="dialogue">
+	<div class="modal-dialogue" style="width:32%;height:100%;z-index:0;margin-top: 10%;margin-left: 37%" data-ng-init="getEndorseMsg()">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4>Endorsement for {{contact.lastName}}</h4>
+			</div>
+			<div class="modal-body" style="margin:10px 0px 0px 20px;">
+				<!-- Error Message Area ng-show="errorMsg" -->
+				<div class="form-group" ng-show="errorMsg" style="width:450px">
+								<flash-message
+					    			duration="5000"
+					    			show-close="true"
+					    			on-dismiss="ClearMessages(flash)"></flash-message>
+			    </div>
+				<!-- Error Message Area End -->
+				<div class="form-group">
+                  <label for="name">
+                                <font color="red">*</font>&nbsp;Endorse From</label>
+                      <input type="text" id="userId" autofocus="true" ng-model="currentUser.email" class="form-control" style="width:450px" placeholder="Endorse From User" ng-disabled="true">
+            	</div>
+            	<div class="form-group">
+                  <label for="name">
+                                <font color="red">*</font>&nbsp;Endorse Message</label>
+                      <textarea name="message" id="message" class="form-control" rows="12" cols="12" required="required"
+                                placeholder="Message" ng-model="endorse.message" style="width:450px;height:180px;resize:none;"></textarea>
+            	</div>
+			</div>
+			<div class="modal-footer" style="text-align:right;">
+				<!-- <button class="btn btn-info" ng-click="saveEndorseMsg(endorse)" style="width:80px;">Endorse</button> -->
+				<button class="btnCustom" style="width:105px;height:33px;padding:0px;border-radius:20px;" ng-click="saveEndorseMsg(endorse)">Endorse</button>
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End of Submit the endorsement message for current Job Seeker -->
 
 <footer style="padding-top:20px;">
 <div class="container" style="padding-left:0px;">

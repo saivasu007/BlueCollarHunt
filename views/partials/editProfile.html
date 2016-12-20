@@ -25,9 +25,9 @@
 		</div>
 </div></div></div></div></div>
 <div class="container" style="padding-left:0px;">
-<div class="row" style="height:727px;">
+<div class="row" style="height:788px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:725px;">
+<div class="panel panel-default site-panel-box" style="height:785px;">
 <div class="middle-box" style="padding-top:25px;margin-left:280px;">
         <div class="panel-body" style="padding:0px;">
         
@@ -67,11 +67,18 @@
             <div class="form-group">
                 <input id="skill" type="text" ng-model="currentUser.primarySkill" class="form-control" placeholder="Primary Skill" style="width:380px">
             </div>
+            <!-- 
             <div class="form-group">
                 <input type="radio" ng-model="currentUser.gender"  ng-value="M" style="align:left"><b style="font-size:15px;">&nbsp;Male</b>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="radio" ng-model="currentUser.gender"  ng-value="F"><b style="font-size:15px;">&nbsp;Female</b>
             </div>
+            -->
+            <div class="form-group">
+            <label class="rb-switcher" style="display:inline-block;"><b style="margin-bottom:5px;">Male</b> <input type="radio" id="gender" class="form-control" ng-model="currentUser.gender" name="sex" ng-value="0" checked> <i></i> </label>&emsp;&emsp;
+			<label class="rb-switcher red" style="display:inline-block;"><b>Female</bstyle="margin-bottom:5px;"> <input type="radio" id="gender" class="form-control" ng-model="currentUser.gender" name="sex" ng-value="1"><i></i></label>
+            </div>
+            
             <div class="form-group">
                 <input id="social" type="checkbox" ng-model="currentUser.socialYN"  ng-checked="isSocial" style="align:left;"><b style="font-size:15px;">&nbsp;&nbsp;Connect with other applicants?</b>
             </div>

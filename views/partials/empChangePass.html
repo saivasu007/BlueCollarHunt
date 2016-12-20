@@ -6,27 +6,32 @@
     <title>Blue Collar Hunt Change Password Page for Employer</title>
   </head>
 <body>
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+    				<li class="color customLink"><a href="/empHome" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink"><a href="/empChangeProfile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Profile</font></a></li>
+					<li class="color customLink active"><a href="/empChangePass" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Password</font></a></li>
+		  			<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+		  			<li class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></li>
+    			</ul>
+  			</div>
+</div>
 <div class="container" style="padding-left:0px;">
 <div class="row" style="height:201px;">
-<br/>
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
 	<a href="/empHome"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
-	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -62px 70px;">
-	  <p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
-		  	<span class="color customLink"><a href="/empHome" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
-			<span class="color customLink"><a href="/empChangeProfile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Profile</font></a> | </span>
-			<span class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a> | </span>
-	  		<span class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></span>
-	  </p>
-	</div>
 </div></div></div></div></div>
-<div class="container" style="padding-left:0px;">
+<div class="container" style="padding-left:0px;margin-top: -20px;">
 <div class="row" style="height:556px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:550px;">
-<div class="middle-box" style="padding-top:30px;">
+<div class="panel panel-default site-panel-box" style="height:574px;">
+<div class="middle-box" style="padding-top:30px;margin-left:320px;">
 <div class="panel-body" style="padding:10px;">
 <div class="panel panel-default site-panel-box" style="height:50%;">
 	<div class="panel-body" style="padding:10px;padding-bottom:20px;">
@@ -36,17 +41,17 @@
 			<hr/>
 			<div class="form-group has-feedback" style="padding-top:10px;">
 				<span class="icon-lock"></span>
-                <input id="pw2" class="form-control" autofocus="true" style="width: 280px; display:inline-block; height:32px" type="password" ng-model="currentUser.oldPassword" placeholder="Old Password" ng-required="true" ng-blur="testPasswordLen()">
+                <input id="pw2" class="form-control" autofocus="true" style="width: 350px; display:inline-block; height:38px;margin-bottom:0px;" type="password" ng-model="currentUser.oldPassword" placeholder="Old Password" ng-required="true" ng-blur="testPasswordLen()">
             	<i class="glyphicon glyphicon-lock form-control-feedback"  style="padding-top:10px;"></i>
             </div>
 			<div class="form-group has-feedback" style="padding-top:10px;">
 				<span class="icon-lock"></span>
-                <input id="pw2" class="form-control" autofocus="true" style="width: 280px; display:inline-block; height:32px" type="password" ng-model="currentUser.password1" placeholder="New Password" ng-required="true" ng-blur="testPasswordLen()">
+                <input id="pw2" class="form-control" autofocus="true" style="width: 350px; display:inline-block; height:38px;margin-bottom:0px;" type="password" ng-model="currentUser.password1" placeholder="New Password" ng-required="true" ng-blur="testPasswordLen()">
             	<i class="glyphicon glyphicon-lock form-control-feedback"  style="padding-top:10px;"></i>
             </div>
             <div class="form-group has-feedback" style="padding-top:10px;">
 				<span class="icon-lock"></span>
-                <input id="pw2" class="form-control" style="width: 280px; display:inline-block; height:32px" type="password" ng-model="currentUser.password2" placeholder="Repeat New Password" ng-required="true" ng-blur="testPassword()">
+                <input id="pw2" class="form-control" style="width: 350px; display:inline-block; height:38px;margin-bottom:0px;" type="password" ng-model="currentUser.password2" placeholder="Repeat New Password" ng-required="true" ng-blur="testPassword()">
             	<i class="glyphicon glyphicon-lock form-control-feedback"  style="padding-top:10px;"></i>
             </div>
 			<div style="padding-top:30px;">
@@ -94,12 +99,12 @@
 <div class="container" style="padding-left:0px;">
 <div class="row">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel panel-default site-panel-box" style="height:175px;margin-bottom: -13px;">
 <div class="panel-body" style="padding:55px;">
-<div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
-	<p class="copyright" style="padding-top:10px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
-</div>
 </div></div></div></div></div>
 </footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
 </body>
 </html>

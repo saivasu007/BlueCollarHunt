@@ -5,22 +5,27 @@
     <title>Blue Collar Hunt User Profile Page</title>
   </head>
 <body>
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+					<li class="color customLink"><a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink active"><a href="/profile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Profile</font></a></li>
+					<li class="color customLink"><a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a></li>
+					<li class="color customLink" ng-show="currentUser.socialYN == 'Y'"><a href="/socialContacts" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Socialize</font></a></li>
+					<li class="color customLink"><a href="/jobHistory" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Job History</font></a></li>
+					<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+    			</ul>
+  			</div>
+</div>
 <div class="container" style="padding-left:0px;" data-ng-init="userInfo()">
 <div class="row" style="height:201px;">
-<br/>
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:175px;">
 <div class="panel-body" style="padding:60px;height:175px;">
 	<a href="/home"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
-	<div style="width:111.5%;height:40px;border:0px solid #000;background-color:#3399FF;margin:-155px -61px 70px;">
-	  <p style="text-align:right;padding:10px;margin: 0px 0px 0px 680px;" class="col-md-5 col-md-offset-3 col-sm-5 col-sm-offset-2">
-		<span class="color customLink"><a href="/home" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a> | </span>
-		<span class="color customLink"><a href="/upload" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Upload</font></a> | </span>
-		<span class="color customLink" ng-show="currentUser.socialYN == 'Y'"><a href="/socialContacts" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Socialize</font></a> | </span>
-		<span class="color customLink"><a href="/jobHistory" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Job History</font></a> | </span>
-		<span class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></span>
-	</p>
-	</div>
 	<div class="navbar-header pull-right">
 			          <ul class="nav pull-left">
 			            <!-- This works well for static text, like a username -->
@@ -29,7 +34,7 @@
 			            </li>
 			            <!-- Add any additional bootstrap header items.  This is a drop-down from an icon -->
 			            <li class="dropdown pull-right">
-			              <a href="#" data-toggle="dropdown" style="color:#777; margin: -30px -20px 0px 0px; padding:10px;" class="dropdown-toggle">
+			              <a href="#" data-toggle="dropdown" style="color:#777; margin: 0px -20px 0px 10px; padding:10px;" class="dropdown-toggle">
 			              <img class="profileImage" ng-src="{{dataUrl | trustUrl}}"/>
 			              <b class="caret"></b></a>
 			              <ul class="dropdown-menu">
@@ -46,12 +51,15 @@
 			            </li>
 			          </ul>
 	</div>
+	<div  style="border:4px solid #5BC0DE;width:843px;height:45px;margin: -80px 0px 0px 115px;">
+		<h3 style="text-align:center;margin-top:5px;color:#63c1ff;">JOB SEEKER PROFILE INFORMATION SCREEN</h3>
+	</div>
 </div></div></div></div>
 
 <div class="container" style="padding-left:0px;">
 <div class="row" style="height:556px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:590px;">
+<div class="panel panel-default site-panel-box" style="height:590px;margin-top:-20px;">
 <div class="panel-body" style="padding:10px;">
 <!-- <img class="banner" src="img/BlueCollar_Profile.png" alt="background" width="100%" height="530px"/> -->
 <!-- For Profile Image and Details -->
@@ -241,12 +249,12 @@
 <div class="container" style="padding-left:0px;">
 <div class="row">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel panel-default site-panel-box" style="height:175px;margin-bottom:-12px;">
 <div class="panel-body" style="padding:55px;">
-<div style="width:110.4%;height:40px;border:0px solid #000;background-color:#3399FF;margin:79px 0px 0px -56px;">
-	<p class="copyright" style="padding-top:10px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
-</div>
 </div></div></div></div></div>
 </footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
 </body>
 </html>

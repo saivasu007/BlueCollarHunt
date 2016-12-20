@@ -1145,10 +1145,9 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 					email : cUser.email,
 					socialYN : cUser.socialYN,
 					primarySkill : cUser.primarySkill,
-					contactNum : cUser.phone,
+					contactNum : cUser.contactNum,
 					gender : cUser.gender
 			};
-			
 			$http.post('/updateUserProfile',postData).success(function (response){
 					if (response != 0){
 					alert("Success");
@@ -2087,8 +2086,6 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		$rootScope.counter = 0;
 	}
 	
-	/* To enable and disable the Endorse button */
-	$scope.isCandidateProfile = false;
 	var uploader = $scope.uploader = new FileUploader();
 	uploader.onWhenAddingFileFailed = function(item, filter, options) {
         console.log('onWhenAddingFileFailed', item, filter, options);
@@ -2151,7 +2148,8 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
     };
     
     $scope.checkProfileVideo = function (){
-    	$scope.email = $rootScope.currentUser.email;
+    	if($rootScope.isContactProfile) $scope.email = $rootScope.contactEmail;
+    	else $scope.email = $rootScope.currentUser.email;
     	var postData ={
 				email: $scope.email
 		};
@@ -2164,13 +2162,27 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
     }
 	
 	$scope.userInfo = function (){
-		$scope.search = $rootScope.currentUser.email;
+		if($rootScope.isContactProfile) $scope.search = $rootScope.contactEmail;
+		else $scope.search = $rootScope.currentUser.email;
 		var postData ={
 				search: $scope.search
 		};
 		$http.post('/getUserInfo',postData).success(function (response) {
 			$rootScope.dataUrl = response;
-			$location.url('/profile');
+			if($rootScope.isContactProfile) $location.url('/contactProfile');
+			else $location.url('/profile');
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.contactProfileDetails = function (){
+		$scope.search = $rootScope.contactEmail;
+		var postData ={
+				search: $scope.search
+		};
+		$http.post('/getUserDetails',postData).success(function (response) {
+			$rootScope.contact = response;
 		}).error(function (err) {
 			console.log(err);
 		})
@@ -2220,9 +2232,10 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	}
 	
 	$scope.getProfileVideo = function() {
-		
+		if($rootScope.isContactProfile) $scope.search = $rootScope.contactEmail;
+		else $scope.search = $rootScope.currentUser.email;
 		var postData = {
-				email: $rootScope.currentUser.email
+				email: $scope.search
 		};
 		
 		$http.post('/getProfileVideo',postData).success(function (response) {
@@ -2253,12 +2266,14 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	};
 	
 	$scope.listEndorsements = function (){
-		$scope.email = $rootScope.currentUser.email;
+		if($rootScope.isContactProfile) $scope.email = $rootScope.contactEmail;
+		else $scope.email = $rootScope.currentUser.email;
 		var postData ={
 				email: $scope.email
 		};
 		$http.post('/getEndorsements',postData).success(function (response) {
-			$scope.endorseList = response;
+			if(response == "" || response == undefined) $scope.endorseList = "0";
+			else $scope.endorseList = response;
 			//$location.url('/profile#listEndorses');
 		}).error(function (err) {
 			console.log(err);
@@ -2344,8 +2359,8 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		} 
 		
 		var postData = {
-				email : $rootScope.currentUser.email,
-			    fromEmail: "test@test.com",
+				email : $rootScope.contactEmail,
+			    fromEmail: $rootScope.currentUser.email,
 			    message: endorseInfo.message,
 			    origPostDate: new Date(),
 			    saveFlag: saveFlag
@@ -2362,8 +2377,8 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	
 	$scope.getEndorseMsg = function() {
 		var postData = {
-				email : $rootScope.currentUser.email,
-			    fromEmail: "test@test.com"//$rootScope.contactUser.email
+				email : $rootScope.contactEmail,
+			    fromEmail: $rootScope.currentUser.email
 		};
 
 		$http.post('/getEndorseInfo',postData).success(function (response){
@@ -2411,6 +2426,12 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	  
 	$scope.$watch('coverPageInfo', autoSaveUpdate);
 	/* End Coverpage Information Updates */
+	
+	$scope.goBack = function() {
+		$rootScope.isContactProfile = false;
+		$rootScope.contactEmail = undefined;
+		$location.url('/socialContacts');
+	}
 	
 	$scope.ClearMessages = function(flash) {
 		$scope.errorMsg = false;
@@ -2573,6 +2594,12 @@ app.controller('socialCtrl', function ($q, $scope, $rootScope, $http, $location,
 			console.log(err);
 		})
 	};
+	
+	$scope.displayContactProfile = function(emailID) {
+		$rootScope.contactEmail = emailID;
+		$rootScope.isContactProfile = true;
+		$location.url('/contactProfile');
+	}
 	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
@@ -3114,6 +3141,13 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		when('/socialContacts', {
 			templateUrl: 'partials/socialUserInfo.html',
 			controller: 'socialCtrl',
+			resolve: {
+				loggedin: checkLoggedIn
+			}
+		}).
+		when('/contactProfile', {
+			templateUrl: 'partials/contactProfile.html',
+			controller: 'profileCtrl',
 			resolve: {
 				loggedin: checkLoggedIn
 			}

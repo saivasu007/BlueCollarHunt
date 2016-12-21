@@ -95,8 +95,8 @@
 					<td>{{user.lastName}}</td>
 					<td>{{user.activeIn}}</td>
 					<td>{{user.zipcode}}</td>
-					<td><button  class="btnCustom" style="width:80px;height:28px;padding:0px;font-size:16px;" ng-click="sendAddContactReq(user)">
-					+ Add
+					<td><button  class="btnCustom" style="width:80px;height:28px;padding:0px;font-size:16px;" ng-click="sendAddContactReq(user)" ng-disabled="true">
+					Added
 					</button></td>
 				</tr>
 				<tr ng-show="allUsers.length <= 0">

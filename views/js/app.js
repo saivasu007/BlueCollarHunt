@@ -2369,6 +2369,7 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 		$http.post('/saveEndorse',postData).success(function (response){
 				if (response != 0){
 					alert("Successfully Endorsed!");
+					$scope.listEndorsements();
 				}
 		}).error(function (err) {
 				console.log(err);

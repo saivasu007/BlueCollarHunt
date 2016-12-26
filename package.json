@@ -6,6 +6,7 @@
   "dependencies": {
     "angular-credit-cards": "^3.1.4",
     "angular-recaptcha": "^3.0.4",
+    "angular-sweetalert": "^1.1.2",
     "async": "^1.4.2",
     "body-parser": "^1.12.4",
     "connect-flash": "^0.1.1",

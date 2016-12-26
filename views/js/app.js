@@ -3,7 +3,7 @@
  * @author : Srinivas Thungathurti
  * @description : Created for Capstone Project Blue Collar Hunt
  */
-var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash']);
+var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash','oitozero.ngSweetAlert']);
 
 
 app.directive("ngFileSelect",function(){
@@ -504,14 +504,12 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 	}
 	
 	$scope.searchJobList = function() {
-		alert("searchJobList jobID "+$routeParams.jobID);
 		if($routeParams.jobID != undefined) {
 			var postData = {
 					search: $routeParams.jobID
 			}
 			
 			$http.post('/getJobs',postData).success(function (response){
-				alert(response.toSource());
 				$scope.jobsList = response;
 				if($scope.jobsList.length <= 0) {
 					$rootScope.noJobs = true;
@@ -1130,7 +1128,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 				
 				$http.post('/deactivateProfile',postData).success(function (response){
 					if (response != 0){
-						alert("User Account Deactivated.Sorry and we miss you here.");
+						swal("User Account Deactivated.");
 						$scope.logout();
 					}
 				}).error(function (err) {
@@ -1150,7 +1148,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			};
 			$http.post('/updateUserProfile',postData).success(function (response){
 					if (response != 0){
-					alert("Success");
+					swal("Updated Successfully");
 					$scope.currentUser.socialYN = cUser.socialYN;
 					$location.url('/home');
 					} else if (response == 'error') {
@@ -1170,7 +1168,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			if(confirm('Are you sure you want you delete your account?')) {
 				$http.post('/deleteAccount',postData).success(function (response){
 						if (response != 0){
-							alert("Done.Sorry, We miss you here!");
+							swal("Done.Sorry, We miss you here!");
 							$scope.logout();
 						}
 				}).error(function (err) {
@@ -1436,7 +1434,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         
         $http.post('/applyJobPosting',postData).success(function (response){
 			if (response != 0){
-				alert("Job application subimitted successfully.");
+				swal("Job application subimitted successfully.");
 				$rootScope.isLinkToJob = false;
 				$rootScope.jobDetails = undefined;
 				$rootScope.jobInfo = undefined;

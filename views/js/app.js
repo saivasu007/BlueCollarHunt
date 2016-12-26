@@ -3,7 +3,7 @@
  * @author : Srinivas Thungathurti
  * @description : Created for Capstone Project Blue Collar Hunt
  */
-var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash','oitozero.ngSweetAlert']);
+var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash']);
 
 
 app.directive("ngFileSelect",function(){

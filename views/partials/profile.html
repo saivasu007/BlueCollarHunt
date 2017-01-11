@@ -138,9 +138,15 @@
 </div></div>
 <!-- For endorsements -->
 <div class="panel panel-default site-panel-box" style="width:404px;height:55px;margin:-65px 0 0 754px;">
-<div class="panel-body" style="padding:0px;">
+<div class="panel-body" style="padding:0px;" ng-show="showVideo">
+<input id="videoUpload" type="file" accept="video/*" style="display:none;" />
+<button class="btn btn-info block" style="width:198px;height:52px;" ng-click="changeProfileVideo()"><span class="customSpan">Edit Video</span></button>
+<button class="btn btn-info block" style="width:198px;height:52px;" data-toggle="modal" data-target="#listEndorses"><span class="customSpan">Endorsements</span></button>
+</div>
+<div class="panel-body" style="padding:0px;" ng-show="!showVideo">
 <button class="btn btn-info block full-width m-b" style="width:145px;height:52px;" data-toggle="modal" data-target="#listEndorses"><span class="customSpan">Endorsements</span></button>
-</div></div>
+</div>
+</div>
 <!-- For Recommended Jobs list -->
 <div class="panel panel-default site-panel-box" style="width:928px;height:173px;margin:18px 0 0 234px;" data-ng-init="listRecoJobs(currentUser.primarySkill)">
 <!-- <p style="text-align:center;"><strong style="color:blue;">Recommended Jobs for your skill : {{currentUser.primarySkill}}</strong></p> -->

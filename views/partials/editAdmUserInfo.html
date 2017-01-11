@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <title>Blue Collar Hunt Admin Edit Screen for User Profile</title>
+  </head>
+<body>
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+    			    <li class="color customLink"><a href="/userInfoMgmt" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Back</font></a></li>
+					<li class="color customLink"><a href="/admin" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+				  	<li class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></li>
+    			</ul>
+  			</div>
+</div>
+<ng-form id="register_form">
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:201px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:80%;">
+<div class="panel-body" style="padding:60px;height:175px;">
+		 <a href="/home"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
+		 <div  style="border:4px solid #5BC0DE;width:843px;height:55px;margin:-90px 0px 0px 140px;">
+			<h3 style="text-align:center;margin-top:10px;color:#63c1ff;">{{seeker.lastName.toUpperCase()}} INFORMATION UPDATE SCREEN</h3>
+		</div>
+</div></div></div></div></div>
+<div class="container" style="padding-left:0px;margin-top: -20px;">
+<div class="row" style="height:800px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:796px;">
+<div class="middle-box" style="padding-top:45px;margin-left:150px;">
+        <div class="panel-body" style="padding:0px;">
+        
+        <div id="errMsgArea" ng-show="errorMsg" class="panel panel-default site-panel-box" style="height:54px;">
+		<div class="panel-body" style="padding:0px;">
+			<div class="form-group">
+			<flash-message
+    			duration="5000"
+    			show-close="true"
+    			on-dismiss="ClearMessages(flash)"></flash-message>
+    		</div>
+		</div>
+		</div>
+        
+        <div class="panel panel-default site-panel-box" style="height:700px;border:2px ridge #5BC0DE;">
+		<div class="panel-body" style="padding:10px;">
+			<div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
+			<h4>Job Seeker Profile Information Update</h4>
+			</div>
+            <div class="form-group has-feedback" style="padding-top:10px;">
+				<input type="text" ng-model="seeker.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" ng-disabled="true" style="width:380px">
+				<i class="glyphicon glyphicon-user form-control-feedback" style="padding-top:10px;"></i>
+			</div>
+            <div class="form-group">
+                <input id="fName" type="text" ng-model="seeker.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names" style="width:380px">
+            </div>
+            <div class="form-group">
+                <input id="lName" type="text" ng-model="seeker.lastName" class="form-control" placeholder="Last Name" style="width:380px">
+            </div>
+            <div class="form-group has-feedback">
+                <input id="phonenumber" type="text" ng-model="seeker.contactNum" class="form-control" placeholder="Mobile Number" style="width:380px" ng-blur="formatContactNum(seeker)">
+            	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
+            </div>
+            <div class="form-group">
+                <input type="text" id="zip" ng-model="seeker.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
+            </div>
+            <div class="form-group">
+                <input id="skill" type="text" ng-model="seeker.primarySkill" class="form-control" placeholder="Primary Skill" style="width:380px">
+            </div>
+            <div class="form-group">
+            <label class="rb-switcher" style="display:inline-block;"><b style="margin-bottom:5px;">Male</b> <input type="radio" id="gender" class="form-control" ng-model="seeker.gender" name="sex" ng-value="0" checked> <i></i> </label>&emsp;&emsp;
+			<label class="rb-switcher red" style="display:inline-block;"><b style="margin-bottom:5px;">Female</b><input type="radio" id="gender" class="form-control" ng-model="seeker.gender" name="sex" ng-value="1"><i></i></label>
+            </div>
+            <div ng-show="dataImgUrl != undefined" id="profPicDisplay" class="dropdown">
+                <input type="file" id="profPic" name="myImage" ng-model="seeker.image" class="form-control" image-with-preview accept="image/jpeg,image/png" placeholder="Upload Profile Image" ng-change="profPicChange()" style="width:310px;height:42px;display:inline-block;" ng-disabled="true">
+  				<img ng-src="{{dataImgUrl | trustUrl}}" style="height:55px;width:60px;display:inline-block;margin-bottom:25px;">
+  				<div class="dropdown-content">
+    				<img ng-src="{{dataImgUrl | trustUrl}}" style="height:215px;width:250px;">
+  				</div>
+			</div>
+            <br/>
+            <button ng-click="saveProfileInfo(seeker)" ng-disabled="error" class="btn btn-primary block full-width m-b">Save</button>
+            <br/><br/>
+            <button ng-click="deleteUser(seeker)" class="btn btn-danger block full-width m-b">Delete Account</button>
+        </div>
+        </div></div>
+</div>
+<!-- 
+<div id="profile" class="right-box text-center" style="margin:0 0 0 -340px;padding-top:70px;">
+  <div class="panel panel-default site-panel-box" style="height:175px;width:200px;border:2px ridge #5BC0DE;margin-bottom:0px;">
+	<div class="panel-body" style="padding:0px;">
+		 <div id="profPicDisplay" class="dropdown">
+  		<img ng-src="{{dataUrl | trustUrl}}" style="height:171px;width:196px;">
+  		<div class="dropdown-content">
+    	<img ng-src="{{dataUrl | trustUrl}}" style="height:215px;width:250px;">
+    	<div class="desc">Blue Collar Profile Picture</div>
+  		</div>
+		</div>
+	</div>
+  </div>
+  <h5 style="color:#5BC0DE;"><strong>Profile Picture</strong></h5>
+</div>
+ -->
+ 
+ <div id="chgPasswd" class="right-box text-center" style="margin:-350px 0px 0px 590px;padding-top:40px;">
+  <div class="panel panel-default site-panel-box" style="height:305px;width:542px;border:2px ridge #5BC0DE;margin-bottom:0px;">
+	<div class="panel-body" style="padding:0px;">
+		 <div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
+			<h4>Change Password</h4>
+		</div>
+		<div class="form-group" style="padding-top:25px;">
+                <input id="pw2" class="form-control" autofocus="true" style="width: 350px; height:42px; display:inline-block; margin-bottom: 0px;" type="password" ng-model="seeker.password1" placeholder="New Password" ng-required="true" ng-blur="testPasswordLen()">
+            	<i class="glyphicon glyphicon-lock"  style="padding-top:10px;margin-left:-25px;"></i>
+        </div>
+        <div class="form-group" style="padding-top:5px;">
+                <input id="pw2" class="form-control" style="width: 350px; height:42px; display:inline-block; margin-bottom: 0px;" type="password" ng-model="seeker.password2" placeholder="Repeat New Password" ng-required="true" ng-blur="testPassword()">
+            	<i class="glyphicon glyphicon-lock"  style="padding-top:10px;margin-left:-25px;"></i>
+        </div>
+	    <div style="padding-top:20px;">
+            <button ng-click="changePasswd(seeker)" class="btn btn-primary block m-b" style="width:65%">Save</button>
+        </div>
+	</div>
+  </div>
+</div>
+
+<div id="items" class="right-box" style="margin:-795px 0px 0px 590px;padding-top:70px;">
+  <div class="panel panel-default site-panel-box" style="height:405px;width:542px;margin-bottom:0px;border:2px ridge #5BC0DE;">
+	<div class="panel-body" style="padding:5px;">
+		 <div class="panel-heading" style="text-align:center;background-color:#63c1ff;margin-bottom:4px;">
+			<h4>Job Seeker Media Items</h4>
+		</div>
+		 <div  style="border:3px solid #5BC0DE;width:530px;" ng-show="allItems.length >= 0">
+			<table class="table table-striped">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th>filename</th>
+					<th>Type</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="item in partialItems">
+					<td>{{item.filename}}</td>
+					<td>{{item.contentType}}</td>
+					<td><button  class="btnCustom btn-danger" ng-click="deleteItem(item.filename)" style="width: 40px; height: 20px; font-size: 12px; padding:0px;background:#d9534f">
+					 <span class="glyphicon glyphicon-trash"></span> 
+					</button></td>
+				</tr>
+				<tr ng-show="allItems.length <= 0">
+				<td colspan="3" align="center"><h4 style="color:red">No Media Items Found for User.</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialItems.length > 0">
+				<td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentPage"
+				      total-items="allItems.length"
+				      max-size="maxSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+	</div>
+  </div>
+</div>
+</div>
+</div>
+</div></div>
+<footer>
+<div class="container" style="padding-left:0px;">
+<div class="row">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;;margin-bottom: -13px;">
+<div class="panel-body" style="padding:55px;">
+</div></div></div></div></div>
+</footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
+</ng-form>
+</body>
+</html>

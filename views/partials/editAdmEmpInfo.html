@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <title>Blue Collar Hunt Admin Edit Screen for Employer Profile</title>
+  </head>
+<body>
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+    			    <li class="color customLink"><a href="/empInfoMgmt" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Back</font></a></li>
+					<li class="color customLink"><a href="/admin" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+				  	<li class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></li>
+    			</ul>
+  			</div>
+</div>
+<ng-form id="employer_form">
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:201px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:80%;">
+<div class="panel-body" style="padding:60px;height:175px;">
+		 <a href="/home"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
+		 <div  style="border:4px solid #5BC0DE;width:843px;height:55px;margin:-90px 0px 0px 140px;">
+			<h3 style="text-align:center;margin-top:10px;color:#63c1ff;">{{emp.name.toUpperCase()}} INFORMATION UPDATE SCREEN</h3>
+		</div>
+</div></div></div></div></div>
+<div class="container" style="padding-left:0px;margin-top: -20px;">
+<div class="row" style="height:800px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:796px;">
+<div class="middle-box" style="padding-top:45px;margin-left:150px;">
+        <div class="panel-body" style="padding:0px;">
+        
+        <div id="errMsgArea" ng-show="errorMsg" class="panel panel-default site-panel-box" style="height:54px;">
+		<div class="panel-body" style="padding:0px;">
+			<div class="form-group">
+			<flash-message
+    			duration="5000"
+    			show-close="true"
+    			on-dismiss="ClearMessages(flash)"></flash-message>
+    		</div>
+		</div>
+		</div>
+        
+        <div class="panel panel-default site-panel-box" style="height:520px;border:2px ridge #5BC0DE;">
+		<div class="panel-body" style="padding:10px;">
+			<div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
+			<h4>Employer Profile Information Update</h4>
+			</div>
+            <div class="form-group has-feedback" style="padding-top:10px;">
+				<input type="text" ng-model="emp.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" ng-disabled="true" style="width:380px">
+				<i class="glyphicon glyphicon-user form-control-feedback" style="padding-top:10px;"></i>
+			</div>
+            <div class="form-group">
+                <input id="name" type="text" ng-model="emp.name" class="form-control" placeholder="Company Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names" style="width:380px">
+            </div>
+            <div class="form-group has-feedback">
+                <input id="phonenumber" type="text" ng-model="emp.contactNum" class="form-control" placeholder="Mobile Number" style="width:380px" ng-blur="formatContactNum(emp)">
+            	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
+            </div>
+            <div class="form-group">
+                <input id="addr" type="text" ng-model="emp.address" class="form-control" placeholder="Company Address" style="width:380px">
+            </div>
+            <div class="form-group">
+                <input type="text" id="zip" ng-model="emp.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
+            </div>
+            <div ng-show="dataImgUrl != undefined" id="profPicDisplay" class="dropdown">
+                <input type="file" id="profPic" name="myImage" ng-model="emp.image" class="form-control" image-with-preview accept="image/jpeg,image/png" placeholder="Upload Profile Image" ng-change="profPicChange()" style="width:310px;height:42px;display:inline-block;">
+  				<img ng-src="{{dataImgUrl | trustUrl}}" style="height:55px;width:60px;display:inline-block;margin-bottom:25px;">
+  				<div class="dropdown-content">
+    				<img ng-src="{{dataImgUrl | trustUrl}}" style="height:215px;width:250px;">
+  				</div>
+			</div>
+            <br/>
+            <button ng-click="saveProfileInfo(emp)" ng-disabled="error" class="btn btn-primary block full-width m-b">Save</button>
+            <br/><br/>
+            <button ng-click="deleteUser(emp)" class="btn btn-danger block full-width m-b">Delete Account</button>
+        </div>
+        <div id="contactEmp" class="panel panel-default site-panel-box" style="height:180px;width:398px;border:2px ridge #5BC0DE;margin-bottom:0px;margin-top:30px;">
+        	<div class="panel-body" style="padding:0px;">
+		 		<div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
+				<h4>Contact Employer</h4>
+				</div>
+				<div style="text-align:center;padding-top:20px;">
+            		<button ng-click="showContactInfo(emp)" class="btn btn-primary block m-b" data-toggle="modal" data-target="#showContactInfo" style="width:65%;font-size:18px;font-weight:bold;">Contact Employer</button>
+        		</div>
+			</div>
+        </div>
+        </div></div>
+</div>
+
+ <div id="chgPasswd" class="right-box text-center" style="margin:-105px 0px 0px 590px;padding-top:40px;">
+  <div class="panel panel-default site-panel-box" style="height:265px;width:542px;border:2px ridge #5BC0DE;margin-bottom:0px;">
+	<div class="panel-body" style="padding:0px;">
+		 <div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
+			<h4>Employer Credentials Generator</h4>
+		</div>
+	    <div style="padding-top:20px;">
+            <button ng-click="pwSave(currentUser)" class="btn btn-primary block m-b" style="width:65%;font-size:18px;font-weight:bold;">Generate Temp Password</button>
+        </div>
+        <div style="padding-top:20px;">
+            <button ng-click="generateUniqueID(emp)" class="btn btn-primary block m-b" style="width:65%;font-size:18px;font-weight:bold;">Generate Emp UniqueID</button>
+        </div>
+        <div style="padding-top:20px;">
+            <button ng-click="showPaymentSource(emp)" class="btn btn-primary block m-b" data-toggle="modal" data-target="#showPaymentSourceInfo" style="width:65%;font-size:18px;font-weight:bold;">Validate Payment Source</button>
+        </div>
+	</div>
+  </div>
+</div>
+
+<div id="items" class="right-box" style="margin:-810px 0px 0px 590px;padding-top:70px;">
+  <div class="panel panel-default site-panel-box" style="height:465px;width:542px;margin-bottom:0px;border:2px ridge #5BC0DE;">
+	<div class="panel-body" style="padding:5px;">
+		 <div class="panel-heading" style="text-align:center;background-color:#63c1ff;margin-bottom:4px;">
+			<h4>Employer Job Postings</h4>
+		</div>
+		 <div  style="border:3px solid #5BC0DE;width:530px;" ng-show="allJobs.length >= 0">
+			<table class="table table-striped" style="margin-bottom: 0px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th>JobID</th>
+					<th>Title</th>
+					<th>Active</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="job in partialJobs">
+					<td><a href="" ng-click="getJobInfo(job.jobID)" data-toggle="modal" data-target="#showJobInfo">{{job.jobID}}</a></td>
+					<td>{{job.title}}</td>
+					<td>{{job.activeJob}}</td>
+					<td><button  class="btnCustom btn-danger" ng-click="deleteJob(job)" style="width: 45px; height: 25px; font-size: 12px; padding:0px;background:#d9534f">
+					 <span class="glyphicon glyphicon-trash"></span> 
+					</button></td>
+				</tr>
+				<tr ng-show="allJobs.length <= 0">
+				<td colspan="4" align="center"><h4 style="color:red">No Job Postings available for Employer.</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialJobs.length > 0">
+				<td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentPage"
+				      total-items="allJobs.length"
+				      max-size="maxSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+	</div>
+  </div>
+</div>
+</div>
+</div>
+</div></div>
+
+<!-- Section to View the ContactUs messages -->
+<div  class="modal fade" id="showPaymentSourceInfo" role="dialogue">
+	<div class="modal-dialogue" style="width:48%;height:100%;z-index:0;margin-top: 7%;margin-left: 27%">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4>Payment Source for {{emp.name}}</h4>
+			</div>
+			<div class="modal-body" style="margin:10px 0px 0px 10px;" data-ng-init="showPaymentSource(emp)">
+				<div  style="border:3px solid #5BC0DE;width:100%;">
+			<table class="table table-striped">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th></th>
+					<th>Card Info</th>
+					<th>Employer</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="payment in paymentSourceList">
+					<td><input id="ccInfo" type="radio" autocomplete="off" ng-model="selectedCard" value="{{payment._id}}" ng-click="showID(payment)"></td>
+					<td>{{payment.cardNumber | limitTo:12}}-XXXX <br/>{{payment.cardMM}}/{{payment.cardYYYY}}&emsp;&emsp;{{payment.cvc}}<br/>{{payment.cardName}}</td>
+					<td>{{payment.email}}</td>
+					<td>
+					<button  class="btnCustom btn-warning" ng-click="validateCardInfo(payment)" style="width: 70px; height: 34px; font-size: 18px; padding:0px;background:#f0ad4e;border-color:#eea236;" ng-disabled="!selectedCard">
+					 <span class="glyphicon glyphicon-check"></span>
+					</button>
+					<button  class="btnCustom btn-danger" ng-click="deleteCardInfo(payment)" style="width: 70px; height: 34px; font-size: 18px; padding:0px;background:#d9534f;border-color:#d43f3a;" ng-disabled="!selectedCard">
+					 <span class="glyphicon glyphicon-trash"></span> 
+					</button>
+					</td>
+				</tr>
+				<tr ng-show="paymentSourceList.length <= 0">
+				<td colspan="3" align="center"><h4 style="color:red">No Payment Source Information available.</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			</div>
+			</div>
+			<div class="modal-footer" style="text-align:right;">
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End Validate Card Information -->
+
+<!-- Section to Show the Job Information for selected job -->
+<div  class="modal fade" id="showJobInfo" role="dialogue">
+	<div class="modal-dialogue" style="width:35%;height:100%;z-index:0;margin-top: 10%;margin-left: 33%">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4>Job Information for {{jobInfo.jobID}}</h4>
+			</div>
+			<div class="modal-body" style="display:block;">
+				<table class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th></th><th></th><th></th><th></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td><strong>Job Title</strong></td>
+					<td></td>
+					<td></td>
+					<td>{{jobInfo.title}}</td>
+				</tr>
+				<tr>
+					<td><strong>Company</strong></td>
+					<td></td>
+					<td></td>
+					<td>{{jobInfo.companyName.toUpperCase()}}</td>
+				</tr>
+				<tr>
+					<td><strong>Location</strong></td>
+					<td></td>
+					<td></td>
+					<td>{{jobInfo.location}}</td>
+				</tr>
+				<tr>
+					<td><strong>Requirement</strong></td>
+					<td></td>
+					<td></td>
+					<td>{{jobInfo.requirement}}</td>
+				</tr>
+				<tr>
+					<td><strong>Responsibilities</strong></td>
+					<td></td>
+					<td></td>
+					<td>{{jobInfo.responsibilities}}</td>
+				</tr>
+				<tr>
+					<td><strong>Salary Type</strong></td>
+					<td></td>
+					<td></td>
+					<td>${{jobInfo.rate}} {{jobInfo.salaryType}}</td>
+				</tr>
+				<tr>
+					<td><strong>Posted Date</strong></td>
+					<td></td>
+					<td></td>
+					<td>{{jobInfo.origPostDate}}</td>
+				</tr>
+				</tbody>
+				</table>
+			</div>
+			<div class="modal-footer" style="text-align:right;">
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End list of the Job Seekers current endorsement messages -->
+
+
+<!-- Section to View the ContactUs messages -->
+<div  class="modal fade" id="showContactInfo" role="dialogue">
+	<div class="modal-dialogue" style="width:48%;height:100%;z-index:0;margin-top: 7%;margin-left: 27%">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4>Contact Information for {{emp.name}} <button class="btnCustom" style="width:85px;height:33px;padding:0px;border-radius:20px;margin-left:450px;" ng-click="processEmpCall(emp.contactNum)"><span class="glyphicon glyphicon-phone-alt"></span></button></h4>
+				
+			</div>
+			<div class="modal-body" style="margin:10px 0px 0px 10px;">
+					<!-- Error Message Area ng-show="empErrorMsg" -->
+					<div class="form-group" ng-show="empErrorMsg" style="width:95%">
+									<flash-message
+						    			duration="5000"
+						    			show-close="true"
+						    			on-dismiss="ClearMessages(flash)"></flash-message>
+				    </div>
+					<!-- Error Message Area End -->
+				
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_name">Company Name *</label>
+                    <input id="form_name" type="text" name="name" class="form-control" placeholder="Company Name *" ng-model="emp.name" required="required" data-error="Firstname is required." ng-disabled="true">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_lastname">Location *</label>
+                    <input id="form_lastname" type="text" name="address" class="form-control" placeholder="Company Location *" ng-model="emp.address" required="required" data-error="Lastname is required." ng-disabled="true">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_email">Email *</label>
+                    <input id="form_email" type="email" name="email" class="form-control" placeholder="Employer Email *" ng-model="emp.email" required="required" data-error="Valid email is required." ng-disabled="true">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_phone">Phone</label>
+                    <input id="form_phone" type="tel" name="phone" class="form-control" ng-model="emp.contactNum" placeholder="Employer Phone" ng-disabled="true">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="form_message">Message *</label>
+                    <textarea id="form_message" name="message" class="form-control" placeholder="Message for Employer *" ng-model="emp.message" rows="4" required="required" data-error="Please,leave us a message."></textarea>
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+        </div>
+	
+			</div>
+			<div class="modal-footer" style="text-align:right;">
+				<button class="btnCustom" style="width:165px;height:33px;padding:0px;border-radius:20px;" ng-click="sendEmpMessage(emp)">Send Message</button>
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<footer>
+<div class="container" style="padding-left:0px;">
+<div class="row">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;;margin-bottom: -13px;">
+<div class="panel-body" style="padding:55px;">
+</div></div></div></div></div>
+</footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
+</ng-form>
+</body>
+</html>

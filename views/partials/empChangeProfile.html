@@ -32,7 +32,7 @@
 <div class="row" style="height:646px;">
 <div class="col-xs-50 col-md-40">
 <div class="panel panel-default site-panel-box" style="height:639px;">
-<div class="middle-box" style="margin:0 370px auto">
+<div class="middle-box" style="margin:0 370px auto;">
 	<div class="panel-body" style="padding:0px;">
 	
 	<div id="errMsgArea" ng-show="errorMsg" style="height:54px;">
@@ -46,7 +46,7 @@
 		</div>
 		</div>
 	
-	<div class="panel panel-default site-panel-box" style="height:50%px;">
+	<div class="panel panel-default site-panel-box" style="height:70%;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
 			<h3 class="panel-title">Employer Registration Form</h3>
@@ -67,9 +67,12 @@
             	<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
             </div>
             <div class="form-group">
-                <input type="Radio" ng-model="currentUser.amount"  ng-value="0" style="align:left" ng-disabled="true"><b>&nbsp;Free Trial</b>
+                <input type="file" id="empLogo" name="myLogo" ng-model="user.logo" class="form-control" image-with-preview accept="image/gif,image/jpg,image/jpeg,image/png" placeholder="Upload Profile Image" ng-change="profPicChange()" style="width:350px">
+            </div>
+            <div class="form-group">
+                <input type="Radio" ng-model="currentUser.amount"  ng-value="0" style="align:left" ng-click="showCardInfo(currentUser.amount)"><b>&nbsp;Free Trial</b>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="Radio" ng-model="currentUser.amount"  ng-value="1999" ng-disabled="true"><b>&nbsp;$19.99/mo</b>
+                <input type="Radio" ng-model="currentUser.amount"  ng-value="1999" ng-click="showCardInfo(currentUser.amount)"><b>&nbsp;$19.99/mo</b>
             </div>
             <br/>
             <button ng-click="saveProfileInfo(currentUser)" ng-disabled="error" class="btn btn-primary block full-width m-b">Save</button>
@@ -78,8 +81,24 @@
       </div></div>
      </div>
 </div>
+
+<div id="profile" class="right-box text-center" style="margin:-20px 0 0 -340px;padding-top:70px;">
+  <div class="panel panel-default site-panel-box" style="height:100px;width:300px;border:3px ridge #5BC0DE;margin-bottom:0px;">
+	<div class="panel-body" style="padding:0px;">
+		 <div id="logoDisplay" class="dropdown">
+  		<img ng-src="{{user.logo.src}}" style="height:95px;width:295px;">
+  		<div class="dropdown-content">
+    	<img ng-src="{{user.logo.src}}" style="height:150px;width:300px;">
+    	<div class="desc">Employer Logo Image</div>
+  		</div>
+		</div>
+	</div>
+  </div>
+  <h4 style="color:#5BC0DE;"><strong>Employer Logo</strong></h4>
+</div>
+
 <div id="cardInfo">
-<div id="social" class="right-box text-center" style="margin:0 0 0 -350px;padding-top:50px;">
+<div id="social" class="right-box text-center" style="margin:180px 0 0 -350px;padding-top:50px;">
 		<div class="panel panel-default site-panel-box" style="height:270px;">
 		<div class="panel-body" style="padding:10px;">
         <div class="panel-heading display-table" style="background-color:#63c1ff;">
@@ -90,7 +109,7 @@
                         </div>
                     </div>                    
                 </div>
-                <div class="panel-body" style="padding:10px;">
+                <div class="panel-body" style="padding:10px;" ng-show="paymentSourceList.length <=0">
                         <div class="row">
                             <div class="col-xs-12">
                                 <div class="form-group" style="padding-top:10px;">
@@ -102,6 +121,7 @@
                                             class="form-control"
                                             ng-model="emp.cardNumber"
                                             ng-change="formatCC()"
+                                            ng-blur="validateCard(emp)"
                                             placeholder="Valid Card Number"
                                             autocomplete="cc-number"
                                             required autofocus 
@@ -121,6 +141,7 @@
                                         id="expiry"
                                         ng-model="emp.cardExpiry"
                                         ng-change="formatExpiry()"
+                                        ng-blur="validateExpiry(emp)"
                                         placeholder="MM / YYYY"
                                         autocomplete="cc-exp"
                                         required 
@@ -136,6 +157,7 @@
                                         id="cvc"
                                         ng-model="emp.cvc"
                                         ng-change="formatCVC()"
+                                        ng-blur="validateCVC(emp)"
                                         placeholder="CVC"
                                         autocomplete="cc-csc"
                                         required
@@ -164,6 +186,34 @@
                             </div>
                         </div>
                 </div>
+                
+                <div class="panel-body" style="padding:0px;" ng-show="paymentSourceList.length >=0">
+                <!--  If there are payment sources already available -->
+            		<div class="panel-group" style="padding-right:0px;padding-bottom:0px;padding-top:10px;" id="accordion">
+		    		<div class="panel panel-default" ng-repeat="payment in paymentSourceList">
+		      			<div class="panel-heading" style="background:#63c1ff;">
+		        			<h4 class="panel-title">
+		          			<a data-toggle="collapse" style="text-decoration:none;" href="" ng-click="" data-target="#collapse{{payment._id}}" data-parent="#accordion">
+		          			<table>
+		          			<tr>
+		          			<td nowrap style="font-size:14px;"><strong>{{payment.cardName.toUpperCase()}}</strong></td>
+		          			<td style="padding-left:15px;font-size:16px;"><strong>{{payment.cardNumber | limitTo: 12}}-XXXX</strong></td>
+		          			</tr>
+		          			</table>
+		          			</a>
+		        			</h4>
+		      			</div>
+			      		<div id="collapse{{payment._id}}" class="panel-collapse collapse"> 
+			        		<ul class="list-group">
+			        		<li class="list-group-item" style="font-size:16px;font-weight:bold;padding-left:20px;"><a href="" ng-click="displayCandidateProfile(candidate)">{{payment.cardNumber}}</a></li>
+					          <li class="list-group-item" style="font-size:16px;font-weight:bold;padding-left:20px;"><a href="" ng-click="displayCandidateProfile(candidate)">{{payment.cardMM}}/{{payment.cardYYYY}}</a></li>
+			        		</ul>
+			      		</div>
+		  			</div>
+		  			</div>
+		        <!-- End Payment Source display. -->
+                </div>
+                
             </div> 
             </div></div>
             </div> 

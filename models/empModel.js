@@ -8,6 +8,7 @@ var empSchema = new mongoose.Schema({
     password: String,
     contactNum: String,
     address: String,
+    zipcode: String,
     empUniqueID: String,
     activeIn: String,
     expiryDate: String,

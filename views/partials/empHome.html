@@ -13,7 +13,7 @@
     			</div>
     			<ul class="nav navbar-nav navbar-right">
     				<li class="color customLink active"><a href="/empHome" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
-					<li class="color customLink"><a href="/empChangeProfile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Profile</font></a></li>
+					<li class="color customLink"><a href="" ng-click="displayEmpProfileInfo(currentUser)" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Profile</font></a></li>
 					<li class="color customLink"><a href="/empChangePass" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Password</font></a></li>
 		  			<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
 		  			<li class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></li>
@@ -211,7 +211,7 @@
       			</div>
       		<div id="collapse{{job.jobID}}" class="panel-collapse collapse"> <!-- ng-repeat="candidate in jobSeekerList" -->
         		<ul class="list-group" ng-repeat="candidate in jobSeekerList">
-		          <li class="list-group-item" style="font-size:16px;font-weight:bold;padding-left:20px;"><a href="" ng-click="displayCandidateProfile(candidate.email)">{{candidate.name.toUpperCase()}} - {{candidate.email}}</a></li>
+		          <li class="list-group-item" style="font-size:16px;font-weight:bold;padding-left:20px;"><a href="" ng-click="displayCandidateProfile(candidate)">{{candidate.name.toUpperCase()}} - {{candidate.email}}</a></li>
         		</ul>
         		<ul class="list-group" ng-show="jobSeekerList == undefined">
 		          <li class="list-group-item" style="font-size:14px;font-weight:bold;padding-left:20px;">No Candidates Applied for this Job.</li>
@@ -231,7 +231,7 @@
 					</td>
 					<td style="width:20px"></td>
 					<td>
-					<input id="search" class="form-control" style="width: 340px; height: 36px" type="text" ng-model="emp.search" placeholder="Search By Job Title" ng-required="true">
+					<input id="search" class="form-control" style="width: 340px; height: 42px" type="text" ng-model="emp.search" placeholder="Search By Job Title" ng-required="true">
 					</td>
 					<td style="padding-left:10px;">
 					<button class="btnCustom" style="width:94px;height:33px;padding:0px;border-radius:20px;" ng-click="searchCandidateInfo(emp.search)">
@@ -286,6 +286,181 @@
 			</table>
 			</div>
 </div>
+<!-- Job Status Records Screen -->
+<div ng-show="isJobStatusReport" style="text-align:left;margin:0 0 0 10px;padding-top:10px;">
+			<div  style="border:4px solid #5BC0DE;width:846px;height:170px;">
+			<h3 style="text-align:center;margin-top:5px;padding-bottom:20px;color:#63c1ff;">CANDIDATE JOB STATUS SCREEN</h3>
+			<table>
+				<tr>
+				   <td nowrap style="padding-left:120px;">
+					<label for="search" style="font-size: 18px;padding-left:0px;">Search Job:</label>
+					</td>
+					<td style="width:20px"></td>
+					<td>
+					<select name="jobID" ng-model="candJobID" style="width: 250px; height: 45px;" ng-options="job.jobID as job.jobID for job in jobs" ng-click="getAllEmpJobs()">
+                	</select>
+					</td>
+					<td style="width:20px"></td>
+					<td>
+					<select name="candStat" ng-model="emp.candStatus" style="width: 200px; height: 45px;">
+			                <option value="IR">In-Review</option>
+			                <option value="SL">Short-Listed</option>
+                	</select>
+					</td>
+					</tr>
+					<tr>
+					<td colspan="5" style="padding-left:180px;padding-top:15px;text-align:center;">
+					<button class="btnCustom" style="width:94px;height:33px;padding:0px;border-radius:20px;" ng-click="searchEmpJobCandStatInfo(emp)">
+					Search
+					</button>
+					<a href="" ng-click="clearEmpJobCandStat()"><button class="btnCustom" style="width:94px;height:33px;padding:0px;margin-left:10px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;background:#f0ad4e">Clear</button></a>
+					</td>
+					</tr>
+			</table>	    
+			</div>
+			<p style="padding-top:0.1%;"/></p>
+			<div  style="border:3px solid #5BC0DE;width:846px;" ng-show="allCandidatesStatus.length >= 0">
+			<table class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th>Name</th>
+					<th>Email</th>
+					<th>Title</th>
+					<th>Date-Applied</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="candidate in allCandidatesStatus" ng-click="" style="padding-top: 10px;cursor: pointer;">
+					<td style="padding: 10px;"><strong>{{candidate.name}}</strong></td>
+					<td style="padding: 10px;">{{candidate.email}}</td>
+					<td style="padding: 10px;">{{candidate.title}}</td>
+					<td style="padding: 10px;">{{candidate.dateApplied}}</td>
+				</tr>
+				<tr ng-show="allCandidatesStatus.length <= 0">
+				<td colspan="4" align="center"><h4 style="color:red">No Candidates available for Job {{candJobID}}</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialCandidatesStatus.length > 0">
+				<td></td><td></td><td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentPage"
+				      total-items="allEmpJobCandStatus.length"
+				      max-size="maxSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+</div>
+
+<!-- Employer Reports Screen -->
+<div ng-show="isJobReports" style="text-align:left;margin:0 0 0 10px;padding-top:10px;">
+			<div  style="border:4px solid #5BC0DE;width:846px;height:170px;">
+			<h3 style="text-align:center;margin-top:5px;padding-bottom:20px;color:#63c1ff;">EMPLOYER JOB REPORTS SCREEN</h3>
+			<table>
+				<tr>
+				   <td nowrap style="padding-left:120px;">
+					<label for="search" style="font-size: 18px;padding-left:0px;">Search Job:</label>
+					</td>
+					<td style="width:20px"></td>
+					<td>
+					<input id="fromDate" class="form-control" style="width: 240px; height: 42px" type="text" ng-model="emp.fromDate" placeholder="Search By Date" ng-required="true">
+					</td>
+					<td style="width:20px"></td>
+					<td>
+					<select name="candStat" ng-model="emp.reportType" style="width: 200px; height: 47px;margin-bottom:10px;">
+			                <option value="EJR">Jobs Report</option>
+			                <option value="CJR">Candidate-Job Report</option>
+                	</select>
+					</td>
+					</tr>
+					<tr>
+					<td colspan="5" style="padding-left:180px;padding-top:1px;text-align:center;">
+					<button class="btnCustom" style="width:104px;height:38px;padding:0px;border-radius:20px;" ng-click="generateReport(emp)">
+					Generate
+					</button>
+					<a href="" ng-click="clearReportData(emp)"><button class="btnCustom" style="width:104px;height:38px;padding:0px;margin-left:10px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;background:#f0ad4e">Clear</button></a>
+					</td>
+					</tr>
+			</table>	    
+			</div>
+			<p style="padding-top:0.1%;"/></p>
+				<div class="btn-group" ng-show="allReportInfo.length > 0" style="margin-bottom:10px;" dropdown>
+					<button type="button" class="btn btn-warning dropdown-toggle" style="height:42px;width:180px;font-size:16px;font-weight:bold;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    		<span class="caret"></span>
+			    		<span class="sr-only">Toggle Dropdown</span>
+			    	 Download Report
+			  		</button>
+				  	<ul class="dropdown-menu" role="menu">
+					    <li><a href="" onClick="$('#empReport').tableExport({type:'pdf',pdfFontSize:'7',escape:'false'});">PDF</a></li>
+					    <li><a href="" onClick="$('#empReport').tableExport({type:'csv',escape:'false'});">CSV</a></li>
+					    <li><a href="" onClick="$('#empReport').tableExport({type:'png',escape:'false'});">PNG</a></li>
+					    <li role="separator" class="divider"></li>
+					    <li><a href="" onClick="$('#empReport').tableExport({type:'excel',escape:'false'});">EXCEL</a></li>
+				  	</ul>
+				</div>
+			<div  style="border:3px solid #5BC0DE;width:846px;" ng-show="allReportInfo.length >= 0">
+			<table id="empReport" class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3" ng-if="reportType == 'EJR'">
+					<th>Job Title</th>
+					<th>Location</th>
+					<th>Company</th>
+					<th>Rate</th>
+					<th>Post Date</th>
+				</tr>
+				<tr style="background-color:#D3D3D3" ng-if="reportType == 'CJR'">
+					<th>Job ID</th>
+					<th>Job Title</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Date Applied</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="report in allReportInfo" ng-click="" style="padding-top: 10px;cursor: pointer;" ng-if="reportType == 'EJR'">
+					<td style="padding: 10px;"><strong>{{report.title}}</strong></td>
+					<td style="padding: 10px;">{{report.location}}</td>
+					<td style="padding: 10px;">{{report.companyName}}</td>
+					<td style="padding: 10px;">${{report.rate}} {{report.salaryType}}</td>
+					<td style="padding: 10px;">{{report.origPostDate}}</td>
+				</tr>
+				<tr ng-repeat="report in allReportInfo" ng-click="" style="padding-top: 10px;cursor: pointer;" ng-if="reportType == 'CJR'">
+					<td style="padding: 10px;"><strong>{{report.jobID}}</strong></td>
+					<td style="padding: 10px;">{{report.title}}</td>
+					<td style="padding: 10px;">{{report.name}}</td>
+					<td style="padding: 10px;">{{report.email}}</td>
+					<td style="padding: 10px;">{{report.dateApplied}}</td>
+				</tr>
+				<tr ng-show="allReportInfo.length <= 0">
+				<td colspan="5" align="center"><h4 style="color:red">No Data available or please select the valid criteria</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialReportInfo.length > 0">
+				<td></td><td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentPage"
+				      total-items="allReportInfo.length"
+				      max-size="maxSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+</div>
+
 
 </div></div></div>
 
@@ -307,6 +482,12 @@
 		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
 		<br/>
 		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="searchByCategory()"><font style="color:#e1ffff">Candidate Search</font></div>
+		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
+		</div>
+		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;" ng-click="searchEmpJobCandStatus()"><font style="color:#e1ffff">Job Status Records</font></div>
+		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
+		</div>
+		<div class="clickDiv" style="padding: 5px;cursor: pointer;font-size:24px;text-align:center" ng-click="generateEmpReports()"><font style="color:#e1ffff;">Job Reports</font></div>
 		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
 		</div>
 	</div>

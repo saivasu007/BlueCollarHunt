@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <title>Blue Collar Hunt Admin Profile Update Page</title>
+  </head>
+<body>
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+					<li class="color customLink"><a href="/admin" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink"><a href="/admChangePass" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Password</font></a></li>
+					<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+				  	<li class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></li>
+    			</ul>
+  			</div>
+</div>
+<ng-form id="register_form">
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:201px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:80%;">
+<div class="panel-body" style="padding:60px;height:175px;">
+		 <a href="/admin"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
+</div></div></div></div></div>
+<div class="container" style="padding-left:0px;margin-top: -20px;">
+<div class="row" style="height:805px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:801px;">
+<div class="middle-box" style="padding-top:25px;margin-left:280px;">
+        <div class="panel-body" style="padding:0px;">
+        
+        <div id="errMsgArea" ng-show="errorMsg" class="panel panel-default site-panel-box" style="height:54px;">
+		<div class="panel-body" style="padding:0px;">
+			<div class="form-group">
+			<flash-message
+    			duration="5000"
+    			show-close="true"
+    			on-dismiss="ClearMessages(flash)"></flash-message>
+    		</div>
+		</div>
+		</div>
+        
+        <div class="panel panel-default site-panel-box" style="height:615px;">
+		<div class="panel-body" style="padding:10px;">
+			<div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
+			<h4>Personal Information Update</h4>
+			</div>
+            <div class="form-group has-feedback" style="padding-top:10px;">
+				<input type="text" ng-model="currentUser.email" class="form-control" placeholder="Email Address" ng-change="testUsername()" ng-disabled="true" style="width:380px">
+				<i class="glyphicon glyphicon-user form-control-feedback" style="padding-top:10px;"></i>
+			</div>
+            <div class="form-group">
+                <input id="fName" type="text" ng-model="currentUser.firstName" class="form-control" placeholder="First Name" data-toggle="tooltip" data-placement="top" data-original-title="Please use only letters for names" style="width:380px">
+            </div>
+            <div class="form-group">
+                <input id="lName" type="text" ng-model="currentUser.lastName" class="form-control" placeholder="Last Name" style="width:380px">
+            </div>
+            <div class="form-group has-feedback">
+                <input id="phonenumber" type="text" ng-model="currentUser.contactNum" class="form-control" placeholder="Mobile Number" style="width:380px" ng-blur="formatContactNum(currentUser)">
+            	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
+            </div>
+            <div class="form-group">
+                <input type="text" id="zip" ng-model="currentUser.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers">
+            </div>
+            <div class="form-group">
+            <label class="rb-switcher" style="display:inline-block;"><b style="margin-bottom:5px;">Male</b> <input type="radio" id="gender" class="form-control" ng-model="currentUser.gender" name="sex" ng-value="0" checked> <i></i> </label>&emsp;&emsp;
+			<label class="rb-switcher red" style="display:inline-block;"><b style="margin-bottom:5px;">Female</b> <input type="radio" id="gender" class="form-control" ng-model="currentUser.gender" name="sex" ng-value="1"><i></i></label>
+            </div>
+            <br/>
+            <button ng-click="saveProfileInfo(currentUser)" ng-disabled="error" class="btn btn-primary block full-width m-b">Save</button>
+            <br/><br/>
+            <button ng-click="deleteUser(currentUser)" class="btn btn-danger block full-width m-b">Delete Account</button>
+            <br/><br/>
+            <a href="/admin"><button class="btn btn-warning block full-width m-b">Cancel</button></a>
+        </div>
+        </div></div>
+</div>
+
+<div id="profile" class="right-box text-center" style="margin:0 0 0 -340px;padding-top:70px;">
+  <div class="panel panel-default site-panel-box" style="height:175px;width:200px;border:2px ridge #5BC0DE;margin-bottom:0px;">
+	<div class="panel-body" style="padding:0px;">
+		<!-- 
+		<img ng-if="user.image != undefined" ng-src="{{user.image.src}}" style="height:171px;width:196px;"/>
+		<img ng-show="noImage" src="img/preview.png" style="height:125px;width:160px;"/>
+		 -->
+		 <div id="profPicDisplay" class="dropdown">
+  		<img ng-src="{{dataUrl | trustUrl}}" style="height:171px;width:196px;">
+  		<div class="dropdown-content">
+    	<img ng-src="{{dataUrl | trustUrl}}" style="height:215px;width:250px;">
+    	<div class="desc">Blue Collar Profile Picture</div>
+  		</div>
+		</div>
+	</div>
+  </div>
+  <h5 style="color:#5BC0DE;"><strong>Profile Picture</strong></h5>
+</div>
+
+<div id="info" class="right-box text-center" style="margin:220px 0 0 -360px;padding-top:60px;">
+		<div class="panel panel-default site-panel-box" style="height:155px;width:364px;margin:0 0 10px 0px;margin-top:80px;">
+		<div class="panel-body" style="padding:0px;">
+		<div class="form-group">
+		<ul style="font-size:12px;padding:10px 0 0px 20px;text-align:left;color:667C26;white-space:pre-line;"> <strong style="color:blue;font-size:14px">NOTE:</strong>
+		<li style="padding-top:10px;">Once you select the deactivate and save the profile then you can come back anytime and re-activate the account.</li>
+		<li>Clicking and Confirming Delete account permanently remove the user profile from the system and recovery will not be possible.</li>
+		</ul>
+		</div>
+		</div>
+		</div>
+</div>
+
+</div>
+
+</div></div></div>
+<footer>
+<div class="container" style="padding-left:0px;">
+<div class="row">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;;margin-bottom: -13px;">
+<div class="panel-body" style="padding:55px;">
+</div></div></div></div></div>
+</footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
+</ng-form>
+</body>
+</html>

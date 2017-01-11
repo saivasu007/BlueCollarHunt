@@ -28,9 +28,9 @@
 		 <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/>
 </div></div></div></div></div>
 <div class="container" style="padding-left:0px;margin-bottom:10px;">
-<div class="row" style="height:726px;">
+<div class="row" style="height:771px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:730px;">
+<div class="panel panel-default site-panel-box" style="height:775px;">
 <div class="middle-box" style="margin:0 360px auto">
 	<div class="panel-body" style="padding:0px;">
 	
@@ -45,7 +45,7 @@
 		</div>
 		</div>
 	
-	<div class="panel panel-default site-panel-box" style="height:595px;margin-top:10px;">
+	<div class="panel panel-default site-panel-box" style="height:645px;margin-top:10px;">
 		<div class="panel-body" style="padding:10px;">
 			<div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
 			<h3 class="panel-title">Employer Registration Form</h3>
@@ -68,8 +68,12 @@
             	<i class="glyphicon glyphicon-phone form-control-feedback"></i>
             </div>
             <div class="form-group has-feedback">
-            	<input type="text" ng-model="emp.address1" style="width:350px" class="form-control" placeholder="Address" ng-autocomplete="result1" details="details1" options="options1" />
+            	<input type="text" ng-model="emp.address" style="width:350px" class="form-control" placeholder="Address" ng-autocomplete="result1" details="details1" options="options1" />
             	<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
+            </div>
+            <div class="form-group">
+                <input type="text" id="zip" ng-model="emp.zipcode" class="form-control" placeholder="Zip Code" ng-change="testZipCode()" data-toggle="tooltip2" data-placement="top" data-original-title="Please use only numbers" style="width:350px">
+                <span ng-show="zipCodeErr && emp.zipcode != ''" style="color:red;">Please enter valid Zipcode.</span>
             </div>
             <div class="form-group has-feedback">
                 <span class="{{myClass}}"><input type="password" ng-model="emp.passwd1" class="form-control" placeholder="New Password" ng-change="testPassword()" style="width:350px" ng-blur="hidePassPol()" ng-focus="showPassPol()"></span>
@@ -115,6 +119,7 @@
                                             class="form-control"
                                             ng-model="emp.cardNumber"
                                             ng-change="formatCC()"
+                                            ng-blur="validateCard()"
                                             placeholder="Valid Card Number"
                                             autocomplete="cc-number"
                                             required autofocus 
@@ -134,6 +139,7 @@
                                         id="expiry"
                                         ng-model="emp.cardExpiry"
                                         ng-change="formatExpiry()"
+                                        ng-blur="validateExpiry()"
                                         placeholder="MM / YYYY"
                                         autocomplete="cc-exp"
                                         required 
@@ -149,6 +155,7 @@
                                         id="cvc"
                                         ng-model="emp.cvc"
                                         ng-change="formatCVC()"
+                                        ng-blur="validateCVC()"
                                         placeholder="CVC"
                                         autocomplete="cc-csc"
                                         required

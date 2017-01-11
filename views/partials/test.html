@@ -1,25 +1,178 @@
-
-<!-- Error Message Area End -->
-<div class="panel panel-default site-panel-box" style="width:450px;height:485px;margin-top:10px;">
-	<div class="panel-body" style="padding:4px;padding-bottom:20px;">
-		<div class="wrapper">
-			<form name="EmpLogin_Form" class="form-signin">       
-			    <h3 class="form-signin-heading">Employer Password Recovery</h3>
-				  <hr class="colorgraph"><br>
-				  <input type="Radio" ng-model="emp.recoveryType"  value="Pass" name="recType" style="align:left"><b>&nbsp;Password</b>
-                	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <input type="Radio" ng-model="emp.recoveryType"  value="EmpID" name="recType"><b>&nbsp;&nbsp;Unique EmpID</b>
-				  <br/><br/>
-				  <input type="text" id="userId" autofocus="true" ng-model="emp.email" class="form-control" style="width:350px" placeholder="User ID or Email" ng-required="true">
-				  <br/><br/>
-				  <button ng-click="empForgot(emp)" class="btn btn-primary block full-width m-b" style="width:280px">Reset Password</button>
-            	  <br/><br/>
-            	  <a class="btn btn-warning btn-block" href="/empSignIn">Cancel</a>	
-			</form>			
-		</div>
-		<div class="panel-footer" style="margin-top:0.3%;padding:3%;text-align:center;border: 3px dotted rgba(0,0,0,0.1)"></div>
-	</div>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <title>Blue Collar Hunt Landing Page</title>
+  </head>
+<body>
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+    				<li class="color customLink active"><a href="/" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+      				<li class="color customLink"><a href="/login" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Seeker</font></a></li>
+					<li class="color customLink"><a href="/empSignIn" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Employer</font></a></li>
+					<li class="color customLink"><a href="/adminLogin" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Admin</font></a></li>
+					<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+    			</ul>
+  			</div>
 </div>
+<div class="container" style="padding-left:0px;margin-bottom:-15px;">
+<div class="row" style="height:100%;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:100%;">
+<div class="panel-body" style="padding:20px;height:100%;">
+            <img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="display:inline-block;"/>
+            <table style="display:inline-block; padding-left: 60px;vertical-align:middle;">
+				<tr>
+				    <td nowrap class="form-group has-feedback">
+						<input type="text" ng-model="user.search" class="form-control input-lg" style="width:350px" placeholder="Job Description" ng-change="testLoginName()" ng-required="true">
+            			<i class="glyphicon form-control-feedback"></i>
+					</td>
+					<td style="width:10px"></td>
+					<td class="form-group has-feedback">
+						<input type="text" id="Autocomplete" ng-model="user.location" style="width:350px" class="form-control input-lg" placeholder="Location" ng-autocomplete="result1" details="details1" options="options1" />
+            			<i class="glyphicon glyphicon-map-marker form-control-feedback"></i>
+					</td>
+					<td class="form-group has-feedback" style="padding-left:10px;">
+            			<button class="btnCustom" style="width:110px;height:42px;padding:0px;border-radius:20px;margin-top:-10px;" ng-click="search(user)">Search</button>
+					</td>
+				</tr>
+			</table>
+</div></div></div></div></div>
 
-Male <label class="rb-switcher"><input type="radio" name="sex" value="male" checked> <i></i> </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Female <label class="rb-switcher red"><input type="radio" name="sex" value="female"><i></i></label>
+<div class="container" style="padding-left:0px;margin-bottom:-15px;">
+<div class="row" style="height:100%;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:100%;">
+<div class="panel-body" style="padding:10px;">
+
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:560px;width:728px;float:right;margin-bottom:0px;">
+<div class="panel-body" style="padding:0px;" data-ng-init="searchJobs()">
+<div style="text-align:left;padding:15px;" ng-show="jobResults == 2 && jobInfo">
+			<h3 style="color:#3399FF">{{jobInfo.title}} [{{jobInfo.jobID}}]</h3>
+			<a href="" ng-click="loginAndApply(jobInfo.jobID)"><button style="width: 115px; height: 42px; padding:0px;margin:-30px 0px 0px 520px;position:fixed;" class="btnCustom"  ng-click="" ng-disabled="">
+				<span class="glyphicon"></span>Apply
+			</button></a>
+			<h4>{{jobInfo.companyName}}, {{jobInfo.location}}
+			&emsp;&emsp;&emsp;<div linkedin class="linkedinShare" data-url='{{shareUrl}}' data-title='{{jobInfo.title}}   [{{jobInfo.location}}]' data-summary="{{jobInfo.requirement.substring(0,250)}}" data-shares='linkedinshares'>{{linkedinshares}}</div>	
+			&emsp;&emsp;<a twitter data-count='horizontal' data-url='{{shareUrl}}'  data-size="medium" data-text='{{jobInfo.requirement.substring(0,250)}}' ></a>
+			</h4>
+			<br/>
+			<h4 style="color:#3399FF;"><strong>Responsibilities :</strong></h4>
+			<h5 style="white-space: pre-line;">{{jobInfo.responsibilities}}</h5>
+			<br/>
+			<h4 style="color:#3399FF"><strong>Requirement : </strong></h4>
+			<h5 style="white-space: pre-line;">{{jobInfo.requirement}}</h5>
+			<br/>
+			<h5><strong>Salary Rate : </strong>${{jobInfo.rate}} {{jobInfo.salaryType}}
+			</h5>
+</div>
+<!-- UNCOMMENT in the finish of development
+<div ng-show="searchResults != 1 && jobResults != 2" style="text-align:center;">
+<object type="application/x-shockwave-flash" data="./media/flashfox.swf" width="680" height="526" style="position:relative;">
+<param name="movie" value="./media/flashfox.swf" />
+<param name="allowFullScreen" value="true" />
+<param name="flashVars" value="autoplay=true&amp;controls=true&amp;fullScreenEnabled=true&amp;posterOnEnd=true&amp;loop=true&amp;poster=./media/BlueCollarHunt-HD_(720p).jpg&amp;src=BlueCollarHunt-HD_(720p).m4v" />
+ <embed src="./media/flashfox.swf" width="1152" height="525" style="position:relative;"  flashVars="autoplay=true&amp;controls=true&amp;fullScreenEnabled=true&amp;posterOnEnd=true&amp;loop=false&amp;src=BlueCollarHunt-HD_(720p).m4v"	allowFullScreen="true" wmode="transparent" type="application/x-shockwave-flash" pluginspage="http://www.adobe.com/go/getflashplayer_en" />
+<img alt="Blue Collar Jobs On Demand" src="./media/BlueCollarHunt-HD_(720p).jpg" style="position:absolute;left:0;" width="100%" title="Video playback is not supported by your browser" />
+</object>
+</div>
+-->
+<div ng-show="searchResults != 1 && jobResults != 2" style="text-align:center;">
+<div id="myCarousel" class="carousel slide" data-ride="carousel">
+    <!-- Indicators -->
+    <ol class="carousel-indicators">
+      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+      <li data-target="#myCarousel" data-slide-to="1"></li>
+      <li data-target="#myCarousel" data-slide-to="2"></li>
+      <li data-target="#myCarousel" data-slide-to="3"></li>
+      <li data-target="#myCarousel" data-slide-to="4"></li>
+    </ol>
+
+    <!-- Wrapper for slides -->
+    <div class="carousel-inner" role="listbox">
+      <div class="item active">
+        <img src="img/media/Farmer1.png" alt="Chania" style="width:800px;height:554px;">
+      </div>
+
+      <div class="item">
+        <img src="img/media/Neuclear2.png" alt="Chania" style="width:800px;height:554px;">
+      </div>
+    
+      <div class="item">
+        <img src="img/media/Construction3.png" alt="Flower" style="width:800px;height:554px;">
+      </div>
+
+      <div class="item">
+        <img src="img/media/Pilot4.png" alt="Flower" style="width:800px;height:554px;">
+      </div>
+      
+      <div class="item">
+        <img src="img/media/ATC5.png" alt="Flower" style="width:800px;height:554px;">
+      </div>
+    </div>
+
+    <!-- Left and right controls -->
+    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+      <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
+    </a>
+    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
+    </a>
+  </div>
+</div>
+</div></div>
+
+<div class="panel panel-default site-panel-box scrollbar" style="border: 3px ridge #5BC0DE;height:560px;width:430px;background-color:#3399FF;float:left;margin-left:0px;margin-bottom:0px;">
+<div class="panel-body" style="padding:0px;padding-top:5px;" ng-repeat="job in jobsList">
+<div ng-show="searchResults == 1">
+<div class="clickDiv" style="padding: 0px;cursor: pointer;" ng-click="getJobInfo(job.jobID)">
+<table>
+<tr>
+<td><font color="white" size="4" style="padding:10px;"><strong>{{job.title}}</strong></font></td>
+<!-- <td><font color="black" size="3" style=" white-space: nowrap;"><strong>{{job.location}}</strong></font></td> -->
+</tr>
+<tr>
+<td>
+<p style="font-size:15px; color:black; width:400px; white-space: nowrap;overflow: hidden;text-overflow:ellipsis;padding:10px;">{{job.requirement}}</p>
+</td>
+</tr>
+<tr>
+<td>
+<hr style="width:440px;display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: inset;border-width: 1px;"/>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div ng-show="noJobs" style="text-align:center;padding-top:40px;">
+	<h4 style="color:white">Sorry, No Jobs Found For Your Search.</h4>
+</div>
+</div>
+</div>
+</div></div></div></div>
+<footer>
+<div class="container" style="padding-left:0px;">
+<div class="row">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;margin-bottom:-12px;">
+<div class="panel-body" style="padding:10px;" data-ng-init="jobLocList()">
+<ul ng-repeat="loc in jobLocList" style="display:inline-block;list-style-type: square;">
+<li>
+<a href="" style="font-weight:bold;font-size:16px;" ng-click="searchByLoc(loc._id.location)">{{loc._id.location}}({{loc.count}})</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</li>
+</ul>
+</div></div></div></div></div>
+</footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
+</body>
+</html>

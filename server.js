@@ -79,10 +79,15 @@ var deactivateUsrAcctTemplate = properties.get("app.email.deactivateUserAcctTem"
 var reactivateUsrAcctTemplate = properties.get("app.email.reactivateUserAcctTem");
 var applyJobConfirmTemplate = properties.get("app.email.applyJobConfirmTem");
 var referJobTemplate = properties.get("app.email.referJobTem");
+var sendEmpMessageTemplate = properties.get("app.email.sendEmpMessageTem");
 var deactivateUsrSubject = properties.get("app.email.subjectDeactivateUsrAcct");
 var reactivateUsrSubject = properties.get("app.email.subjectReactivateUsrAcct");
 var confirmJobApplySubject = properties.get("app.email.subjectConfirmJobApply");
 var referJobSubject = properties.get("app.email.subjectReferJob");
+var sendEmpMsgSubject = properties.get("app.email.subjectEmpMessage");
+var accountSid = "AC42ad500c38340d173068052fa991c0f1";
+var authToken = "3d1a0a366252727c4d5c475c86c996be";
+var client = require('twilio')(accountSid, authToken);
 
 //Function added for encrypting the passwords in the Portal.
 function encrypt(pass){
@@ -129,6 +134,8 @@ function sendEmail(user,template,info,request){
 		subject = confirmJobApplySubject+" "+user.title;
 	} else if(template == referJobTemplate) {
 		subject = referJobSubject;
+	} else if(template == sendEmpMessageTemplate) {
+		subject = sendEmpMsgSubject;
 	}
 	
 	var smtpTransport = mailer.createTransport(emailTransport, {
@@ -180,6 +187,12 @@ function sendEmail(user,template,info,request){
 					  comments: user.comments,
 					  url: request.protocol+"://"+request.headers.host+"/searchJobs"
 				  }
+	 } else if(template == sendEmpMessageTemplate) {
+		 var data = {
+				  name: user.name,
+				  email: user.email,
+				  message: user.content				  
+			  }
 	 }
 	
       var mailOptions = {
@@ -668,7 +681,8 @@ app.get('/loggedin', function(req, res) {
 	//Display the pages after successful logout.
 	if(req.user != undefined) {
 	userModel.find({
-		email : req.user.email
+		email : req.user.email,
+		role : "user"
 	}, function(err, result) {
 		res.send(req.isAuthenticated() ? result[0] : "0")
 	});
@@ -690,12 +704,23 @@ app.get('/empLoggedin', function(req, res) {
 	}
 });
 
+app.get('/admLoggedin', function(req, res) {
+	//Display the pages after successful logout.
+	if(req.user != undefined) {
+	userModel.find({
+		email : req.user.email,
+		role : "admin"
+	}, function(err, result) {
+		res.send(req.isAuthenticated() ? result[0] : "0")
+	});
+	} else {
+		res.send("0");
+	}
+});
+
 //For Stripe payments.
 app.post("/plans/bluecollarhunt_dev", function(req, res) {
-	  //Create user in the Database
-	//var password = encrypt(req.body.password);
-	//req.body.password = password;
-	console.log(req.body.uid);
+	  //Create employer record in the Database
 	var empUniqueID = req.body.empUniqueID+randomNumber();
 	req.body.empUniqueID = empUniqueID;
 	var password = encrypt(req.body.password);
@@ -706,52 +731,61 @@ app.post("/plans/bluecollarhunt_dev", function(req, res) {
 		if (result) {
 			res.send("0");
 		} else {
+			//Process the payment information.
+			  stripe.customers.create({
+			    source : req.body.stripeToken,
+			    email : req.body.email, // customer's email
+			    plan : "bluecollarhunt_dev"
+			  }, function (err, customer) {
+			    if (err) {
+			      //var msg = customer.error.message || "Unknown";
+			      var msg = err.message;
+			      console.log("msg: "+msg);
+			      console.log("err: "+err);
+			      res.send(msg);
+			    }
+			    else {
+			      var id = customer.id;
+			      console.log('Success! Customer with Stripe ID ' + id + ' just signed up!');
+			      // save this customer to your database here!
+			      var newUser = new empModel(req.body);
+					newUser.save(function(err, user) {
+						if(req.body.saveCC == "Y") {
+							req.body.card.uid = user._id;
+							req.body.card.cardNumber = req.body.card.formatCardNumber;
+							var newPayment = new paymentModel(req.body.card);
+							newPayment.save(function(err, pymtUser) {
+								if(err) {
+									console.log("ERROR:while adding paymet source information "+err);
+									res.send(err);
+								} else { console.log("Payment Source added successfully"); }
+						  });
+						 }
+						sendEmail(user,empRegTemplate,req.headers.host,req);
+						res.send('success');
+						});
+			     }
+		});
+			/*
 			if(req.body.saveCC == "Y" && req.body.amount != 0) { 
-				var newPayment = new paymentModel(req.body.card);
-				newPayment.save(function(err, user) {
-					if(err) {
-						console.log("ERROR:paymet "+err);
-						res.send(err);
-					}
-					console.log("Payment Source added successfully");
 					var newUser = new empModel(req.body);
 					newUser.save(function(err, user) {
-						/* Disabled Auto Login after successful registration
-						req.login(user, function() {
-							res.json(user);
-						});
-						*/
-						//send email after successful registration.
+						req.body.card.uid = user._id;
+						console.log(req.body.card.uid);
+						var newPayment = new paymentModel(req.body.card);
+						newPayment.save(function(err, pymtUser) {
+							if(err) {
+								console.log("ERROR:while adding paymet source information "+err);
+								res.send(err);
+							} else { console.log("Payment Source added successfully"); }
 						sendEmail(user,empRegTemplate,req.headers.host,req);
-					    //End email communication here.	
-						res.send('success');
+						//res.send('success');
 					});
-				});
-			}
+			});
+		} */
 	  } 
 	});
-	
-	 //Process the payment information.
-	  stripe.customers.create({
-	    card : req.body.stripeToken,
-	    email : req.body.email, // customer's email
-	    plan : "bluecollarhunt_dev"
-	  }, function (err, customer) {
-	    if (err) {
-	      //var msg = customer.error.message || "Unknown";
-	      var msg = err.message;
-	      console.log("msg: "+msg);
-	      console.log("err: "+err);
-	      //res.send(msg);
-	    }
-	    else {
-	      var id = customer.id;
-	      console.log('Success! Customer with Stripe ID ' + id + ' just signed up!');
-	      // save this customer to your database here!
-	      res.send('success');
-	    }
-	  });
-	});
+});
 
 //For Free Employer Registrations.
 app.post("/empFreeRegister", function(req, res) {
@@ -911,7 +945,6 @@ app.post('/getUsers', function(req, res) {
 	*/
 	}
 });
-
 
 /*
 app.post('/getUserAddStatus', function(req, res) {
@@ -1299,6 +1332,24 @@ app.post('/getCandidatesBySkill', function(req, res) {
 		});
 });
 
+app.post('/getEmpJobCandStat', function(req, res) {
+	console.log("Job ID "+req.body.jobID);
+	userJobInfoModel.find({
+			jobID : req.body.jobID,
+			applicationStatus : req.body.appStatus
+		}, function(err, result) {
+			res.send(result);
+		});
+});
+
+app.post('/getAllEmpJobs', function(req, res) {
+	jobInfoModel.find({
+			employerID : req.body.empEmail
+		}, function(err, result) {
+			res.send(result);
+		});
+});
+
 app.post('/getCandidateList', function(req, res) {
 	console.log("Job ID "+req.body.jobID);
 	userJobInfoModel.find({
@@ -1317,6 +1368,30 @@ app.post('/applyJobPosting', function(req, res) {
 		} else {
 			sendEmail(result,applyJobConfirmTemplate,req.body.name,req);
 			res.send("success");
+		}
+	})
+});
+
+app.post('/updateCandidateJobStatus', function(req, res) {
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (result && result.email) {
+			userJobInfoModel.update({
+				email : req.body.email,
+				employerEmail : req.body.employerEmail,
+				jobID : req.body.jobID
+			}, {
+				applicationStatus : req.body.appStatus
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send('error')
+				}
+			})
 		}
 	})
 });
@@ -1359,14 +1434,15 @@ app.post('/updateEmpProfile', function(req, res) {
 			}, {
 				name : req.body.name,
 				contactNum : req.body.contactNum,
-				address1 : req.body.address1
+				address : req.body.address,
+				zipcode : req.body.zipcode
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
-					res.send('success')
+					res.send('success');
 				} else {
 					console.log('error');
-					res.send(err)
+					res.send(err);
 				}
 			})
 		}
@@ -1374,28 +1450,51 @@ app.post('/updateEmpProfile', function(req, res) {
 });
 
 app.post('/deactivateProfile', function(req, res) {
-	var handle = req.body.activateHandle+randomNumber();
-	userModel.findOne({
-		email : req.body.email
-	}, function(err, result) {
-		if (result && result.email) {
-			userModel.update({
-				email : req.body.email
-			}, {
-				activateHandle : encrypt(handle),
-				activeIn : req.body.activeIn
-			}, false, function(err, num) {
-				if (num.ok = 1) {
-					console.log('success');
-					sendEmail(result,deactivateUsrAcctTemplate,encrypt(handle),req);
-					res.send('success')
-				} else {
-					console.log('error');
-					res.send('error')
-				}
-			})
-		}
-	})
+	if(req.body.source != "admin") {
+		var handle = req.body.activateHandle+randomNumber();
+		userModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (result && result.email) {
+				userModel.update({
+					email : req.body.email
+				}, {
+					activateHandle : encrypt(handle),
+					activeIn : req.body.activeIn
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						sendEmail(result,deactivateUsrAcctTemplate,encrypt(handle),req);
+						res.send('success')
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			}
+		});
+	} else {
+		userModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (result && result.email) {
+				userModel.update({
+					email : req.body.email
+				}, {
+					activateHandle : "",
+					activeIn : req.body.activeIn
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						res.send('success');
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			}
+		});
+	}
 });
 
 app.post('/updateUserCoverpageInfo', function(req, res) {
@@ -1421,32 +1520,61 @@ app.post('/updateUserCoverpageInfo', function(req, res) {
 });
 
 app.post('/activateUser', function(req, res) {
-	userModel.findOne({
-		email : req.body.email,
-		activateHandle : req.body.activateHandle,
-		activeIn : "N"
-	}, function(err, result) {
-		if (result && result.email) {
-			userModel.update({
-				email : req.body.email
-			}, {
-				activateHandle : "",
-				activeIn : req.body.activeIn
-			}, false, function(err, num) {
-				if (num.ok = 1) {
-					console.log('success');
-					sendEmail(result,reactivateUsrAcctTemplate,req.headers.host,req);
-					res.send('success')
-				} else {
-					console.log('error');
-					res.send('error')
-				}
-			})
-		} else {
-			console.log("Either User not registered in portal or account is still active.");
-			res.send("Not Valid");
-		}
-	})
+	if(req.body.source != "admin") {
+		userModel.findOne({
+			email : req.body.email,
+			activateHandle : req.body.activateHandle,
+			activeIn : "N"
+		}, function(err, result) {
+			if (result && result.email) {
+				userModel.update({
+					email : req.body.email
+				}, {
+					activateHandle : "",
+					activeIn : req.body.activeIn
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						if(req.body.activateHandle != undefined) {
+							sendEmail(result,reactivateUsrAcctTemplate,req.headers.host,req);
+						}
+						res.send('success')
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			} else {
+				console.log("Either User not registered in portal or account is still active.");
+				res.send("Not Valid");
+			}
+		});
+	} else {
+		userModel.findOne({
+			email : req.body.email,
+			activeIn : "N"
+		}, function(err, result) {
+			if (result && result.email) {
+				userModel.update({
+					email : req.body.email
+				}, {
+					activateHandle : "",
+					activeIn : req.body.activeIn
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						res.send('success')
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			} else {
+				console.log("Either User not registered in portal or account is still active.");
+				res.send("Not Valid");
+			}
+		});
+	}
 });
 
 app.post('/saveEndorse', function(req, res) {
@@ -1804,57 +1932,83 @@ app.post('/delResume', function(req, res) {
 
 app.post('/deleteAccount', function(req, res) {
 	console.log("Deleting Profile inprogress..");
-	userModel.findOne({
-		email : req.body.email
-	}, function(err, result) {
-		if (!result) {
-			res.send("0");
-		} else {
-			endorsementModel.remove({
-				email : req.body.email
-			}, function(err, num) {
-				if(num.ok =1) {
-					console.log("Endorsements user records removed successfully.");
-				}
-			});
-			MongoClient.connect(mongodbUrl, function(err, db) {
-					
-					db.collection('fs.files')
-					  .find({ "metadata.email" : req.body.email })
-					  .toArray(function(err, files) {
-					    if (err) {
-					    	console.log("ERROR "+err);
-					    	res.send(err);
-					    }
-					    files.forEach(function(file) {
-					    	console.log("Iterating each file from collection.");
-					    	  var gridStore = new GridStore(db, file.filename,"r");
-					    	  console.log("Before opening gridstore.");
-							  gridStore.open(function(err, gridStore) {
-								var stream = gridStore.stream(true);
-								console.log("Before unlink file in gridstore.");
-							    gridStore.unlink(function(err, result) {
-							    	console.log("Deleting existing Profile "+result);
-							   });
-							   stream.on("end", function(err) {
-							       db.close();
-								   console.log("End of checking existing profile");
-							   });
-							  });
-					    });
-					  });
-			});
-			console.log("Deleting User Profile Completed..");
-			userModel.remove({
-				email : req.body.email
-			}, function(err, num) {
-				if(num.ok =1) {
-					console.log("User records completly removed from the Portal.");
-				}
-			});
-			res.send('success');
-		}
-	});
+	if(req.body.userType == 'U') {
+		userModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (!result) {
+				res.send("0");
+			} else {
+				endorsementModel.remove({
+					email : req.body.email
+				}, function(err, num) {
+					if(num.ok =1) {
+						console.log("Endorsements user records removed successfully.");
+					}
+				});
+				MongoClient.connect(mongodbUrl, function(err, db) {
+						
+						db.collection('fs.files')
+						  .find({ "metadata.email" : req.body.email })
+						  .toArray(function(err, files) {
+						    if (err) {
+						    	console.log("ERROR "+err);
+						    	res.send(err);
+						    }
+						    files.forEach(function(file) {
+						    	console.log("Iterating each file from collection.");
+						    	  var gridStore = new GridStore(db, file.filename,"r");
+						    	  console.log("Before opening gridstore.");
+								  gridStore.open(function(err, gridStore) {
+									var stream = gridStore.stream(true);
+									console.log("Before unlink file in gridstore.");
+								    gridStore.unlink(function(err, result) {
+								    	console.log("Deleting existing Profile "+result);
+								   });
+								   stream.on("end", function(err) {
+								       db.close();
+									   console.log("End of checking existing profile");
+								   });
+								  });
+						    });
+						  });
+				});
+				console.log("Deleting User Profile Completed..");
+				userModel.remove({
+					email : req.body.email
+				}, function(err, num) {
+					if(num.ok =1) {
+						console.log("User records completly removed from the Portal.");
+					}
+				});
+				res.send('success');
+			}
+		});
+	} else {
+		empModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (!result) {
+				res.send("0");
+			} else {
+				jobInfoModel.remove({
+					employerID : req.body.email
+				}, function(err, num) {
+					if(num.ok =1) {
+						console.log("Employer Job records removed successfully.");
+					}
+				});
+				empModel.remove({
+					email : req.body.email
+				}, function(err, num) {
+					if(num.ok =1) {
+						console.log("Employer records completly removed from the Portal.");
+					}
+				});
+				res.send('success');
+			}
+		});
+	}
 });
 
 app.post('/requestAddContact', function(req, res) {
@@ -2253,6 +2407,427 @@ app.post('/changeEmpPasswd', function (req, res) {
         }
     })
 });
+
+//Services related to Admin Functionality.
+app.post('/getUserMediaItems', function(req, res) {
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if(result) {
+			MongoClient.connect(mongodbUrl, function(err, db) {
+				db.collection('fs.files')
+				  .find({ "metadata.email" : req.body.email})
+				  .toArray(function(err, files) {
+				    if (err) {
+				    	console.log("ERROR "+err);
+				    	throw err;
+				    }
+				    if(files.length > 0) res.send(files);
+				    else res.send("NoItems");
+				  });
+			});
+		}
+	});
+});
+
+app.post('/getAllUsers', function(req, res) {
+	if(req.body.email != undefined) {
+	var query = req.body.search ? {
+		email : req.body.email
+	} : {
+		email : req.body.email
+	}
+	userModel.find(query).exec(function(err, result) {
+		res.send(result)
+	})
+	} else {
+	userModel.find({ email: { $ne: req.body.currEmail }}).exec(function(err, result) {
+		res.send(result)
+	})
+	}
+});
+
+app.post('/getAllEmployers', function(req, res) {
+	if(req.body.email != undefined) {
+	var query = req.body.search ? {
+		email : req.body.email
+	} : {
+		email : req.body.email
+	}
+	empModel.find(query).exec(function(err, result) {
+		res.send(result)
+	})
+	} else {
+	empModel.find({ email: { $ne: req.body.currEmail }}).exec(function(err, result) {
+		res.send(result)
+	})
+	}
+});
+
+app.post('/deactivateEmpProfile', function(req, res) {
+		empModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (result && result.email) {
+				empModel.update({
+					email : req.body.email
+				}, {
+					activeIn : req.body.activeIn
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						res.send('success')
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			}
+		});
+});
+
+app.post('/activateEmployer', function(req, res) {
+		empModel.findOne({
+			email : req.body.email,
+			activeIn : "N"
+		}, function(err, result) {
+			if (result && result.email) {
+				empModel.update({
+					email : req.body.email
+				}, {
+					activeIn : req.body.activeIn
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						res.send('success')
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			} else {
+				console.log("Either employer not registered in portal or account is still active.");
+				res.send("Not Valid");
+			}
+		});
+});
+
+app.post('/getProfileLogo', function(req, res) {
+	var email = req.body.search;
+	empModel.findOne({
+		email : req.body.search
+	}, function(err, result) {
+		if(result) {
+			console.log("After user found in db");
+			MongoClient.connect(mongodbUrl, function(err, db) {
+				db.collection('fs.files')
+				  .find({ "metadata.email" : email, "metadata.type" : "profilePic"})
+				  .toArray(function(err, files) {
+				    console.log("After fs.files..");
+				    if (err) {
+				    	console.log("ERROR "+err);
+				    	res.send(err);
+				    }
+				    if(files.length > 0) {
+					    files.forEach(function(file) {
+					      
+					    	  var gridStore = new GridStore(db, file.filename,"r");
+							  gridStore.open(function(err, gridStore) {
+								var stream = gridStore.stream(true);
+							    gridStore.read(function(err, dataURL) {
+							    	console.log("Stream reading..");
+							    	res.send(dataURL);
+							   });
+							   stream.on("end", function(err) {
+							       db.close();
+							   });
+							   if(err) res.send(err);
+							  });
+							  console.log("Finished stream retrieval from MongoDB");
+					    });
+				    } else {
+				    	res.send('NoProfilePic');
+				    }
+				  });
+			});
+		}
+	});
+});
+
+app.post('/updateProfile', function(req, res) {
+	if(req.body.userType == 'U') {
+		userModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (result && result.email) {
+				userModel.update({
+					email : req.body.email
+				}, {
+					firstName : req.body.firstName,
+					lastName : req.body.lastName,
+					zipcode : req.body.zipcode,
+					primarySkill : req.body.primarySkill,
+					contactNum : req.body.contactNum,
+					gender : req.body.gender
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						res.send('success')
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			}
+		});
+	} else {
+		empModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (result && result.email) {
+				empModel.update({
+					email : req.body.email
+				}, {
+					name : req.body.name,
+					contactNum : req.body.contactNum,
+					address : req.body.address,
+					zipcode : req.body.zipcode
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						res.send('success');
+					} else {
+						console.log('error');
+						res.send(err);
+					}
+				})
+			}
+		});
+	}
+});
+
+app.post("/generateEmpID", function(req, res) {
+	var empUniqueID = req.body.empUniqueID+randomNumber();
+	req.body.empUniqueID = empUniqueID;
+	empModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (!result) {
+			res.send("0");
+		} else {
+			empModel.update({
+				email : req.body.email
+			}, {
+				empUniqueID: req.body.empUniqueID
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					//Send forgot uniqueEmpID email
+					var smtpTransport = mailer.createTransport(emailTransport, {
+				        service: 'Gmail',
+				        auth: {
+				          user: serviceUser,
+				          pass: decrypt(servicePasswd)
+				        }
+				      });
+				      var data = {
+				    	  url: "http://"+req.headers.host+"/empSignIn",
+				    	  ID: req.body.empUniqueID,
+						  name: req.body.name
+					  }
+				      var mailOptions = {
+				        to: req.body.email,
+				        from: emailFrom,
+				        subject: forgotUniqueIDSubject,
+				        html: renderTemplate(forgotUniqueIDTemplate,data)
+				      };
+				      smtpTransport.sendMail(mailOptions, function(err,response) {
+				        if (err) {
+							console.log(err);
+							res.send(err);
+						 } else {
+							console.log('An e-mail has been sent to ' + req.body.email);
+							console.log("Message sent: " + response.message);
+						 }
+				    	 smtpTransport.close();
+				      });
+					res.send('success');
+				} else {
+					console.log('error');
+					res.send(err);
+				}
+			})
+		}
+	  });
+});
+
+app.post('/changePass', function (req, res) {
+	userModel.find({ 
+		email:req.body.email
+		}, function (err, result) {
+        if (result && result.length != 0) {
+            userModel.update({email:req.body.email},{$set:{password:encrypt(req.body.password2)}},false,
+            		function (err, num){
+                		if (num.ok == 1){
+                			console.log('success');
+                			//send email after successful registration.
+                			var smtpTransport = mailer.createTransport(emailTransport, {
+                				service : "Gmail",
+		    					auth : {
+		    						user : serviceUser,
+		    						pass : decrypt(servicePasswd)
+		    					}
+                			});
+		    				var data = {
+		    			            password: req.body.password2,
+		    			            name: result.firstName,
+		    			            url: req.protocol+"://"+req.headers.host+"/login"
+		    			            
+		    				}
+		    				var mail = {
+		    					from : emailFrom,
+		    					to : req.body.email,
+		    					subject : emailChangePwdSubject,
+		    					html: renderTemplate(chgPwdTemplate,data)
+		    				}
+
+		    				smtpTransport.sendMail(mail, function(error, response) {
+		    					if (error) {
+		    						console.log(error);
+		    					} else {
+		    						console.log("Message sent: " + response.message);
+		    					}
+		    				   smtpTransport.close();
+		    				});
+		    				//End email communication here.
+		    		res.send('success')
+                } else {
+                	console.log('error');
+                    res.send('error')
+                }
+            })
+        } else {
+            res.send('incorrect')
+        }
+    });
+});
+
+app.post('/getAllFeedbacks', function(req, res) {
+	if(req.body.searchDate != undefined) {
+	var query = req.body.searchDate ? {
+		msgDate : req.body.searchDate
+	} : {
+		msgDate : req.body.searchDate
+	}
+	contactModel.find(query).exec(function(err, result) {
+		res.send(result)
+	})
+	} else {
+	contactModel.find().exec(function(err, result) {
+		res.send(result);
+	})
+	}
+});
+
+app.post('/getMessageDetails', function(req, res) {
+	contactModel.findOne( { _id:req.body.search } ).exec(function(err, result) {
+		res.send(result);
+	});
+});
+
+app.post('/updateFeedbackMessage', function(req, res) {
+		contactModel.findOne({
+			_id : req.body.id
+		}, function(err, result) {
+			if (result && result._id) {
+				contactModel.update({
+					_id : req.body.id
+				}, {
+					adminComments: req.body.comments,
+					status: req.body.status,
+					responseDate: req.body.updatedDate,
+					respondedBy: req.body.updatedBy
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						//sendEmail(null,sendFeedbackResponseTemplate,null,req);
+						res.send('success')
+					} else {
+						console.log('error');
+						res.send('error')
+					}
+				})
+			}
+		});
+});
+
+app.post('/getEmpPaymentInfo', function(req, res) {
+	paymentModel.find({email : req.body.email }).exec(function(err, result) {
+		res.send(result);
+	});
+});
+
+app.post('/deleteCardInfo', function(req, res) {
+	paymentModel.remove({
+		_id : req.body.pymtID
+	}, function(err, num) {
+		if(num.ok =1) {
+			console.log("Card Info "+req.body.pymtID+" removed successfully.");
+			res.send('success');
+		}
+	});
+});
+
+app.post('/processCall', function(req, res) {
+	client.calls.create({
+	    url: req.body.demoUrl,
+	    to: req.body.toNumber,
+	    from: req.body.fromNumber
+	}, function(err, call) {
+	    //process.stdout.write(call);
+	    res.send('success');
+	});
+});
+
+app.post('/sendEmailMessage', function(req, res) {
+	sendEmail(req.body,sendEmpMessageTemplate,null,req);
+	res.send('success');
+});
+
+app.post('/getEmpReportData', function(req, res) {
+	if(req.body.type == 'EJR') {
+		jobInfoModel.find({employerID : req.body.email}).exec(function(err, result) {
+			res.send(result);
+		});
+	} else {
+		userJobInfoModel.find({employerEmail : req.body.email}).exec(function(err, result) {
+			res.send(result);
+		});
+	}
+});
+
+app.post('/getAdmReportData', function(req, res) {
+	if(req.body.repType == "emp" && req.body.email == "") {
+		jobInfoModel.find().exec(function(err, result) {
+			res.send(result);
+		});
+	} else if(req.body.repType == "emp" && req.body.email != "") {
+		jobInfoModel.find({employerID : req.body.email}).exec(function(err, result) {
+			res.send(result);
+		});
+	} else if(req.body.repType == "seeker" && req.body.email == "") {
+		userJobInfoModel.find().exec(function(err, result) {
+			res.send(result);
+		});
+	} else if(req.body.repType == "seeker" && req.body.email != "") {
+		userJobInfoModel.find({email : req.body.email}).exec(function(err, result) {
+			res.send(result);
+		});
+	}
+});
+
+/* End services related to Admin Controller */
+
 
 app.all('/*', function(req, res, next) {
 	// Just send the index.html for other files to support HTML5Mode

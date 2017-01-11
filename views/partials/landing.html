@@ -15,6 +15,7 @@
     				<li class="color customLink active"><a href="/" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
       				<li class="color customLink"><a href="/login" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Seeker</font></a></li>
 					<li class="color customLink"><a href="/empSignIn" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Employer</font></a></li>
+					<li class="color customLink"><a href="/adminLogin" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Admin</font></a></li>
 					<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
     			</ul>
   			</div>
@@ -51,12 +52,15 @@
 
 <div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:560px;width:728px;float:right;margin-bottom:0px;">
 <div class="panel-body" style="padding:0px;" data-ng-init="searchJobs()">
-<div style="text-align:left;padding:15px;" ng-show="jobResults == 2 && jobInfo">
+<div style="text-align:left;padding:10px;padding-top:0px;" ng-show="jobResults == 2 && jobInfo">
 			<h3 style="color:#3399FF">{{jobInfo.title}} [{{jobInfo.jobID}}]</h3>
-			<a href="/upload"><button style="width: 115px; height: 42px; padding:0px;margin:-30px 0px 0px 520px;position:fixed;" class="btnCustom"  ng-click="" ng-disabled="">
+			<a href="" ng-click="loginAndApply(jobInfo.jobID)"><button style="width: 115px; height: 42px; padding:0px;margin:-30px 0px 0px 540px;position:fixed;" class="btnCustom"  ng-click="" ng-disabled="">
 				<span class="glyphicon"></span>Apply
 			</button></a>
-			<h4>{{jobInfo.companyName}}, {{jobInfo.location}}</h4>
+			<h4>{{jobInfo.companyName}}, {{jobInfo.location}}
+			&emsp;&emsp;<div linkedin class="linkedinShare" data-url='{{shareUrl}}' data-title='{{jobInfo.title}}   [{{jobInfo.location}}]' data-summary="{{jobInfo.requirement.substring(0,250)}}" data-shares='linkedinshares'>{{linkedinshares}}</div>	
+			&emsp;<a twitter data-count='horizontal' data-url='{{shareUrl}}'  data-size="medium" data-text='{{jobInfo.requirement.substring(0,100)}}' ></a>
+			</h4>
 			<br/>
 			<h4 style="color:#3399FF;"><strong>Responsibilities :</strong></h4>
 			<h5 style="white-space: pre-line;">{{jobInfo.responsibilities}}</h5>
@@ -64,7 +68,8 @@
 			<h4 style="color:#3399FF"><strong>Requirement : </strong></h4>
 			<h5 style="white-space: pre-line;">{{jobInfo.requirement}}</h5>
 			<br/>
-			<h5><strong>Salary Rate : </strong>${{jobInfo.rate}} {{jobInfo.salaryType}}</h5>
+			<h5><strong>Salary Rate : </strong>${{jobInfo.rate}} {{jobInfo.salaryType}}
+			</h5>
 </div>
 <!-- UNCOMMENT in the finish of development
 <div ng-show="searchResults != 1 && jobResults != 2" style="text-align:center;">

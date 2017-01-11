@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blue Collar Hunt Admin Reports Page</title>
+  </head>
+<body>
+<div class="navbar navbar-inverse" style="width:100%;height:50%;border:0px solid #000;background-color:#3399FF;margin-bottom:3px;">
+ 			 <div class="container-fluid">
+    			<div class="navbar-header">
+      				<a class="navbar-brand" href="#" style="color:white;font-size:24px;padding-left:30px;font-weight:bold;">BlueCollarHunt</a>
+    			</div>
+    			<ul class="nav navbar-nav navbar-right">
+    			    <li class="color customLink"><a href="/admin" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Home</font></a></li>
+					<li class="color customLink"><a href="/editAdmProfile" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Profile</font></a></li>
+					<li class="color customLink"><a href="/admChangePass" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Change Password</font></a></li>
+		  			<li class="color customLink"><a href="/contact" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">Contact Us</font></a></li>
+		  			<li class="color customLink"><a href="" ng-click="logout()" style="text-decoration: none"><font style="text-align:center;" size="4" color="white">SignOut</font></a></li>
+    			</ul>
+  			</div>
+</div>
+<div class="container" style="padding-left:0px;">
+<div class="row" style="height:201px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;">
+<div class="panel-body" style="padding:60px;height:175px;">
+    <a href="/admin"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
+	<div style="margin:-175px 0px 0px 120px">
+	<fieldset class="scheduler-border">
+    <legend class="scheduler-border">Report Generation</legend>
+	 <table>
+	 <tr>
+	 <td>
+	 
+					<label style="font-size: 18px;margin-left:10px;">Report Type:</label>
+					<div style="margin:-80px 0px 0px 130px">
+				    <div style="clear: both;display:inline-block;" class="control-group">
+						<input type="radio" name="radio1" id="seeker" class="radio" ng-model="repType" value="seeker" ng-click="changeReportSelection()"/>
+						<label for="seeker" style="width: 125px;border-radius: 3px; border: 1px solid #D1D3D4">Seeker</label>
+				    </div>
+						
+					<div style="clear: both;display:inline-block;margin-left:10px;" class="control-group">
+						<input type="radio" name="radio2" id="employer" class="radio" ng-model="repType" value="emp" ng-click="changeReportSelection()"/>
+						<label for="employer" style="width: 125px;border-radius: 3px; border: 1px solid #D1D3D4">Employer</label>
+					</div>
+					</div>
+	 </td>
+	 </tr>
+	 </table>
+			</fieldset>
+		</div>
+	<div class="form-group" style="margin:-85px 0px 0px 150px">
+				
+				    <table>
+				    
+				    <tr>
+				    <td nowrap style="vertical-align:middle">
+					<label for="search" style="font-size: 18px">Email ID:</label>
+					</td>
+					<td style="width:20px"></td>
+					<td>
+					<input id="search" class="form-control" style="width: 420px; height: 40px" type="text" ng-model="report.search" placeholder="Search By Seeker or Employer Email ID" ng-required="true">
+					</td>
+					<td style="padding-left:15px;">
+					<button class="btnCustom" style="width:104px;height:40px;padding:0px;border-radius:20px;margin-top:-10px;" ng-click="generateAdminReport(report)">
+					Generate
+					</button>
+					</td>
+					<td style="padding-left:15px;">
+					<a href="/admin"><button class="btnCustom" style="width:104px;height:40px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;margin-top:-10px;">Cancel</button></a>
+					</td>
+					<td colspan="2"></td>
+					</tr></table>
+	</div>
+	
+</div></div></div></div></div>
+
+<div class="container" style="padding-left:0px;margin-top:-20px;">
+<div class="row" style="height:646px;">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:640px;">
+<div class="panel-body" style="padding:15px;">
+			<div class="btn-group" ng-show="allReportInfo.length > 0" style="margin-bottom:10px;" dropdown>
+					<button type="button" class="btn btn-warning dropdown-toggle" style="height:40px;width:180px;font-size:16px;font-weight:bold;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    		<span class="caret"></span>
+			    		<span class="sr-only">Toggle Dropdown</span>
+			    	 Download Report
+			  		</button>
+				  	<ul class="dropdown-menu" role="menu">
+					    <li><a href="" onClick="$('#admReport').tableExport({type:'pdf',pdfFontSize:'7',escape:'false'});">PDF</a></li>
+					    <li><a href="" onClick="$('#admReport').tableExport({type:'csv',escape:'false'});">CSV</a></li>
+					    <li><a href="" onClick="$('#admReport').tableExport({type:'png',escape:'false'});">PNG</a></li>
+					    <li role="separator" class="divider"></li>
+					    <li><a href="" onClick="$('#admReport').tableExport({type:'excel',escape:'false'});">EXCEL</a></li>
+				  	</ul>
+			</div>
+			<!-- Content  -->
+			<div  style="border:3px solid #5BC0DE;height:100%" ng-show="allReportInfo.length > 0">
+			<table id="admReport" class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3" ng-if="repType == 'emp'">
+					<th>Job Title</th>
+					<th>Location</th>
+					<th>Company</th>
+					<th>Rate</th>
+					<th>Post Date</th>
+				</tr>
+				<tr style="background-color:#D3D3D3" ng-if="repType == 'seeker'">
+					<th>Job ID</th>
+					<th>Job Title</th>
+					<th>Email</th>
+					<th>Status</th>
+					<th>Date Applied</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="report in partialReportInfo" ng-click="" style="padding-top: 10px;cursor: pointer;" ng-if="repType == 'emp'">
+					<td style="padding: 10px;"><strong>{{report.title}}</strong></td>
+					<td style="padding: 10px;">{{report.location}}</td>
+					<td style="padding: 10px;">{{report.companyName}}</td>
+					<td style="padding: 10px;">${{report.rate}} {{report.salaryType}}</td>
+					<td style="padding: 10px;">{{report.origPostDate}}</td>
+				</tr>
+				<tr ng-repeat="report in partialReportInfo" ng-click="" style="padding-top: 10px;cursor: pointer;" ng-if="repType == 'seeker'">
+					<td style="padding: 10px;"><strong>{{report.jobID}}</strong></td>
+					<td style="padding: 10px;">{{report.title}}</td>
+					<td style="padding: 10px;">{{report.email}}</td>
+					<td style="padding: 10px;" ng-if="report.applicationStatus == 'SL'">Short-Listed</td>
+					<td style="padding: 10px;" ng-if="report.applicationStatus == 'IR' || report.applicationStatus == ''">InReview</td>
+					<td style="padding: 10px;">{{report.dateApplied}}</td>
+				</tr>
+				<tr ng-show="allReportInfo.length <= 0 && allReportInfo != ''">
+				<td colspan="5" align="center"><h4 style="color:red">No Data available or please select the valid criteria</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialReportInfo.length > 0">
+				<td></td><td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentReportPage"
+				      total-items="allReportInfo.length"
+				      max-size="maxReportSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+		<!-- Table Content end. -->
+	</div></div></div></div>
+</div>
+	<!-- Footer -->
+	<footer>
+<div class="container" style="padding-left:0px;">
+<div class="row">
+<div class="col-xs-50 col-md-40">
+<div class="panel panel-default site-panel-box" style="height:175px;margin-bottom:-12px;">
+<div class="panel-body" style="padding:55px;">
+</div></div></div></div></div>
+</footer>
+<div style="width:100%;height:90px;border:0px solid #000;background-color:#3399FF;">
+	<p class="copyright" style="padding-top:60px;color:white;font-size:15px;">&copy; 2016 Blue Collar Hunt Inc. All rights reserved.</p>
+</div>
+	</body>
+</html>

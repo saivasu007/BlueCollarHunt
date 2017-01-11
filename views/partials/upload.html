@@ -110,21 +110,24 @@
 				</thead>
 				<tbody>
 				<tr ng-repeat="resume in resumeList">
-					<td>{{resume.filename}}</td>
-					<td>{{resume.contentType}}</td>
-					<td>{{resume.length}}</td>
-					<td>{{resume.uploadDate}}</td>
-					 <td ng-show="isLinkToJob == true">
+					<td style="padding-top:12px;"><b>{{resume.filename}}</b></td>
+					<td style="padding-top:12px;">{{resume.contentType}}</td>
+					<td style="padding-top:12px;">{{resume.length}}</td>
+					<td style="padding-top:12px;">{{resume.uploadDate}}</td>
+					 <td style="padding-top:12px;" ng-show="isLinkToJob == true">
 					 <input id="resume" type="radio" autocomplete="off" ng-model="resumeID" value="{{resume._id}}" ng-true-value="{{resumeID}}" ng-change="setResumeID(resume)">
 					 </td>
-					<td>
+					<td style="padding-top:4px;">
 					<!-- 
 					<button  class="btn btn-info" ng-click="deleteResume(resume.filename)">
 					<span class="glyphicon glyphicon-eye-open"></span>Remove 
 					</button>
-					-->
 					<button class="btnCustom btn-warning" style="width:92px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border-color: #eea236" ng-click="deleteResume(resume.filename)">
 					Remove
+					</button>
+					-->
+					<button  class="btnCustom btn-danger" ng-click="deleteResume(resume.filename)" style="width: 72px; height: 34px; font-size: 18px; padding:0px;background:#d9534f">
+					 <span class="glyphicon glyphicon-trash"></span> 
 					</button>
 					</td>
 				</tr>

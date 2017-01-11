@@ -2,12 +2,14 @@ var express = require('express');
 var mongoose = require('mongoose');
 
 var paymentSchema = new mongoose.Schema({
-	uid: String,
+	uid: Object,
+	email: String,
 	cardNumber: Number,
     cardMM: Number,
     cardYYYY: Number,
-    cvc: Number,
+    cvc: String,
     cardName: String,
+    defaultCC: String,
     lastUpdated: Date
 });
 

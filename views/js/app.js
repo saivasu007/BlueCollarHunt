@@ -3,8 +3,7 @@
  * @author : Srinivas Thungathurti
  * @description : Created for Capstone Project Blue Collar Hunt
  */
-var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash']);
-
+var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash','djds4rce.angular-socialshare']);
 
 app.directive("ngFileSelect",function(){
 	  return {
@@ -63,7 +62,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 			email:"",
 			name:"",
 			contactNum:"",
-			address1:"",
+			address:"",
 			passwd2:"",
 			passwd1:"",
 			userType:"E",
@@ -229,19 +228,46 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 			$scope.user.role = "user";
 			$http.post('/register', user).success(function (response) {
 				if (response != "0") {
-					alert("Success! Please login with your registered email \"" + user.email + "\" and password you created.");
+					swal("Success","Please login with your registered email.","success");
 					//$rootScope.currentUser = undefined;
 					//$scope.user = undefined;				
 					$scope.logout();
 				} else {
-					alert("Sorry, the account \"" + user.email + "\" has already been registered! Please create a new one.")
+					swal("Ooops","Sorry, the account \"" + user.email + "\" has already been registered!","error");
 				}
 			})
 		}
 	};
 	
+	$scope.validateCard = function () {
+		if($scope.emp.cardNumber != undefined) {
+			var validCard = Stripe.card.validateCardNumber($scope.emp.cardNumber);
+				if(!validCard) {
+					swal("Please specify a valid credit card number.");
+				}
+		}
+	}
+	
+	$scope.validateExpiry = function () {
+		if($scope.emp.cardMM != undefined || $scope.emp.cardYYYY != undefined) {   
+			var validExpiry = Stripe.card.validateExpiry($scope.emp.cardMM, $scope.emp.cardYYYY);
+				if(!validExpiry) {
+					swal("Please specify a valid credit card expiry month & year.");
+				}
+		}
+	}
+	
+	$scope.validateCVC = function () {
+		if($scope.emp.cvc != undefined) {
+		   var validCVC = Stripe.card.validateCVC($scope.emp.cvc);
+			  if(!validCVC) {
+				  swal("Please specify a valid credit card CVC.");
+			  }
+		}
+	}
+	
 	$scope.empRegister = function(emp) {
-		if ($scope.emp.email == "" || $scope.emp.name == "" || $scope.emp.contactNum == "" || $scope.emp.address1 == "" || $scope.emp.passwd2 == "" || $scope.emp.passwd1 == "" || $scope.emp.amount == undefined) {
+		if ($scope.emp.email == "" || $scope.emp.name == "" || $scope.emp.contactNum == "" || $scope.emp.address == "" || $scope.emp.passwd2 == "" || $scope.emp.passwd1 == "" || $scope.emp.amount == undefined) {
 			$scope.errorMsg = true;
 			Flash.create('Warning', "Please fill in all the blanks.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 		} else if($scope.emp.passwd1 != $scope.emp.passwd2) {
@@ -258,25 +284,29 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 		if(emp.passwd1 == emp.passwd2) emp.password = emp.passwd1;
 		var cardMM = emp.cardExpiry.substring(0,2);
 		var cardYYYY = emp.cardExpiry.substring(5,9);
+		var re = /(\d)\s+(?=\d)/g;
 		Stripe.card.createToken({
 		    number: emp.cardNumber,
 		    cvc: emp.cvc,
 		    exp_month: cardMM,
 		    exp_year: cardYYYY
 		  }, amount, function(status,response) {
-			  emp.stripeToken = response.id;
+			  var pStripeToken = response.id;
 				var empData = {
+						stripeToken: pStripeToken,
 						email: emp.email,
 						uid: emp.uid,
 						password: emp.password,
 						empUniqueID : emp.name.substring(0,4),
 						contactNum: emp.contactNum,
 						name: emp.name,
-						address: emp.address1,
+						address: emp.address,
 						activeIn: emp.activeIn,
 						expiryDate: emp.expiryDate,
 						subscriber: emp.subscriber,
+						zipcode: emp.zipcode,
 						userType: "E",
+						activeIn: "Y",
 						saveCC: saveCardInfo,
 						card:{
 							uid: emp.uid,
@@ -285,18 +315,20 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 							cardYYYY: cardYYYY,
 							cardName: emp.cardName,
 							cvc: emp.cvc,
+							email: emp.email,
+							formatCardNumber: emp.cardNumber.replace(re, '$1'),
 							lastUpdated: moment(new Date()).format('MM/DD/YYYY, h:mm:ss a')
 						}
 				}
 				$http.post('/plans/bluecollarhunt_dev', empData).success(function (resp) {
-					if (resp != "0") {
-						alert("Success! Please check your registered email for UniqueID.");					
-						$location.path('/empSignIn');
+					if (resp != "0" && resp == "success") {
+						swal("Done","Please check your registered email for UniqueID.","success");					
+						$location.url('/empSignIn');
 					} else {
-						alert("Ooops, there is a issue and Please try again!!")
+						swal("Ooops","Error message!! "+resp,"error");
 					}
 				}).error(function (err) {
-					alert("ERROR: "+err.message);
+					swal("ERROR: "+err.message);
 				});
 				//return;
 		  });
@@ -308,25 +340,27 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 					empUniqueID : emp.name.substring(0,4),
 					contactNum: emp.contactNum,
 					name: emp.name,
-					address: emp.address1,
+					address: emp.address,
 					activeIn: emp.activeIn,
 					expiryDate: emp.expiryDate,
 					subscriber: emp.subscriber,
+					zipcode: emp.zipcode,
 					userType: "E",
+					activeIn: "Y",
 					saveCC: "NA"
 				}
 				$http.post('/empFreeRegister', empData).success(function (resp) {
 					if (resp != "0") {
-						alert("Success! Please check your registered email for UniqueID.");
+						swal("Done","Please check your registered email for UniqueID.","success");
 						$rootScope.currentUser = null;					
 						$location.path('/empSignIn');
 					} else if(resp == "0"){
-						alert("Employer "+emp.email+" already registered in the portal.");
+						swal("Ooops","Employer "+emp.email+" already registered in the portal.","error");
 					} else {
-						alert("Ooops, there is an issue and Please try again!!");
+						swal("Ooops","Error message!! "+resp,"error");
 					}
 				}).error(function (err) {
-					alert("ERROR: "+err.message);
+					swal("ERROR: "+err.message);
 				});
 		}
 	  }
@@ -376,6 +410,8 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 			$location.url('/login');
 			$rootScope.currentUser = undefined;
 			$rootScope.user = undefined;
+			$scope.currentUser = undefined;
+			$scope.user = undefined;
 		})
 	};
 });
@@ -457,6 +493,7 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 		$http.post('/getJobInfo',postData).success(function (response) {
 			$scope.jobInfo = response;
 			$rootScope.jobID = $scope.jobInfo.jobID;
+			$scope.shareUrl = $location.protocol() + '://'+ $location.host() +':'+  $location.port()+'/searchJobs?jobID='+$scope.jobInfo.jobID;
 			$scope.jobResults = 2;
 			$location.url('/');
 		}).error(function (err) {
@@ -525,6 +562,37 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 			});
 		}
 	}
+	
+	$scope.loginAndApply = function(jobID) {
+		var postData = {
+				search: jobID
+		}
+		
+		$http.post('/getJobInfo',postData).success(function (response) {
+			$rootScope.jobInfo = response;
+			$rootScope.jobDetails = $rootScope.jobInfo;
+			$rootScope.jobResults = 2;
+			$http.post('/getJobsByID',postData).success(function (response1){
+				$rootScope.jobsList = response1;
+				
+				if($rootScope.jobsList.length <= 0) {
+					$rootScope.noJobs = true;
+					$rootScope.searchResults = 3;
+					$rootScope.counter = 2;
+					$location.url('/upload');
+				} else {
+					$rootScope.noJobs = false;
+					$rootScope.searchResults = 1;
+					$rootScope.counter = 2;
+					$location.url('/upload');
+				}
+			}).error(function (err) {
+				console.log(err);
+			});	
+	}).error(function (err) {
+			console.log(err);
+	});
+  }
 	
 	$scope.pressEnter = function (e,jobInfo) {
 		if (e.keyCode == 13){
@@ -655,7 +723,7 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 				Flash.create('warning', "Email ID not registered.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 				return;
 			} else {
-				alert(err);
+				swal(err);
 			}
 		})
 	  }
@@ -726,7 +794,7 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 			$location.url('/login');
 		}).error(function (err) {
 			if(err) {
-				alert("Not a valid user information");
+				swal("Ooops","Not a valid user information","error");
 			}
 		})
 	};
@@ -744,7 +812,8 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
-			$location.url('/login');
+			if($rootScope.currentUser.role == "admin") $location.url('/adminLogin');
+			else $location.url('/login');
 			$rootScope.currentUser = undefined;
 			$scope.user = undefined;
 		})
@@ -854,11 +923,11 @@ app.controller('empLoginCtrl', function ($scope, $rootScope, $http, $routeParams
 		}
 		$http.post('/forgot', postData).success(function (response){
 			console.log(response);
-			alert("Please check the registered email for instructions.");
+			swal("Done","Please check the registered email for instructions.","success");
 			$location.url('/login');
 		}).error(function (err) {
 			if(err = "NotFound" ) {
-				alert("Email ID not registered in Blue Collar Hunt Portal.");
+				swal("Ooops","Email ID not registered in Blue Collar Hunt Portal.","error");
 			}
 		})
 	};
@@ -892,12 +961,12 @@ app.controller('empLoginCtrl', function ($scope, $rootScope, $http, $routeParams
 					Flash.create('warning', "Email not registered in Blue Collar.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 					return;
 				} else {
-					alert("Please check the registered email for instructions.");
+					swal("Done","Please check the registered email for instructions.","success");
 					$location.url('/empSignIn');
 				}
 			}).error(function (err) {
 				if(err == "NotFound" ) {
-					alert("Email ID not registered in Blue Collar Hunt Portal.");
+					swal("Ooops","Email ID not registered in Blue Collar Hunt Portal.","error");
 				} else {
 					alert(err);
 				}
@@ -912,11 +981,11 @@ app.controller('empLoginCtrl', function ($scope, $rootScope, $http, $routeParams
 		}
 		$http.post('/reset', postData).success(function (response){
 			console.log(response);
-			alert("Password Updated Successfully.");
+			swal("Done","Password Updated Successfully.","success");
 			$location.url('/login');
 		}).error(function (err) {
 			if(err) {
-				alert("Error while updating password.Please try again!.");
+				swal("Ooops","Error while updating password.Please try again!.","error");
 			}
 		})
 	};
@@ -978,13 +1047,13 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         };
 		
 		$http.post('/uploadProfileResume',postData).success(function (response) {
-			alert("Upload resume Success");
+			swal("Done","Upload resume Success","success");
 			$scope.listProfileResume();
 			if($rootScope.isLinkToJob == true) $scope.uploadAndApply();
 			else $scope.uploadCV();
 		}).error(function (err) {
 			if(err) {
-				alert("Error while uploading resume and Please try again!.");
+				swal("Ooops","Error while uploading resume and Please try again!.","error");
 			}
 		});
         console.log('onCompleteItem', fileItem, response, status, headers);
@@ -1080,6 +1149,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		$http.post('/getJobInfo',postData).success(function (response) {
 			$scope.jobInfo = response;
 			$rootScope.jobDetails = $scope.jobInfo;
+			$rootScope.shareUrl = $location.protocol() + '://'+ $location.host() +':'+  $location.port()+'/searchJobs?jobID='+$scope.jobInfo.jobID;
 			$scope.jobResults = 2;
 			$location.url('/home');
 		}).error(function (err) {
@@ -1119,22 +1189,36 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		if(document.getElementById("social").checked == true) cUser.socialYN = "Y";
 		else cUser.socialYN = "N";
 		if(document.getElementById("active").checked == true) {
-			if(confirm('Are you sure you want to Deactivate your account?')) {
-				var postData = { 
-						email : cUser.email,
-						activateHandle : cUser.lastName,
-						activeIn : "N"
-				};
-				
-				$http.post('/deactivateProfile',postData).success(function (response){
-					if (response != 0){
-						swal("User Account Deactivated.");
-						$scope.logout();
-					}
-				}).error(function (err) {
-						console.log(err);
-				});
-			}
+			swal({
+			    title: "Are you sure?",
+			    text: "You will not be able to recover Account Information!",
+			    type: "warning",
+			    showCancelButton: true,
+			    confirmButtonColor: '#DD6B55',
+			    confirmButtonText: 'Yes, I am sure!',
+			    cancelButtonText: "No, cancel it!",
+			    closeOnConfirm: false,
+			    closeOnCancel: false
+			 }, function(isConfirm){
+				if(isConfirm) {
+					var postData = { 
+							email : cUser.email,
+							activateHandle : cUser.lastName,
+							activeIn : "N"
+					};
+					
+					$http.post('/deactivateProfile',postData).success(function (response){
+						if (response != 0){
+							swal("Done","User Account Deactivated.","success");
+							$scope.logout();
+						}
+					}).error(function (err) {
+							console.log(err);
+					});
+				} else {
+					swal("Cancelled","User Account Not Deactivated.","error");
+				}
+			 });
 		} else {
 			var postData = { 
 					firstName : cUser.firstName,
@@ -1148,11 +1232,11 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			};
 			$http.post('/updateUserProfile',postData).success(function (response){
 					if (response != 0){
-					swal("Updated Successfully");
+					swal("Done","Updated Successfully","success");
 					$scope.currentUser.socialYN = cUser.socialYN;
 					$location.url('/home');
 					} else if (response == 'error') {
-						alert('error')
+						swal("Ooops","ERROR::"+response,"error");
 					}
 			}).error(function (err) {
 					console.log(err);
@@ -1165,16 +1249,30 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 					email : cUser.email
 			};
 
-			if(confirm('Are you sure you want you delete your account?')) {
-				$http.post('/deleteAccount',postData).success(function (response){
-						if (response != 0){
-							swal("Done.Sorry, We miss you here!");
-							$scope.logout();
-						}
-				}).error(function (err) {
-						console.log(err);
-				});
-			}
+			swal({
+			    title: "Are you sure?",
+			    text: "You will not be able to recover Account Information!",
+			    type: "warning",
+			    showCancelButton: true,
+			    confirmButtonColor: '#DD6B55',
+			    confirmButtonText: 'Yes, I am sure!',
+			    cancelButtonText: "No, cancel it!",
+			    closeOnConfirm: false,
+			    closeOnCancel: false
+			 }, function(isConfirm){
+				if(isConfirm) {
+					$http.post('/deleteAccount',postData).success(function (response){
+							if (response != 0){
+								swal("Done","Sorry, We miss you here!","success");
+								$scope.logout();
+							}
+					}).error(function (err) {
+							console.log(err);
+					});
+				} else {
+					swal("Cancelled","User account not deleted.","error");
+				}
+			 });
 		};
 	
 
@@ -1193,7 +1291,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		var options = {
 			    // Required. Called when a user selects an item in the Chooser.
 			    success: function(files) {
-			    	alert(files[0].toSource());
 			        if(files[0].name.substring(files[0].name.indexOf(".") == "PDF")) fileType = "application/pdf";
 			        else if(files[0].name.substring(files[0].name.indexOf(".") == "DOC")) fileType = "application/msword";
 			        else if(files[0].name.substring(files[0].name.indexOf(".") == "DOCX")) fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -1208,7 +1305,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			        	$location.url('/upload');
 			        }).error(function (err) {
 			        	if(err) {
-			        		alert("Error while uploading file to server and Please try again!.");
+			        		swal("Ooops","Error while uploading file to server and Please try again!.","error");
 			        	}
 			        });
 			    },
@@ -1318,14 +1415,14 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			        	restRequest.then(function(resp) {
 			        		var fileDownloadUrl = resp.result.webContentLink;
 			        		$http.get('/convertStream?filePath='+filePath+'&contents='+fileDownloadUrl).success(function (response) {
-	    			        	 alert("Uploaded Successfully!");
+	    			        	 swal("Done","Uploaded Successfully!","success");
 	    			        }).error(function (err) {
 	    			        	if(err) {
-	    			        		alert("Error while uploading file to server and Please try again!.");
+	    			        		swal("Ooops","Error while uploading file to server and Please try again!.","error");
 	    			        	}
 	    			        });
 			        		}, function(reason) {
-			        		  alert('Error: ' + reason.result.error.message);
+			        		  swal('Error: ' + reason.result.error.message);
 			        	});
             	      }
             	    })
@@ -1357,15 +1454,29 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		var resInfo = { 
 				name:filename
 		}
-	if(confirm('Are you sure you want you delete this document?')) {
-		$http.post('/delResume', resInfo).success(function (response){
-			alert("Delete Resume :: Success");
-			$scope.listProfileResume();
-			$location.url('/upload');
-		}).error(function (err) {
-			console.log(err);
-		})
-	  }
+		swal({
+		    title: "Are you sure?",
+		    text: "You will not be able to recover the document!",
+		    type: "warning",
+		    showCancelButton: true,
+		    confirmButtonColor: '#DD6B55',
+		    confirmButtonText: 'Yes, I am sure!',
+		    cancelButtonText: "No, cancel it!",
+		    closeOnConfirm: false,
+		    closeOnCancel: false
+		 }, function(isConfirm){
+			if(isConfirm) {
+				$http.post('/delResume', resInfo).success(function (response){
+					swal("Done","Resume deleted","success");
+					$scope.listProfileResume();
+					$location.url('/upload');
+				}).error(function (err) {
+					console.log(err);
+				})
+			} else {
+				swal("Cancelled","Document not deleted.","error");
+			}
+		 });
     }; 
     
     $scope.uploadCV = function() {
@@ -1381,7 +1492,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         
         $http.post('/checkJobPost',postData).success(function (response){
 			if (response == "true"){
-				alert("You have already applied for this Job.");
+				swal("You have already applied for this Job.");
 				$location.path("/jobHistory");
 			} else {
 				$rootScope.isLinkToJob = true;
@@ -1429,6 +1540,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     			filename : $rootScope.resumeName,
     			dateApplied : new Date(),
     			files_id: $rootScope.resumeID,
+    			applicationStatus: "IR",
     			name: $rootScope.currentUser.firstName+" "+$rootScope.currentUser.lastName
     	};
         
@@ -1485,6 +1597,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					$scope.isPostJob = false;
 					$scope.isJobTrack = false;
 					$scope.isCandidateSearch = false;
+					$scope.isJobStatusReport = false;
+					$scope.isJobReports = false;
 					$scope.getJobQueue($scope.currentUser.email);
 					$location.url('/empHome');
 				} else {
@@ -1506,6 +1620,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isJobQueue = false;
 		$scope.isJobTrack = false;
 		$scope.isCandidateSearch = false;
+		$scope.isJobStatusReport = false;
+		$scope.isJobReports = false;
 		$scope.isUpdate = false;
 		$scope.job = undefined;
 		$scope.companyName = $rootScope.currentUser.name;
@@ -1521,6 +1637,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isJobQueue = false;
 		$scope.isJobTrack = false;
 		$scope.isCandidateSearch = false;
+		$scope.isJobStatusReport = false;
+		$scope.isJobReports = false;
 		$scope.isUpdate = true;
 		$scope.companyName = $scope.job.companyName;
 		if(jobInfo.activeJob == "Y") document.getElementById("publish").checked = true;
@@ -1550,6 +1668,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isPostJob = false;
 				$scope.isJobTrack = false;
 				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
 				$scope.getJobQueue($scope.currentUser.email);
 				$location.url('/empHome');
 				} else if (response == 'error') {
@@ -1578,6 +1698,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isPostJob = false;
 				$scope.isJobTrack = false;
 				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
 				$location.url('/empHome');
 			} else if (response == "") {
 				$scope.allJobs = response;
@@ -1585,6 +1707,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isPostJob = false;
 				$scope.isJobTrack = false;
 				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
 				$location.url('/empHome');
 			} else if (response == 'error') {
 				alert(err);
@@ -1620,12 +1744,16 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isJobQueue = true;
 				$scope.isPostJob = false;
 				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
 				$location.url('/empHome');
 			} else if (response == "") {
 				$scope.allJobs = response;
 				$scope.isJobQueue = true;
 				$scope.isPostJob = false;
 				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
 				$location.url('/empHome');
 			} else if (response == 'error') {
 				alert(err);
@@ -1649,6 +1777,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isPostJob = false;
 				$scope.isJobTrack = true;
 				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
 			} 
 		}).error(function (err) {
 			console.log(err);
@@ -1662,6 +1792,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isPostJob = false;
 		$scope.isJobTrack = false;
 		$scope.isCandidateSearch = true;
+		$scope.isJobStatusReport = false;
+		$scope.isJobReports = false;
 	};
 	
 	$scope.publish = function (jobID){
@@ -1693,6 +1825,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isJobQueue = false;
 				$scope.isPostJob = false;
 				$scope.isJobTrack = true;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
 			} else {
 				$scope.jobSeekerList = undefined;
 			}
@@ -1701,8 +1835,10 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		})
 	};
 	
-	$scope.displayCandidateProfile = function(emailID) {
-		$rootScope.candidateEmail = emailID;
+	$scope.displayCandidateProfile = function(candidateInfo) {
+		$rootScope.candidateEmail = candidateInfo.email;
+		$rootScope.applicationStatus = candidateInfo.applicationStatus;
+		$rootScope.candidateJobID = candidateInfo.jobID;
 		$location.url('reviewProfile');
 	}
 	
@@ -1724,6 +1860,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					$scope.isPostJob = false;
 					$scope.isJobTrack = false;
 					$scope.isCandidateSearch = true;
+					$scope.isJobStatusReport = false;
+					$scope.isJobReports = false;
 					$location.url('/empHome');
 				} else if (response == "") {
 					$scope.allCandidates = response;
@@ -1731,6 +1869,8 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					$scope.isPostJob = false;
 					$scope.isJobTrack = false;
 					$scope.isCandidateSearch = true;
+					$scope.isJobStatusReport = false;
+					$scope.isJobReports = false;
 					$location.url('/empHome');
 				} else if (response == 'error') {
 					alert(err);
@@ -1740,6 +1880,94 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			})
 		}
 	};
+	
+	$scope.getAllEmpJobs = function() {
+		var postData = { 
+				empEmail : $rootScope.currentUser.email
+		};
+		$http.post('/getAllEmpJobs',postData).success(function (response){
+			if (response != 0){
+				$scope.jobs = response;
+				$scope.isJobStatusReport = true;
+			} else {
+				$scope.jobs = undefined;
+				$scope.isJobStatusReport = true;
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	}
+	
+	//$scope.getAllEmpJobs();
+	
+	$scope.searchEmpJobCandStatus = function (){
+
+		$scope.allCandidatesStatus = null;
+		$scope.isJobQueue = false;
+		$scope.isPostJob = false;
+		$scope.isJobTrack = false;
+		$scope.isCandidateSearch = false;
+		$scope.isJobReports = false;
+		$scope.isJobStatusReport = true;
+	};
+	
+	$scope.searchEmpJobCandStatInfo = function (empInfo){
+		var postData = { 
+				jobID : $scope.candJobID, //empInfo.jobID,
+				appStatus : empInfo.candStatus
+		};
+
+		$http.post('/getEmpJobCandStat',postData).success(function (response){
+			if (response != 0){
+				$scope.partialCandidatesStatus = [];
+				$scope.allEmpJobCandStatus = [];
+				$scope.allCandidatesStatus = response;
+				  for(i=0;i<=$scope.allCandidatesStatus.length-1;i++) {
+						$scope.allEmpJobCandStatus.push($scope.allCandidatesStatus[i]);
+				  }
+				$scope.partialCandidatesStatus = $scope.allEmpJobCandStatus.slice(begin, end);	
+				$scope.isJobQueue = false;
+				$scope.isPostJob = false;
+				$scope.isJobTrack = false;
+				$scope.isCandidateSearch = false;
+				$scope.isJobReports = false;
+				$scope.isJobStatusReport = true;
+				$location.url('/empHome');
+			} else if (response == "") {
+				$scope.allCandidatesStatus = response;
+				$scope.isJobQueue = false;
+				$scope.isPostJob = false;
+				$scope.isJobTrack = false;
+				$scope.isCandidateSearch = false;
+				$scope.isJobReports = false;
+				$scope.isJobStatusReport = true;
+				$location.url('/empHome');
+			} else if (response == 'error') {
+				alert(err);
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.displayEmpProfileInfo = function(emp) {
+		if(emp.saveCC == 'Y') {
+			var postData = {
+					email : emp.email
+			}
+			
+			$http.post('/getEmpPaymentInfo',postData).success(function (response) {
+				if(response != '0') $rootScope.paymentSourceList = response;
+				else $rootScope.paymentSourceList = {};
+				$location.url('/empChangeProfile');
+			}).error(function (err) {
+				console.log(err);
+			})
+		} else {
+			$rootScope.paymentSourceList = {};
+			$location.url('/empChangeProfile');
+		}
+	}
 	
 	$scope.unPublish = function (jobID){
 		var postData = { 
@@ -1762,20 +1990,100 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		var postData ={
 				jobID: jobNumber
 		};
-		if(confirm('Are you sure you want you delete this job info?')) {
-			$http.post('/deleteJobInfo',postData).success(function (response) {
-				if (response == 'success'){
-					alert("Job removed from the portal successfully.");
-					console.log("Job"+ jobNumber +" removed from application");
-					$scope.isJobQueue = true;
-					$scope.getJobQueue($scope.currentUser.email);
-					$location.url('/empHome');
-				}
-			}).error(function (err) {
-				console.log(err);
-			})
-		}
+		swal({
+		    title: "Are you sure?",
+		    text: "You will not be able to recover Job Information!",
+		    type: "warning",
+		    showCancelButton: true,
+		    confirmButtonColor: '#DD6B55',
+		    confirmButtonText: 'Yes, I am sure!',
+		    cancelButtonText: "No, cancel it!",
+		    closeOnConfirm: false,
+		    closeOnCancel: false
+		 }, function(isConfirm){
+			if(isConfirm) {
+				$http.post('/deleteJobInfo',postData).success(function (response) {
+					if (response == 'success'){
+						swal("Done","Job removed from the portal successfully.","success");
+						console.log("Job"+ jobNumber +" removed from application");
+						$scope.isJobQueue = true;
+						$scope.getJobQueue($scope.currentUser.email);
+						$location.url('/empHome');
+					}
+				}).error(function (err) {
+					console.log(err);
+				});
+			} else {
+				swal("Cancelled","Job Information is safe :)","error");
+			}
+		 });
 	};
+	
+	$scope.generateEmpReports = function () {
+		$scope.isJobQueue = false;
+		$scope.isPostJob = false;
+		$scope.isJobTrack = false;
+		$scope.isCandidateSearch = false;
+		$scope.isJobStatusReport = false;
+		$scope.isJobReports = true;
+		$location.url('/empHome');
+	}
+	
+	$scope.generateReport = function (emp) {
+		if(emp.reportType != undefined) {
+			var postData = {
+					type : emp.reportType,
+					email : $rootScope.currentUser.email
+			}
+		} else {
+			var postData = {
+					type : "",
+					email : ""
+			}
+		}
+
+		$http.post('/getEmpReportData',postData).success(function (response) {
+			if (response != '0') {
+				$scope.partialReportInfo = [];
+				$scope.allReportInfo = [];
+				$scope.allEmpReportInfo = response;
+				  for(i=0;i<=$scope.allEmpReportInfo.length-1;i++) {
+						$scope.allReportInfo.push($scope.allEmpReportInfo[i]);
+				  }
+				$scope.partialReportInfo = $scope.allReportInfo.slice(begin, end);
+				$scope.isJobQueue = false;
+				$scope.isPostJob = false;
+				$scope.isJobTrack = false;
+				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.reportType = emp.reportType;
+				$scope.isJobReports = true;
+				$location.url('/empHome');
+			} else if (response == "") {
+				$scope.allEmpReportInfo = response;
+				$scope.isJobQueue = false;
+				$scope.isPostJob = false;
+				$scope.isJobTrack = false;
+				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.reportType = "";
+				$scope.isJobReports = true;
+				$location.url('/empHome');
+			} else if (response == 'error') {
+				swal("Ooops","ERROR:: "+err,"error");
+			}
+		}).error(function (err) {
+			console.log(err);
+		});
+	}
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialReportInfo = $scope.allReportInfo.slice(begin, end);
+	  });
+	//End Pagination changes here.
+	
 	
 	$scope.jobInfoClear = function () {
         	$scope.job = {}
@@ -1784,8 +2092,30 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
     $scope.clearCandidates = function () {
     	if($scope.emp.search != undefined) {
         	$scope.emp.search = undefined;
+        	$scope.allCandidates = undefined;
+        	$scope.partialCandidates = undefined;
     	}
     };
+    
+    $scope.clearEmpJobCandStat = function () {
+    	if($scope.candJobID != undefined || $scope.emp.candStatus != undefined) {
+        	$scope.candJobID = undefined;
+        	$scope.emp.candStatus = undefined;
+        	$scope.allCandidatesStatus = undefined;
+        	$scope.partialCandidatesStatus = undefined;
+    	}
+    };
+    
+    $scope.clearReportData = function (emp) {
+    	if($scope.emp.fromDate != undefined || $scope.emp.reportType != undefined) {
+        	emp.fromDate = undefined;
+        	emp.reportType = undefined;
+        	$scope.reportType = undefined;
+        	$scope.allReportInfo = undefined;
+        	$scope.partialReportInfo = undefined;
+    	}
+    };
+    
     
     $scope.clear = function () {
     	if($scope.emp.search != undefined) {
@@ -1815,6 +2145,43 @@ app.controller('empProfileCtrl', function ($q, $scope, $rootScope, $http, $locat
 		$scope.ClearMessages = function(flash) {
 			$scope.errorMsg = false;
 			Flash.clear();
+		}
+		
+		$scope.showCardInfo = function (amount){
+			if(amount > 0) {
+				$("#cardInfo").show();
+				$scope.paymentSourceList = "";
+			} else {
+				$("#cardInfo").hide();
+			}
+		}
+		
+		$scope.validateCard = function (userCC) {
+			if(userCC.cardNumber != undefined) {
+				var validCard = Stripe.card.validateCardNumber(userCC.cardNumber);
+					if(!validCard) {
+						swal("Please specify a valid credit card number.");
+					}
+			}
+		}
+		
+		$scope.validateExpiry = function (userCC) {
+			if(userCC.cardExpiry != undefined) {   
+				var validExpiry = Stripe.card.validateExpiry(userCC.cardExpiry.substring(0,2), userCC.cardExpiry.substring(5,9));
+					if(!validExpiry) {
+						swal("Please specify a valid credit card expiry month & year.");
+					}
+			}
+		}
+		
+		$scope.validateCVC = function (userCC) {
+			alert(userCC.cvc);
+			if(userCC.cvc != undefined) {
+			   var validCVC = Stripe.card.validateCVC(userCC.cvc);
+				  if(!validCVC) {
+					  swal("Please specify a valid credit card CVC.");
+				  }
+			}
 		}
 		
 		if($rootScope.currentUser.saveCC == "Y") $rootScope.currentUser.amount = "1999";
@@ -1847,13 +2214,14 @@ app.controller('empProfileCtrl', function ($q, $scope, $rootScope, $http, $locat
 			var postData = { 
 						name : cUser.name,
 						contactNum : cUser.contactNum,
-						address1 : cUser.address,
-						email : cUser.email
+						address : cUser.address,
+						email : cUser.email,
+						zipcode : cUser.zipcode
 			};
 				
 			$http.post('/updateEmpProfile',postData).success(function (response){
 						if (response != 0){
-							alert("Success");
+							swal("Done","Updated Successfully","success");
 							$location.url('/empHome');
 						}
 			}).error(function (err) {
@@ -1964,6 +2332,24 @@ app.controller('empProfileCtrl', function ($q, $scope, $rootScope, $http, $locat
 			})
 		};
 		
+		$scope.updateCandidateStatus = function (candidateInfo){
+			var postData = { 
+					email : candidateInfo.email,
+					jobID : $rootScope.candidateJobID,
+					employerEmail : $rootScope.currentUser.email,
+					appStatus : "SL"
+			};
+			
+			$http.post('/updateCandidateJobStatus',postData).success(function (response){
+				if (response != 0){
+					swal("success");
+				} 
+			}).error(function (err) {
+				console.log(err);
+			});
+			
+		};
+		
 		$scope.formatCC = function() {
 			var input = document.getElementById('cardNum');
 			payform.cardNumberInput(input);
@@ -1981,9 +2367,13 @@ app.controller('empProfileCtrl', function ($q, $scope, $rootScope, $http, $locat
 		
 		$scope.logout = function () {
 			$http.post('/logout',$rootScope.user).success(function () {
-				$location.url('/empSignIn');
 				$rootScope.currentUser = undefined;
 				$rootScope.user = undefined;
+				$rootScope.emp = undefined;
+				$scope.currentUser = undefined;
+				$scope.user = undefined;
+				$scope.emp = undefined;
+				$location.url('/empSignIn');
 			})
 		};
 });
@@ -2048,7 +2438,9 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 					email: contact.email,
 					subject: contact.subject,
 					message: contact.message,
-					msgDate: new Date()
+					adminComments: "",
+					msgDate: new Date(),
+					status: "New"
 				};
 			$http.post('/saveContactMessage',postData).success(function (response){
 				if(response == "0") {
@@ -2065,10 +2457,15 @@ app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.logout = function () {
 			var path = "";
 			if($rootScope.currentUser.userType == "E") path = "/empSignIn";
+			else if($rootScope.currentUser.userType == "U" && $rootScope.currentUser.role == "admin") path = "/adminLogin";
 			else path = "/login";
 			$http.post('/logout',$rootScope.user).success(function () {				
 				$rootScope.currentUser = undefined;
 				$rootScope.user = undefined;
+				$rootScope.emp = undefined;
+				$scope.currentUser = undefined;
+				$scope.user = undefined;
+				$scope.emp = undefined;
 				$location.url(path);
 			})
 		};
@@ -2426,6 +2823,45 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	$scope.$watch('coverPageInfo', autoSaveUpdate);
 	/* End Coverpage Information Updates */
 	
+	$scope.changeProfileVideo = function() {
+		$('#videoUpload').trigger('click');
+		$scope.user = {
+				imageContents : "",
+				imageContentType : "",
+				imageName : ""
+		}
+		$('#imgupload').change(function(e){
+			var filename = document.getElementById('imgupload').files[0];
+			if ( !window.FileReader ) {
+				alert( 'FileReader API is not supported by your browser.' );
+			}
+			var fr = new FileReader();
+			fr.readAsDataURL(filename);
+			fr.onload = function(e) {
+	            $scope.user.imageContents = e.target.result;
+	            $scope.user.imageContentType = e.target.result.substring(5,15);
+	            $scope.user.imageName = filename.name;
+				$scope.user.email = $scope.currentUser.email;
+				$scope.user.lastName = $scope.currentUser.lastName;
+
+				
+				$http.post('/ClearCurrentProfile',$scope.user).success(function (response) {
+	    			if(response != 0) console.log("Current Profile Picture deleted from dataStore.");
+	    		}).error(function (err) {
+	    			console.log(err);
+	    		})
+				
+				$http.post('/changeProfilePic',$scope.user).success(function (response) {
+	    			$rootScope.dataUrl = response;
+	    			location.reload();
+	    		}).error(function (err) {
+	    			console.log(err);
+	    		});
+	        };
+		});
+		return false;
+	}
+	
 	$scope.goBack = function() {
 		$rootScope.isContactProfile = false;
 		$rootScope.contactEmail = undefined;
@@ -2731,7 +3167,9 @@ app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $locatio
 	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
-			$location.url('/');
+			if($rootScope.currentUser.role == "admin") $location.url('/adminLogin');
+			else if($rootScope.currentUser.userType == "E") $location.url('/empSignIn');
+			else $location.url('/');
 			$rootScope.currentUser = undefined;
 			$rootScope.user = undefined;
 		})
@@ -2774,14 +3212,20 @@ app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $locatio
         
         $http.post('/changePasswd', postData).success(function (response) {
             if (response == 'success'){
-                alert ('Password Updated Successfully!');
+                swal ("Done","Password Updated Successfully!","success");
                 $scope.currentUser=response;
-                alert("Please connect the BlueCollarHunt appliation using New Password.");
+                swal("Info","Please connect the appliation using New Password.","success");
                 $scope.logout();
             } else if (response == 'incorrect') {
-                alert ('Old Password is not correct!');
-                $scope.currentUser={};
-                $location.url('/changePassword')
+                swal("Oops","Old Password is not correct!","error"); 
+                $scope.currentUser.oldPassword = undefined;
+            	$scope.currentUser.password1 = undefined;
+            	$scope.currentUser.password2 = undefined;
+                if(currentUser.role == "admin") {   
+                	$location.url('/admChangePass');
+                } else {
+                	$location.url('/changePassword');
+                }
             } else if (response == 'error'){
                 $scope.currentUser={};
             }
@@ -2820,9 +3264,9 @@ $scope.empPassSave = function (currentUser) {
         
         $http.post('/changeEmpPasswd', postData).success(function (response) {
             if (response == 'success'){
-                alert ('Password Updated Successfully!');
+            	swal ("Done","Password Updated Successfully!","success");
                 $scope.currentUser=response;
-                alert("Please connect the BlueCollarHunt appliation using New Password.");
+                swal("Info","Please connect the appliation using New Password.","success");
                 $scope.logout();
             } else if (response == 'incorrect') {
                 //alert ('Old Password is not correct!');
@@ -2923,6 +3367,801 @@ app.controller('testCtrl', function ($scope, $http, $location, $rootScope){
     }
 });
 
+app.controller('adminCtrl', function ($q, $scope, $rootScope, $routeParams, $http, $location,Flash) {	
+	$scope.currentPage = 1;
+	$scope.numPerPage = 8;
+	$scope.maxSize = 5;
+	var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+    , end = begin + $scope.numPerPage;
+	
+	$scope.formatContactNum = function(obj) {
+		var numbers = obj.contactNum.replace(/\D/g, ''),
+        char = {0:'(',3:') ',6:' - '};
+		obj.contactNum = '';
+		for (var i = 0; i < numbers.length; i++) {
+			obj.contactNum += (char[i]||'') + numbers[i];
+		}
+		if(obj.userType == 'U') $scope.seeker.contactNum = obj.contactNum;
+		else $scope.emp.contactNum = obj.contactNum;
+	}
+	
+	$scope.ClearMessages = function(flash) {
+		$scope.errorMsg = false;
+		Flash.clear();
+	}
+	
+	$scope.search = function (user){
+		if($scope.user != undefined) {
+		var postData ={
+				email: $scope.user.search,
+				currEmail: $rootScope.currentUser.email
+		};
+		} else {
+			var postData ={
+					currEmail: $rootScope.currentUser.email
+			};
+		}
+		$http.post('/getAllUsers',postData).success(function (response) {
+			$scope.partialUsers = [];
+			$scope.allUsers = [];
+			$scope.users = response;
+			if($scope.users.length == 1 && $scope.user.search == $rootScope.currentUser.email) {
+				$scope.users = {};
+			} else {
+				for(i=0;i<=$scope.users.length-1;i++) {
+					$scope.allUsers.push($scope.users[i]);
+				}
+				$scope.partialUsers = $scope.allUsers.slice(begin, end);
+				if ($scope.users[0] != undefined) {			
+					$location.url('/userInfoMgmt');
+				} else {
+					console.log("No Users found for your Search.");
+			    }
+			}
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialUsers = $scope.allUsers.slice(begin, end);
+	  });
+	//End Pagination changes here.
+	
+	$scope.searchEmp = function (emp){
+		if($scope.emp != undefined) {
+		var postData ={
+				email: $scope.emp.search,
+				currEmail: $rootScope.currentUser.email
+		};
+		} else {
+			var postData ={
+					currEmail: $rootScope.currentUser.email
+			};
+		}
+		$http.post('/getAllEmployers',postData).success(function (response) {
+			$scope.partialEmployers = [];
+			$scope.allEmployers = [];
+			$scope.emps = response;
+			if($scope.emps.length == 1 && $scope.emp.search == $rootScope.currentUser.email) {
+				$scope.emps = {};
+			} else {
+				for(i=0;i<=$scope.emps.length-1;i++) {
+					$scope.allEmployers.push($scope.emps[i]);
+				}
+				$scope.partialEmployers = $scope.allEmployers.slice(begin, end);
+				if ($scope.emps[0] != undefined) {			
+					$location.url('/empInfoMgmt');
+				} else {
+					console.log("No Employers found for your Search.");
+			    }
+			}
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialEmployers = $scope.allEmployers.slice(begin, end);
+	  });
+	//End Pagination changes here.
+	
+	$scope.deleteUser = function (userInfo){
+		var postData ={
+				email: userInfo.email,
+				userType: userInfo.userType
+		};
+		var userCat = "User";
+		if(userInfo.userType == 'E') userCat = "Employer"
+		swal({
+		    title: "Are you sure?",
+		    text: "You will not be able to recover "+userCat+" Information!",
+		    type: "warning",
+		    showCancelButton: true,
+		    confirmButtonColor: '#DD6B55',
+		    confirmButtonText: 'Yes, I am sure!',
+		    cancelButtonText: "No, cancel it!",
+		    closeOnConfirm: false,
+		    closeOnCancel: false
+		 }, function(isConfirm){
+			if(isConfirm) {
+				$http.post('/deleteAccount',postData).success(function (response) {
+					if (response == 'success'){
+						if(userInfo.userType == 'U') {
+							swal("Done","User deleted successfully.","success");
+							if(userInfo.role == "admin") {
+								$scope.logout();
+							} else {
+								$scope.search();
+								$location.url('/userInfoMgmt');
+							}
+						} else {
+							swal("Done","Employer deleted successfully.","success");
+							$scope.searchEmp();
+							$location.url('/empInfoMgmt');
+						}
+					}
+				}).error(function (err) {
+					swal("Error!","Message :"+response,"error");
+					console.log(err);
+				});
+			} else {
+				swal("Cancelled", userCat+" Information is safe :)", "error");
+			}
+		 });
+	};
+	
+	$scope.disableUser = function(user) {
+			var postData = { 
+					email : user.email,
+					activateHandle : user.lastName,
+					activeIn : "N",
+					source : "admin"
+			};
+			
+			$http.post('/deactivateProfile',postData).success(function (response){
+				if (response != 0){
+					swal("User Account Deactivated.");
+					$scope.search();
+					$location.url('/userInfoMgmt');
+				}
+			}).error(function (err) {
+					console.log(err);
+			});
+	}
+	
+	$scope.enableUser = function(user) {
+		var postData = {
+				email: user.email,
+				activateHandle: undefined,
+				activeIn: "Y",
+				source : "admin"
+		}
+		$http.post('/activateUser', postData).success(function (response){
+			if(response == "Not Valid") {
+				swal("User already active.");
+			}
+			swal("User Account Activated.");
+			$scope.search();
+			$location.url('/userInfoMgmt');
+		}).error(function (err) {
+			if(err) {
+				alert("Not a valid user information");
+			}
+		});
+	}
+	
+	$scope.disableEmployer = function(emp) {
+		var postData = { 
+				email : emp.email,
+				activeIn : "N"
+		};
+		
+		$http.post('/deactivateEmpProfile',postData).success(function (response){
+			if (response != 0){
+				swal("Employer Account Deactivated.");
+				$scope.searchEmp();
+				$location.url('/empInfoMgmt');
+			}
+		}).error(function (err) {
+				console.log(err);
+		});
+	}
+
+	$scope.enableEmployer = function(emp) {
+		var postData = {
+				email: emp.email,
+				activeIn: "Y"
+		}
+		$http.post('/activateEmployer', postData).success(function (response){
+			if(response == "Not Valid") {
+				swal("Employer already active.");
+			}
+			swal("Employer Account Activated.");
+			$scope.searchEmp();
+			$location.url('/empInfoMgmt');
+		}).error(function (err) {
+			if(err) {
+				swal("Not a valid employer information");
+			}
+		});
+	}
+	
+	$scope.editUserInfo = function(userInfo) {
+		var postData = {
+				email: userInfo.email
+		};
+		
+		$http.post('/getUserMediaItems',postData).success(function (response) {
+			$scope.getProfilePicture(userInfo.email);
+			if(response != "0") {
+				$rootScope.partialItems = [];
+				$rootScope.allItems = [];
+				$scope.items = response;
+				
+				for(i=0;i<=$scope.items.length-1;i++) {
+					$rootScope.allItems.push($scope.items[i]);
+				}
+				$rootScope.partialItems = $rootScope.allItems.slice(begin, end);
+				$rootScope.seeker = userInfo;
+				$location.url("/admUpdateUserInfo");
+			} else {
+				$rootScope.partialItems = {};
+				$rootScope.allItems = {};
+				$scope.items = {};
+			}
+		}).error(function (err) {
+			console.log(err);
+		});
+	}
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $rootScope.partialItems = $rootScope.allItems.slice(begin, end);
+	  });
+	//End Pagination changes here.
+	
+	$scope.getProfilePicture = function (userEmail){
+		var postData ={
+				search: userEmail
+		};
+		$http.post('/getUserInfo',postData).success(function (response) {
+			if(response == "NoProfilePic") $rootScope.dataImgUrl = undefined;
+			else $rootScope.dataImgUrl = response;
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.getEmpProfileLogo = function (empEmail){
+		var postData ={
+				search: empEmail
+		};
+		$http.post('/getProfileLogo',postData).success(function (response) {
+			if(response == "NoProfilePic") $rootScope.dataImgUrl = undefined;
+			else $rootScope.dataImgUrl = response;
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.editEmpInfo = function(empInfo) {
+		var postData = {
+				email: empInfo.email
+		};
+		/*
+		$http.post('/getUserMediaItems',postData).success(function (response) {
+			$scope.getProfilePicture(userInfo.email);
+			$rootScope.partialItems = [];
+			$rootScope.allItems = [];
+			$scope.items = response;
+			
+			for(i=0;i<=$scope.items.length-1;i++) {
+				$rootScope.allItems.push($scope.items[i]);
+			}
+			$rootScope.partialItems = $rootScope.allItems.slice(begin, end);
+			$rootScope.seeker = userInfo;
+			$location.url("/admUpdateUserInfo");
+		}).error(function (err) {
+			console.log(err);
+		});
+		*/
+		$rootScope.emp = empInfo;
+		$scope.getEmpProfileLogo(empInfo.email);
+		$scope.getEmployerJobs(empInfo.email);
+		$location.url("/admUpdateEmpInfo");
+	}
+	
+	$scope.getEmployerJobs = function (emailID){
+		var postData = { 
+				email : emailID
+		};
+		$http.post('/getEmpJobs',postData).success(function (response){
+			if (response != 0){
+				$rootScope.partialJobs = [];
+				$rootScope.allEmpJobs = [];
+				$rootScope.allJobs = response;
+				  for(i=0;i<=$rootScope.allJobs.length-1;i++) {
+					  $rootScope.allEmpJobs.push($rootScope.allJobs[i]);
+				  }
+				$rootScope.partialJobs = $rootScope.allEmpJobs.slice(begin, end);
+			} else if (response == 'error') {
+				alert(err);
+			} else {
+				$rootScope.partialJobs = "";
+				$rootScope.allEmpJobs = "";
+				$rootScope.allJobs = "";
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $rootScope.partialJobs = $rootScope.allJobs.slice(begin, end);
+	  });
+	//End Pagination changes here.
+	
+	$scope.saveProfileInfo = function(cUser) {
+		if(cUser.userType == 'U') {
+			var postData = { 
+					firstName : cUser.firstName,
+					lastName : cUser.lastName,
+					zipcode : cUser.zipcode,
+					email : cUser.email,
+					primarySkill : cUser.primarySkill,
+					contactNum : cUser.contactNum,
+					gender : cUser.gender,
+					userType : cUser.userType
+			};
+		} else {
+			var postData = { 
+					name : cUser.name,
+					contactNum : cUser.contactNum,
+					address : cUser.address,
+					zipcode : cUser.zipcode,
+					email : cUser.email,
+					userType : cUser.userType
+			};
+		}
+		$http.post('/updateProfile',postData).success(function (response){
+					if (response != 0){
+					swal("Done","Updated Successfully","success");
+					if(cUser.userType == 'U') $scope.currentUser.socialYN = cUser.socialYN;
+					} else if (response == 'error') {
+						swal("Ooops","ERROR::"+response,"error");
+					}
+		}).error(function (err) {
+					console.log(err);
+					swal("Ooops","ERROR::"+response,"error");
+		});
+	 };
+	 
+	 $scope.generateUniqueID = function (emp){
+		var postData ={
+				email: emp.email,
+				empUniqueID : emp.name.substring(0,4),
+				name: emp.name
+		};
+		swal({
+		    title: "Are you sure?",
+		    text: "Employer will not be able to access using Old UniqueID!",
+		    type: "warning",
+		    showCancelButton: true,
+		    confirmButtonColor: '#DD6B55',
+		    confirmButtonText: 'Yes, I am sure!',
+		    cancelButtonText: "No, cancel it!",
+		    closeOnConfirm: false,
+		    closeOnCancel: false
+		 }, function(isConfirm){
+			 if (isConfirm){
+				$http.post('/generateEmpID',postData).success(function (response) {
+					    if(response != "0") swal("Done","UniqueID has been sent to Employer","success");
+				}).error(function (err) {
+						console.log(err);
+				});
+			 } else {
+				 swal("Cancelled", "(Employer UniqueID not updated)", "error");
+			 }
+		 });
+	};
+	
+	$scope.deleteJob = function (jobInfo){
+		var postData ={
+				jobID: jobInfo.jobID
+		};
+		
+		swal({
+		    title: "Are you sure?",
+		    text: "You will not be able to recover job Information!",
+		    type: "warning",
+		    showCancelButton: true,
+		    confirmButtonColor: '#DD6B55',
+		    confirmButtonText: 'Yes, I am sure!',
+		    cancelButtonText: "No, cancel it!",
+		    closeOnConfirm: false,
+		    closeOnCancel: false
+		 }, function(isConfirm){
+			if(isConfirm) {
+				$http.post('/deleteJobInfo',postData).success(function (response) {
+					if (response == 'success'){
+						swal("Done","Job removed successfully.","success");
+						$scope.getEmployerJobs(jobInfo.employerID);
+						$location.url('/admUpdateEmpInfo');
+					}
+				}).error(function (err) {
+					console.log(err);
+				});
+			} else {
+				swal("Cancelled", "Employer Job Information is safe :)", "error");
+			}
+		 });
+	}
+	
+$scope.changePasswd = function (cUser) {
+		if(cUser == undefined) { 
+			swal("Please enter all Password fields.");
+			return;
+		} else if((cUser.password1 == undefined && cUser.password2 == undefined) || (cUser.password1 == "" && cUser.password2 == "")) { 
+			swal("Please enter all Password fields.");
+			return;
+		} else if(cUser.password1 == "" || cUser.password1 == undefined) { 
+			swal("Please enter New Password.");
+			return;
+		} else if(cUser.password2 == "" || cUser.password2 == undefined) { 
+			swal("Please enter Repeat New Password.");
+			return;
+		} else if(cUser.password2 != cUser.password1) {
+			swal("Both passwords should match!");
+			return;
+		}
+		
+        var postData = {
+            email: cUser.email,
+            password2: cUser.password2
+        };
+        
+        $http.post('/changePass', postData).success(function (response) {
+            if (response == 'success'){
+            	$scope.seeker.password1 = "";
+                $scope.seeker.password2 = "";
+                swal('Password Updated Successfully!');
+            }
+        });
+    };
+    
+   $scope.deleteItem = function (filename){
+		var postData = { 
+				name:filename
+		}
+	
+	 swal({
+		    title: "Are you sure?",
+		    text: "You will not be able to recover this file!",
+		    type: "warning",
+		    showCancelButton: true,
+		    confirmButtonColor: '#DD6B55',
+		    confirmButtonText: 'Yes, I am sure!',
+		    cancelButtonText: "No, cancel it!",
+		    closeOnConfirm: false,
+		    closeOnCancel: false
+		 }, function(isConfirm){
+			if(isConfirm) {
+				$http.post('/delResume', postData).success(function (response){
+					swal("Done","Item deleted successfully","success");
+					//$scope.editUserInfo();
+					$location.url('/admUpdateUserInfo');
+				}).error(function (err) {
+					console.log(err);
+				});
+			} else {
+				swal("Cancelled", "Your file is safe :)", "error");
+			}
+	  });
+   }
+    
+    $scope.searchFeedback = function (recvDate){
+		if(recvDate != undefined) {
+		var postData ={
+				searchDate: recvDate
+		};
+		} else {
+			var postData ={
+				searchDate: undefined
+			};
+		}
+		$http.post('/getAllFeedbacks',postData).success(function (response) {
+			$scope.partialFeedback = [];
+			$scope.allFeedback = [];
+			$scope.feedbacks = response;
+			
+			for(i=0;i<=$scope.feedbacks.length-1;i++) {
+					$scope.allFeedback.push($scope.feedbacks[i]);
+			}
+			$scope.partialFeedback = $scope.allFeedback.slice(begin, end);
+			if ($scope.feedbacks[0] != undefined) {			
+					$location.url('/siteInfoMgmt');
+			} else {
+					console.log("No quries found for your Search.");
+		    }
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+	$scope.showMessage = function(feedback) {
+		var postData ={
+				search: feedback._id
+		};
+		$http.post('/getMessageDetails',postData).success(function (response) {
+			if(response != "0") $scope.feedbackInfo = response;
+			else $scope.feedbackInfo = undefined;
+		}).error(function (err) {
+			console.log(err);
+		});
+	}
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialEmployers = $scope.allEmployers.slice(begin, end);
+	  });
+	//End Pagination changes here.
+	
+	$scope.postMessage = function(feedbackInfo) {
+			var postData = {
+					id: feedbackInfo._id,
+					toEmail: feedbackInfo.email,
+					toName: feedbackInfo.name,
+					toMessage: feedbackInfo.message,
+					comments: feedbackInfo.adminComments,
+					status: feedbackInfo.status,
+					updatedDate: new Date(),
+					updatedBy: $rootScope.currentUser.email
+			};
+		$http.post('/updateFeedbackMessage',postData).success(function (response){
+					if (response != 0){
+					swal("Done","Message Sent","success");
+					//$scope.$close();
+					$scope.searchFeedback();
+					} else if (response == 'error') {
+						swal("Ooops","error "+response,"error");
+					}
+		}).error(function (err) {
+					console.log(err);
+		});
+	 };
+	 
+	 $scope.showPaymentSource = function(emp) {
+			if(emp.saveCC == 'Y') {
+				var postData = {
+						email : emp.email
+				}
+				
+				$http.post('/getEmpPaymentInfo',postData).success(function (response) {
+					if(response != '0') $rootScope.paymentSourceList = response;
+					else $rootScope.paymentSourceList = {};
+					$location.url('/admUpdateEmpInfo');
+				}).error(function (err) {
+					console.log(err);
+				})
+			} else {
+				$rootScope.paymentSourceList = "";
+				$location.url('/admUpdateEmpInfo');
+			}
+	}
+	 
+	 $scope.showID = function(pymt) {
+		 //alert(pymt._id);
+	 }
+	 
+	 $scope.validateCardInfo = function(paymentSrc) {		 
+		 var validCard = Stripe.card.validateCardNumber(paymentSrc.cardNumber);
+		 var validExpiry = Stripe.card.validateExpiry(paymentSrc.cardMM, paymentSrc.cardYYYY);
+		 var validCVC = Stripe.card.validateCVC(paymentSrc.cvc);
+		 if(!validCard || !validExpiry || !validCVC) {
+			 swal("Failed","Validation failed due to invalid card details","error");
+		 } else {
+			 swal("Done","Card details are up-to-date","success");
+		 }
+	 }
+	 
+	 $scope.deleteCardInfo = function (paymentSrc){
+			var postData ={
+					pymtID: paymentSrc._id
+			};
+			
+			swal({
+			    title: "Are you sure?",
+			    text: "You will not be able to recover Credit Card Information!",
+			    type: "warning",
+			    showCancelButton: true,
+			    confirmButtonColor: '#DD6B55',
+			    confirmButtonText: 'Yes, I am sure!',
+			    cancelButtonText: "No, cancel it!",
+			    closeOnConfirm: false,
+			    closeOnCancel: false
+			 }, function(isConfirm){
+				if(isConfirm) {
+					$http.post('/deleteCardInfo',postData).success(function (response) {
+						if (response == 'success'){
+							swal("Done","Card Details removed successfully.","success");
+						    $scope.showPaymentSource(paymentSrc.email);
+							$location.url('/admUpdateEmpInfo');
+						}
+					}).error(function (err) {
+						console.log(err);
+					});
+				} else {
+					swal("Cancelled", "Employer Credit Card Information is safe :)", "error");
+				}
+			 });
+		}
+	 
+	 $scope.processEmpCall = function(empPhone) {
+		 var postData = {
+				 demoUrl : "https://demo.twilio.com/docs/voice.xml",
+				 toNumber : "+1"+empPhone,
+				 fromNumber : "+15103668198"
+		 }
+		 
+		 $http.post('/processCall',postData).success(function (response) {
+				if (response == 'success'){
+					swal("success");
+				}
+		 }).error(function (err) {
+				console.log(err);
+		 });
+	 }
+	 
+	 $scope.saveProfileInfo = function(cUser) {
+				var postData = { 
+						firstName : cUser.firstName,
+						lastName : cUser.lastName,
+						zipcode : cUser.zipcode,
+						email : cUser.email,
+						contactNum : cUser.contactNum,
+						gender : cUser.gender
+				};
+				$http.post('/updateUserProfile',postData).success(function (response){
+						if (response != 0){
+						swal("Done","Updated Successfully","success");
+						$location.url('/admin');
+						} else if (response == 'error') {
+							swal("Ooops","ERROR::"+response,"error");
+						}
+				}).error(function (err) {
+						console.log(err);
+				});
+	};
+	
+	$scope.sendEmpMessage = function(emp) {
+		$scope.ClearMessages(Flash);
+		if(emp.message == "" || emp.message == undefined) {
+			$scope.empErrorMsg = true;
+			Flash.create('warning', "Please enter the message details.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		}
+		
+		var postData = {
+				name : emp.name,
+				email : emp.email,
+				content : emp.message
+		};
+		$http.post('/sendEmailMessage',postData).success(function (response){
+				if (response != 0){
+					$scope.emp.message = "";
+					$scope.errorMsg = true;
+					Flash.create('info', "Message Successfully Sent.",0, {class: 'alert-info', id: 'custom-id'}, true);
+				}
+		}).error(function (err) {
+				console.log(err);
+		});
+	}
+	
+	$scope.getJobInfo = function (jobID) {
+    	
+		var postData = {
+				search: jobID
+		}
+		$http.post('/getJobInfo',postData).success(function (response) {
+			$scope.jobInfo = response;
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.showAdminReport = function() {
+		$scope.repType = "";
+		$location.url('/admReports');
+	}
+	
+	
+	$scope.changeReportSelection = function (rep) {
+		if(document.getElementById('seeker').checked == true) $scope.repType = "seeker";
+		else $scope.repType = "emp";
+		$scope.allAdmReportInfo = [];
+		$scope.partialReportInfo = [];
+		$scope.allReportInfo = [];
+	}
+	
+	$scope.currentReportPage = 1;
+	$scope.numPerReportPage = 10;
+	$scope.maxReportSize = 5;
+	var reportBegin = (($scope.currentReportPage - 1) * $scope.numPerReportPage)
+    , reportEnd = reportBegin + $scope.numPerReportPage;
+	
+	$scope.generateAdminReport = function (rep) {
+		if($scope.repType == undefined) {
+			swal("Please select report type to proceed");
+			return;
+		}
+    	var reportType = $scope.repType;
+		if($scope.repType == undefined) $scope.repType = "emp";
+		if(rep != undefined)  {
+			var postData = {
+					repType: $scope.repType,
+					email: rep.search
+			}
+		} else {
+			var postData = {
+					repType: $scope.repType,
+					email: ""
+			}
+		}
+		$http.post('/getAdmReportData',postData).success(function (response) {
+			if (response != '0') {
+				$scope.partialReportInfo = [];
+				$scope.allReportInfo = [];
+				$scope.allAdmReportInfo = response;
+				  for(i=0;i<=$scope.allAdmReportInfo.length-1;i++) {
+						$scope.allReportInfo.push($scope.allAdmReportInfo[i]);
+				  }
+				$scope.partialReportInfo = $scope.allReportInfo.slice(reportBegin, reportEnd);
+				$rootScope.repType = reportType;
+				$location.url('/admReports');
+			} else if (response == "") {
+				$scope.allAdmReportInfo = response;				
+				$scope.repType = reportType;
+				$location.url('/admReports');
+			} else if (response == 'error') {
+				swal("Ooops","ERROR:: "+err,"error");
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.$watch('currentReportPage + numPerReportPage', function() {
+	    reportBegin = (($scope.currentReportPage - 1) * $scope.numPerReportPage);
+	    reportEnd = reportBegin + $scope.numPerReportPage;
+	    $scope.partialReportInfo = $scope.allReportInfo.slice(reportBegin, reportEnd);	  
+	  });
+	//End Pagination changes here.
+	
+	$scope.logout = function () {
+		$http.post('/logout',$rootScope.user).success(function () {				
+			$rootScope.currentUser = undefined;
+			$rootScope.user = undefined;
+			$rootScope.emp = undefined;
+			$scope.currentUser = undefined;
+			$scope.user = undefined;
+			$scope.emp = undefined;
+			$location.url('/adminLogin');
+		})
+	};
+});
+
 app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 	var checkLoggedIn = function ($q, $timeout, $http, $location, $rootScope) {
 		var deferred = $q.defer();
@@ -2962,6 +4201,24 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		})
 	};
 	
+	var checkAdmLoggedIn = function ($q, $timeout, $http, $location, $rootScope) {
+		var deferred = $q.defer();
+		$http.get('/admLoggedin').success(function (user) {
+			$rootScope.errorMessage = null;
+			if (user !== '0'){
+				$rootScope.currentUser =  user;
+				$rootScope.currentUser.passwd1 = "";
+				$rootScope.isLoggedIn = (user != 0);
+				deferred.resolve();
+			} else {
+				$rootScope.errorMessage = "You are not login yet.";
+				deferred.reject();
+				$location.url('/adminLogin');
+				$rootScope.isLoggedIn = (user != 0);
+			}
+		})
+	};
+	
 	var checkSessionActive = function ($q, $timeout, $http, $location, $rootScope) {
 		var deferred = $q.defer();
 		$http.get('/loggedin').success(function (user) {
@@ -2980,6 +4237,23 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		})
 	};
 	
+	var checkAdminSessioActive = function ($q, $timeout, $http, $location, $rootScope) {
+		var deferred = $q.defer();
+		$http.get('/admLoggedin').success(function (user) {
+			$rootScope.errorMessage = null;
+			if (user != '0'){
+				$rootScope.currentUser =  user;
+				$rootScope.currentUser.passwd1 = "";
+				$rootScope.isLoggedIn = (user != 0);
+				$location.url('/admin');
+				deferred.resolve();
+			} else {
+				deferred.reject();
+				$location.url('/adminLogin');
+			}
+		})
+	};
+	
 	var checkEmpSessionActive = function ($q, $timeout, $http, $location, $rootScope) {
 		var deferred = $q.defer();
 		$http.get('/empLoggedin').success(function (user) {
@@ -2994,7 +4268,8 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		})
 	};
 	
-	$locationProvider.html5Mode(true);
+	//$locationProvider.html5Mode(true);
+	$locationProvider.html5Mode(true).hashPrefix('!');
 	$routeProvider.
 		when('/', {
 			templateUrl: 'partials/landing.html',
@@ -3032,11 +4307,18 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 				loggedin: checkSessionActive
 			}
 		}).
-		when('/admin', {
-			templateUrl: 'partials/adminControl.html',
+		when('/adminLogin', {
+			templateUrl: 'partials/adminLogin.html',
 			controller: 'loginCtrl',
 			resolve: {
-				loggedin: checkSessionActive
+				loggedin: checkAdminSessioActive
+			}
+		}).
+		when('/admin', {
+			templateUrl: 'partials/adminControl.html',
+			controller: 'adminCtrl',
+			resolve: {
+				loggedin: checkAdminSessioActive
 			}
 		}).
 		when('/contact', {
@@ -3155,14 +4437,69 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 			templateUrl: 'partials/endorse.html',
 			controller: 'testCtrl'
 		}).
+		when('/userInfoMgmt', {
+			templateUrl: 'partials/userInfo.html',
+			controller: 'adminCtrl',
+			resolve: {
+				loggedin: checkAdmLoggedIn
+			}
+		}).
+		when('/admUpdateUserInfo', {
+			templateUrl: 'partials/editAdmUserInfo.html',
+			controller: 'adminCtrl',
+			resolve: {
+				loggedin: checkAdmLoggedIn
+			}
+		}).
+		when('/empInfoMgmt', {
+			templateUrl: 'partials/employerInfo.html',
+			controller: 'adminCtrl',
+			resolve: {
+				loggedin: checkAdmLoggedIn
+			}
+		}).
+		when('/admUpdateEmpInfo', {
+			templateUrl: 'partials/editAdmEmpInfo.html',
+			controller: 'adminCtrl',
+			resolve: {
+				loggedin: checkAdmLoggedIn
+			}
+		}).
+		when('/siteInfoMgmt', {
+			templateUrl: 'partials/admSiteInfo.html',
+			controller: 'adminCtrl',
+			resolve: {
+				loggedin: checkAdmLoggedIn
+			}
+		}).
+		when('/editAdmProfile', {
+			templateUrl: 'partials/editAdmProfile.html',
+			controller: 'adminCtrl',
+			resolve: {
+				loggedin: checkAdmLoggedIn
+			}
+		}).
+		when('/admChangePass', {
+			templateUrl: 'partials/changePassword.html',
+			controller: 'changePwdCtrl',
+			resolve: {
+				loggedin: checkAdmLoggedIn
+			}
+		}).
+		when('/admReports', {
+			templateUrl: 'partials/admReports.html',
+			controller: 'adminCtrl',
+			resolve: {
+				loggedin: checkAdmLoggedIn
+			}
+		}).
 		when('/testDynamic', {
 			templateUrl: 'partials/test.html',
 			controller: 'testCtrl'
 		}).
 		when('/404', {
 			templateUrl: 'partials/404.html'
-		})
-		.
+		}).
 		otherwise({
 			redirectTo: '/'
 		});

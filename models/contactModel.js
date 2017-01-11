@@ -6,7 +6,11 @@ var contactSchema = new mongoose.Schema({
     email: String,
     subject: String,
     message: String,
-    msgDate: Date
+    adminComments: String,
+    status: String,
+    msgDate: Date,
+    responseDate: Date,
+    respondedBy: String
 });
 
 module.exports = mongoose.model('contactModel', contactSchema);

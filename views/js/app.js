@@ -790,7 +790,7 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 				Flash.create('warning', "User not registered or still active in Portal.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 				return;
 			}
-			alert("User Account Activated. Please follow the instructions sent to your email");
+			swal("Account Activated","Follow the instructions sent to your email","success");
 			$location.url('/login');
 		}).error(function (err) {
 			if(err) {
@@ -1572,8 +1572,11 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	$scope.maxSize = 5;
 	var begin = (($scope.currentPage - 1) * $scope.numPerPage)
     , end = begin + $scope.numPerPage;
-	
-	
+	/*
+	$("#post").on("click", function() {
+	    $(this).css("background", "red");
+	});
+	*/
 	$scope.addJobInfo = function (jobInfo){
 		if(document.getElementById("publish").checked == true) jobInfo.activeJob = "Y";
 		else jobInfo.activeJob = "N";
@@ -1663,7 +1666,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 
 		$http.post('/updateJobDet',postData).success(function (response){
 				if (response != 0){
-				alert("Success");
+				swal("Done","Update Success","success");
 				$scope.isJobQueue = true;
 				$scope.isPostJob = false;
 				$scope.isJobTrack = false;
@@ -2763,7 +2766,7 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 
 		$http.post('/saveEndorse',postData).success(function (response){
 				if (response != 0){
-					alert("Successfully Endorsed!");
+					swal("Done","Successfully Endorsed :)","success");
 					$scope.listEndorsements();
 				}
 		}).error(function (err) {
@@ -2824,7 +2827,8 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	/* End Coverpage Information Updates */
 	
 	$scope.changeProfileVideo = function() {
-		$('#videoUpload').trigger('click');
+		$('#videoupload').trigger('click');
+		/*
 		$scope.user = {
 				imageContents : "",
 				imageContentType : "",
@@ -2860,6 +2864,7 @@ app.controller('profileCtrl', function ($q, $scope, $rootScope, $http, $location
 	        };
 		});
 		return false;
+		*/
 	}
 	
 	$scope.goBack = function() {
@@ -3350,7 +3355,7 @@ app.controller('testCtrl', function ($scope, $http, $location, $rootScope){
 
 		$http.post('/saveEndorse',postData).success(function (response){
 				if (response != 0){
-					alert("Success");
+					swal("Done","Endorsement Updated","success");
 					$location.url('/home');
 				}
 		}).error(function (err) {
@@ -3527,7 +3532,7 @@ app.controller('adminCtrl', function ($q, $scope, $rootScope, $routeParams, $htt
 			
 			$http.post('/deactivateProfile',postData).success(function (response){
 				if (response != 0){
-					swal("User Account Deactivated.");
+					swal("Done","User Account Deactivated :(","success");
 					$scope.search();
 					$location.url('/userInfoMgmt');
 				}
@@ -3545,14 +3550,14 @@ app.controller('adminCtrl', function ($q, $scope, $rootScope, $routeParams, $htt
 		}
 		$http.post('/activateUser', postData).success(function (response){
 			if(response == "Not Valid") {
-				swal("User already active.");
+				swal("Info","User already active.","success");
 			}
-			swal("User Account Activated.");
+			swal("Done","User Account Activated.","success");
 			$scope.search();
 			$location.url('/userInfoMgmt');
 		}).error(function (err) {
 			if(err) {
-				alert("Not a valid user information");
+				swal("Error","Not a valid user information","error");
 			}
 		});
 	}
@@ -3565,7 +3570,7 @@ app.controller('adminCtrl', function ($q, $scope, $rootScope, $routeParams, $htt
 		
 		$http.post('/deactivateEmpProfile',postData).success(function (response){
 			if (response != 0){
-				swal("Employer Account Deactivated.");
+				swal("Done","Employer Account Deactivated.","success");
 				$scope.searchEmp();
 				$location.url('/empInfoMgmt');
 			}
@@ -3583,12 +3588,12 @@ app.controller('adminCtrl', function ($q, $scope, $rootScope, $routeParams, $htt
 			if(response == "Not Valid") {
 				swal("Employer already active.");
 			}
-			swal("Employer Account Activated.");
+			swal("Done","Employer Account Activated.","success");
 			$scope.searchEmp();
 			$location.url('/empInfoMgmt');
 		}).error(function (err) {
 			if(err) {
-				swal("Not a valid employer information");
+				swal("Error","Not a valid employer information","error");
 			}
 		});
 	}
@@ -3972,7 +3977,7 @@ $scope.changePasswd = function (cUser) {
 		 if(!validCard || !validExpiry || !validCVC) {
 			 swal("Failed","Validation failed due to invalid card details","error");
 		 } else {
-			 swal("Done","Card details are up-to-date","success");
+			 swal("Verified","Card details are up-to-date","success");
 		 }
 	 }
 	 

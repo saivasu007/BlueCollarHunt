@@ -102,7 +102,7 @@
 			<h4>Employer Credentials Generator</h4>
 		</div>
 	    <div style="padding-top:20px;">
-            <button ng-click="pwSave(currentUser)" class="btn btn-primary block m-b" style="width:65%;font-size:18px;font-weight:bold;">Generate Temp Password</button>
+            <button ng-click="generateTempPass(emp)" class="btn btn-primary block m-b" style="width:65%;font-size:18px;font-weight:bold;">Generate Temp Password</button>
         </div>
         <div style="padding-top:20px;">
             <button ng-click="generateUniqueID(emp)" class="btn btn-primary block m-b" style="width:65%;font-size:18px;font-weight:bold;">Generate Emp UniqueID</button>
@@ -175,40 +175,146 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4>Payment Source for {{emp.name}}</h4>
 			</div>
-			<div class="modal-body" style="margin:10px 0px 0px 10px;" data-ng-init="showPaymentSource(emp)">
+			<div class="modal-body" data-ng-init="showPaymentSource(emp)">
+					<!-- Error Message Area ng-show="empErrorMsg" -->
+					<div class="form-group" ng-show="cardErrorMsg" style="width:500px;margin-left:110px;">
+									<flash-message
+						    			duration="5000"
+						    			show-close="true"
+						    			on-dismiss="ClearMessages(flash)"></flash-message>
+				    </div>
+					<!-- Error Message Area End -->
+			<div ng-show="!addPaymentSrc">
+				<p style="text-align:right;margin:0 0 5px;"><a href="" ng-click="displayPaymentSource()"><b>+ Add New Payment Source</b></a></p>
 				<div  style="border:3px solid #5BC0DE;width:100%;">
-			<table class="table table-striped">
-				<thead>
-				<tr style="background-color:#D3D3D3">
-					<th></th>
-					<th>Card Info</th>
-					<th>Employer</th>
-					<th>Action</th>
-				</tr>
-				</thead>
-				<tbody>
-				<tr ng-repeat="payment in paymentSourceList">
-					<td><input id="ccInfo" type="radio" autocomplete="off" ng-model="selectedCard" value="{{payment._id}}" ng-click="showID(payment)"></td>
-					<td>{{payment.cardNumber | limitTo:12}}-XXXX <br/>{{payment.cardMM}}/{{payment.cardYYYY}}&emsp;&emsp;{{payment.cvc}}<br/>{{payment.cardName}}</td>
-					<td>{{payment.email}}</td>
-					<td>
-					<button  class="btnCustom btn-warning" ng-click="validateCardInfo(payment)" style="width: 70px; height: 34px; font-size: 18px; padding:0px;background:#f0ad4e;border-color:#eea236;" ng-disabled="!selectedCard">
-					 <span class="glyphicon glyphicon-check"></span>
-					</button>
-					<button  class="btnCustom btn-danger" ng-click="deleteCardInfo(payment)" style="width: 70px; height: 34px; font-size: 18px; padding:0px;background:#d9534f;border-color:#d43f3a;" ng-disabled="!selectedCard">
-					 <span class="glyphicon glyphicon-trash"></span> 
-					</button>
-					</td>
-				</tr>
-				<tr ng-show="paymentSourceList.length <= 0">
-				<td colspan="3" align="center"><h4 style="color:red">No Payment Source Information available.</h4></td>
-				</tr>
-				</tbody>
-			</table>
+					<table class="table table-striped">
+						<thead>
+						<tr style="background-color:#D3D3D3">
+							<th></th>
+							<th>Card Info</th>
+							<th>Employer</th>
+							<th>Action</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr ng-repeat="payment in paymentSourceList">
+							<td><input type="radio" name="view" ng-model="selectedCard" value="{{payment._id}}" ng-click="showID(payment)"></td>
+							<td><img ng-src="img/{{payment.type}}.png" style="width:45px;height:30px;"/> <b>ending in {{payment.cardNumber % 10000}} </b><br/>Exp Date: {{payment.cardMM}}/{{payment.cardYYYY}}<br/>{{payment.cardName}}</td>
+							<td>{{payment.email}}</td>
+							<td>
+							<button  class="btnCustom btn-warning" ng-click="validateCardInfo(payment)" style="width: 70px; height: 34px; font-size: 18px; padding:0px;background:#f0ad4e;border-color:#eea236;" tooltip="Verify Card Details">
+							 <span class="glyphicon glyphicon-check"></span>
+							</button>
+							<button  class="btnCustom btn-danger" ng-click="deleteCardInfo(payment)" style="width: 70px; height: 34px; font-size: 18px; padding:0px;background:#d9534f;border-color:#d43f3a;" tooltip="Remove Card Details">
+							 <span class="glyphicon glyphicon-trash"></span> 
+							</button>
+							</td>
+						</tr>
+						<tr ng-show="paymentSourceList.length <= 0">
+						<td colspan="4" align="center"><h4 style="color:red">No Payment Source Information available.</h4></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
+			
+			<div id="pymtSrcInfo" ng-show="addPaymentSrc" style="margin-left:110px;">
+				<div class="panel panel-default site-panel-box" style="height:310px;width:500px;">
+				<div class="panel-body" style="padding:10px;">
+        		<div class="panel-heading" style="background-color:#63c1ff;">
+                    <div class="row display-tr">
+                        <h3 class="panel-title display-td" >Payment Details</h3>
+                        <div class="display-td" >                            
+                            <img class="img-responsive pull-right" src="img/credit_cards.png">
+                        </div>
+                    </div>                    
+                </div>
+                <div class="panel-body" style="padding:0px;">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group" style="padding-top:10px;">
+                                    
+                                    <div class="input-group">
+                                        <input 
+                                            type="tel"
+                                            id="cardNum"
+                                            class="form-control"
+                                            ng-model="emp.cardNumber"
+                                            ng-change="formatCC()"
+                                            ng-blur="validateCard()"
+                                            placeholder="Valid Card Number"
+                                            autocomplete="cc-number"
+                                            required autofocus 
+                                        />
+                                        <span class="input-group-addon"><i class="fa fa-credit-card"></i></span>
+                                    </div>
+                                </div>                            
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-7 col-md-7">
+                                <div class="form-group">
+                                    
+                                    <input 
+                                        type="tel" 
+                                        class="form-control" 
+                                        id="expiry"
+                                        ng-model="emp.cardExpiry"
+                                        ng-change="formatExpiry()"
+                                        ng-blur="validateExpiry()"
+                                        placeholder="MM / YYYY"
+                                        autocomplete="cc-exp"
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-xs-5 col-md-5 pull-right">
+                                <div class="form-group">
+                                    
+                                    <input 
+                                        type="tel" 
+                                        class="form-control"
+                                        id="cvc"
+                                        ng-model="emp.cvc"
+                                        ng-change="formatCVC()"
+                                        ng-blur="validateCVC()"
+                                        placeholder="CVC"
+                                        autocomplete="cc-csc"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" ng-model="emp.cardName" placeholder="Name on the card"/>
+                                </div>
+                            </div>                        
+                        </div>
+                        <div class="row">
+                        <div class="col-xs-12">
+							<div class="form-group">
+								<input type="checkbox" ng-checked=true
+									ng-disabled=true> By continuing, you agree that you have read and accepted the <a href="">Blue Collar Electronic Policy</a>.
+							</div>
+						</div>
+						</div>
+                        <div class="row" style="display:none;">
+                            <div class="col-xs-12">
+                                <p class="payment-errors"></p>
+                            </div>
+                        </div>
+                </div>
+            	</div> 
+            	</div>
+            </div> 
+			
 			</div>
 			<div class="modal-footer" style="text-align:right;">
-				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Cancel</button>
+				<button ng-show="addPaymentSrc" class="btnCustom" style="width:115px;height:33px;padding:0px;border-radius:20px;" ng-click="saveEmpCardInfo(emp)">Save Card</button>
+				<button ng-show="addPaymentSrc" class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #5cb85c;border: solid #4cae4c 2px;" ng-click="addPymtCancel()">Cancel</button>
+				<button ng-show="!addPaymentSrc" class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
@@ -291,12 +397,12 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4>Contact Information for {{emp.name}} <button class="btnCustom" style="width:85px;height:33px;padding:0px;border-radius:20px;margin-left:450px;" ng-click="processEmpCall(emp.contactNum)"><span class="glyphicon glyphicon-phone-alt"></span></button></h4>
+				<h4>Contact Information for {{emp.name}} <button class="btnCustom" style="width:85px;height:33px;padding:0px;border-radius:20px;margin-left:470px;" ng-click="processEmpCall(emp.contactNum)"><span class="glyphicon glyphicon-phone-alt"></span></button></h4>
 				
 			</div>
 			<div class="modal-body" style="margin:10px 0px 0px 10px;">
 					<!-- Error Message Area ng-show="empErrorMsg" -->
-					<div class="form-group" ng-show="empErrorMsg" style="width:95%">
+					<div class="form-group" ng-show="empErrorMsg" style="width:100%">
 									<flash-message
 						    			duration="5000"
 						    			show-close="true"

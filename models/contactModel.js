@@ -10,7 +10,8 @@ var contactSchema = new mongoose.Schema({
     status: String,
     msgDate: Date,
     responseDate: Date,
-    respondedBy: String
+    respondedBy: String,
+    lastUpdatedBy: String
 });
 
 module.exports = mongoose.model('contactModel', contactSchema);

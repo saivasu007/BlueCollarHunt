@@ -24,9 +24,14 @@ var userSchema = new mongoose.Schema({
     authType: String,
     primarySkill: String,
     coverPageInfo: String,
+    tempPassword: String,
+    tempPassYN: String,
+    rating: String,
     activateHandle: String,
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    lastUpdatedBy: String,
+    updatedDate: Date
 });
 
 userSchema.methods.validPassword = function( pwd ) {

@@ -37,6 +37,7 @@ var empModel = require("./models/empModel.js");
 var contactModel = require("./models/contactModel.js");
 var paymentModel = require("./models/paymentModel.js");
 var jobInfoModel = require("./models/jobInfoModel.js");
+var jobArchiveModel = require("./models/jobArchiveModel.js");
 var endorsementModel = require("./models/endorsementModel.js");
 var userJobInfoModel = require("./models/userJobInfo.js");
 var userContactsModel = require("./models/userContactsModel.js");
@@ -79,12 +80,14 @@ var deactivateUsrAcctTemplate = properties.get("app.email.deactivateUserAcctTem"
 var reactivateUsrAcctTemplate = properties.get("app.email.reactivateUserAcctTem");
 var applyJobConfirmTemplate = properties.get("app.email.applyJobConfirmTem");
 var referJobTemplate = properties.get("app.email.referJobTem");
-var sendEmpMessageTemplate = properties.get("app.email.sendEmpMessageTem");
+var sendAdmMessageTemplate = properties.get("app.email.sendAdmMessageTem");
+var sendTempPassTemplate = properties.get("app.email.sendTempPassTem");
 var deactivateUsrSubject = properties.get("app.email.subjectDeactivateUsrAcct");
 var reactivateUsrSubject = properties.get("app.email.subjectReactivateUsrAcct");
 var confirmJobApplySubject = properties.get("app.email.subjectConfirmJobApply");
 var referJobSubject = properties.get("app.email.subjectReferJob");
-var sendEmpMsgSubject = properties.get("app.email.subjectEmpMessage");
+var sendAdmMsgSubject = properties.get("app.email.subjectAdmMessage");
+var sendTempPassSubject = properties.get("app.email.subjectTempPass");
 var accountSid = "AC42ad500c38340d173068052fa991c0f1";
 var authToken = "3d1a0a366252727c4d5c475c86c996be";
 var client = require('twilio')(accountSid, authToken);
@@ -117,6 +120,16 @@ function randomNumber() {
 	return num;
 }
 
+function randomPassword(name,length) {
+    var chars = name+"abcdefghijklmnopqrstuvwxyz!@#$%^&*()-+<>ABCDEFGHIJKLMNOP1234567890";
+    var pass = "";
+    for (var x = 0; x < length; x++) {
+        var i = Math.floor(Math.random() * chars.length);
+        pass += chars.charAt(i);
+    }
+    return pass;
+}
+
 function sendEmail(user,template,info,request){
 	var handle = "";
 	var host = "";
@@ -134,8 +147,10 @@ function sendEmail(user,template,info,request){
 		subject = confirmJobApplySubject+" "+user.title;
 	} else if(template == referJobTemplate) {
 		subject = referJobSubject;
-	} else if(template == sendEmpMessageTemplate) {
-		subject = sendEmpMsgSubject;
+	} else if(template == sendAdmMessageTemplate) {
+		subject = sendAdmMsgSubject;
+	} else if(template == sendTempPassTemplate) {
+		subject = sendTempPassSubject;
 	}
 	
 	var smtpTransport = mailer.createTransport(emailTransport, {
@@ -187,12 +202,21 @@ function sendEmail(user,template,info,request){
 					  comments: user.comments,
 					  url: request.protocol+"://"+request.headers.host+"/searchJobs"
 				  }
-	 } else if(template == sendEmpMessageTemplate) {
+	 } else if(template == sendAdmMessageTemplate) {
 		 var data = {
 				  name: user.name,
 				  email: user.email,
 				  message: user.content				  
 			  }
+	 } else if(template == sendTempPassTemplate) {
+		 var loginUrl = "";
+		 if(request.body.userType == "U") loginUrl = request.protocol+"://"+request.headers.host+"/login";
+		 else loginUrl = request.protocol+"://"+request.headers.host+"/empLogin";
+		 var data = {
+				 name: request.body.name,
+				 password: request.body.tempPass,
+				 url: loginUrl
+		 }
 	 }
 	
       var mailOptions = {
@@ -268,25 +292,23 @@ passPort.use(new localStrategy({
 	passReqToCallback : true
 }, function(req, username, password, done) {
 	// authentication method
-	console.log("userType "+ req.body.userType);
 	if(req.body.userType == "U") {
-	console.log("User Login");
 	userModel.findOne({
 		email : username,
 		password : encrypt(password)
 	}, function (err, user) {
-        if (err) return done(err);
+		console.log(req.body.loginType);
+		if (err) return done(err);
         if (user) {
             if (user.activeIn == "N") {
             	console.log(username+" deactivated in Blue Collar Hunt Portal.Please Re-Activate your account and Login.");
-                return done(err+" deactivated");
-            }
-            return done(null, user)
+                return done("Deactivated");
+            } else if(user.role == "admin" && req.body.loginType != "admin") return done("AdminLogin");
+            else return done(null, user)
         }
         return  done(null, false)
     })
 	} else if(req.body.userType == "E") {
-		console.log("Employer Login");
 		empModel.findOne({
 			email : username,
 			password : encrypt(password),
@@ -303,7 +325,6 @@ passPort.use(new localStrategy({
 	            }
 	            return done(null, user)
 	        } */
-	        console.log("Employer Info "+user);
 	        return  done(null, user)
 	    })
 	  }
@@ -386,6 +407,7 @@ passPort.use(new LinkedinStrategy({
               newUser.subscriber = "No";
               newUser.authType = "linkedin";
               newUser.userType = "U";
+              newUser.rating = "2";
               // save our user to the database
               newUser.save(function(err) {
 	          if(err) {
@@ -432,6 +454,7 @@ passPort.use(new facebookStrategy({
                   newUser.authType = "facebook";
                   newUser.accessToken = token;
                   newUser.userType = "U";
+                  newUser.rating = "2";
                   console.log("Before saving user info");
                   // save our user to the database
                   newUser.save(function(err) {
@@ -468,6 +491,7 @@ passPort.use(new GoogleStrategy({
               	user.subscriber = "No";
               	user.authType = "google";
               	user.userType = "U";
+              	user.rating = "2";
 	        user.save(function(err) {
 	          if(err) {
 	            console.log(err);  // handle errors!
@@ -664,7 +688,6 @@ app.post('/login', passPort.authenticate('local'),function(req, res) {
 });
 
 app.post('/empSignIn', passPort.authenticate('local'),function(req, res) {
-	console.log("After empSignIn "+req.user);
 	var user = req.user;
 	user.userType = "E";
 	res.json(user);
@@ -809,39 +832,6 @@ app.post("/empFreeRegister", function(req, res) {
 				*/
 				sendEmail(newUser,empRegTemplate,null,req);
 				res.send('success');
-				/*
-				//Email communication after successful registration.
-				var smtpTransport = mailer.createTransport(emailTransport, {
-					service : "Gmail",
-					auth : {
-						user : serviceUser,
-						pass : decrypt(servicePasswd)
-					}
-				});
-				var data = {
-						email: user.email,
-			            password: decrypt(user.password),
-			            uniqueID: user.empUniqueID,
-			            url: "http://"+req.headers.host+"/empSignIn",
-			            name: user.name
-				}
-				var mail = {
-					from : emailFrom,
-					to : req.body.email,
-					subject : emailEmpRegSubject,
-					html: renderTemplate(empRegTemplate,data)
-				}
-
-				smtpTransport.sendMail(mail, function(error, response) {
-					if (error) {
-						console.log(error);
-					} else {
-						console.log("Message sent: " + response.message);
-					}
-				   smtpTransport.close();
-				});
-			    //End email communication here.
-			    */
 			});
 	  } 
 	});
@@ -1241,6 +1231,30 @@ app.post('/getEmpJobs', function(req, res) {
 	}
 });
 
+app.post('/getEmpArchJobs', function(req, res) {
+	if(req.body.title == "" || req.body.title == undefined) {
+		jobArchiveModel.find({
+			employerID : req.body.email
+		}, function(err, result) {
+			res.send(result);
+		});
+	} else if(req.body.relativeSearch) {
+		jobArchiveModel.find({
+			employerID : req.body.email,
+			jobID : {$regex: req.body.title,$options:"$i"}
+		}, function(err, result) {
+			res.send(result);
+		});
+	} else {
+		jobArchiveModel.find({
+			employerID : req.body.email,
+			title : {$regex: req.body.title,$options:"$i"}
+		}, function(err, result) {
+			res.send(result);
+		});
+	}
+});
+
 app.post('/deleteJobInfo', function(req, res) {
 	jobInfoModel.remove({
 		jobID : req.body.jobID
@@ -1250,6 +1264,89 @@ app.post('/deleteJobInfo', function(req, res) {
 			res.send('success');
 		}
 	});
+});
+
+app.post('/archiveJobInfo', function(req, res) {
+	jobArchiveModel.findOne({
+		jobID: req.body.job.jobID
+	}, function(err, result) {
+		if(!result) {
+			var jobArchiveRecord = new jobArchiveModel(req.body.job);
+			jobArchiveRecord.save(function(err, result) {
+				if (err) {
+					res.send('error');
+				} else {
+					console.log("Job Information archived.Now removing job Information from queue.");
+					jobInfoModel.remove({
+						jobID : req.body.job.jobID
+					}, function(err, num) {
+						if(num.ok =1) {
+							console.log("Job "+req.body.job.jobID+" removed successfully.");
+							res.send('success');
+						}
+					});
+				}
+			});
+		} else {
+			console.log("Job Information already archived.");
+			res.send('error');
+		}
+	});
+});
+
+app.post('/pushJobInfoQueue', function(req, res) {
+	jobInfoModel.findOne({
+		jobID: req.body.job.jobID
+	}, function(err, result) {
+		if(!result) {
+			var jobInfoRecord = new jobInfoModel(req.body.job);
+			jobInfoRecord.save(function(err, result) {
+				if (err) {
+					res.send('error');
+				} else {
+					console.log("Job Information moved back to Queue.Now removing job Information from archives.");
+					jobArchiveModel.remove({
+						jobID : req.body.job.jobID
+					}, function(err, num) {
+						if(num.ok =1) {
+							console.log("Job "+req.body.job.jobID+" removed successfully.");
+							res.send('success');
+						}
+					});
+				}
+			});
+		} else {
+			console.log("Job Information already in Employer active Job Queue.");
+			res.send('error');
+		}
+	});
+});
+
+app.post('/changeUserRating', function(req, res) {
+	userModel.findOne({
+		email : req.body.candEmail
+	}, function(err, result) {
+		if (result) {
+			userModel.update({
+				email : req.body.candEmail
+			}, {
+				rating : req.body.rating,
+				updatedDate : new Date(),
+				lastUpdatedBy : req.body.candEmail
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('Updated Candidate Rating.');
+					res.send('success')
+				} else {
+					console.log('error while updating candidate rating.');
+					res.send('error')
+				}
+			})
+		} else {
+			console.log("Candidate not registered in portal.");
+			res.send('error');
+		}
+	})
 });
 
 app.post('/updateJobDet', function(req, res) {
@@ -1268,7 +1365,8 @@ app.post('/updateJobDet', function(req, res) {
 				rate : req.body.rate,
 				salaryType : req.body.salaryType,
 				activeJob : req.body.activeJob,
-				updatedDate : new Date()
+				updatedDate : new Date(),
+				postExpiryDate : req.body.postExpiryDate
 			}, false, function(err, num) {
 				if (num.ok = 1) {
 					console.log('success');
@@ -1354,6 +1452,15 @@ app.post('/getCandidateList', function(req, res) {
 	console.log("Job ID "+req.body.jobID);
 	userJobInfoModel.find({
 			jobID : req.body.jobID
+		}, function(err, result) {
+			res.send(result);
+		});
+});
+
+app.post('/getCandidateRating', function(req, res) {
+	console.log("Email ID "+req.body.email);
+	userModel.findOne({
+			email : req.body.email
 		}, function(err, result) {
 			res.send(result);
 		});
@@ -2790,7 +2897,7 @@ app.post('/processCall', function(req, res) {
 });
 
 app.post('/sendEmailMessage', function(req, res) {
-	sendEmail(req.body,sendEmpMessageTemplate,null,req);
+	sendEmail(req.body,sendAdmMessageTemplate,null,req);
 	res.send('success');
 });
 
@@ -2822,6 +2929,96 @@ app.post('/getAdmReportData', function(req, res) {
 	} else if(req.body.repType == "seeker" && req.body.email != "") {
 		userJobInfoModel.find({email : req.body.email}).exec(function(err, result) {
 			res.send(result);
+		});
+	}
+});
+
+app.post("/addPaymentSource", function(req,res) {
+	paymentModel.findOne({
+		cardNumber : req.body.card.cardNumber
+	}, function(err, result) {
+		if (!result) {
+			req.body.card.cardNumber = req.body.card.formatCardNumber;
+			var newPayment = new paymentModel(req.body.card);
+			newPayment.save(function(err, pymtUser) {
+				if(err) {
+					console.log("ERROR:while adding paymet source information "+err);
+					res.send(err);
+				} else { 
+					console.log("Payment Source added successfully"); 
+					empModel.update({
+						email : req.body.card.email
+					}, {
+						saveCC: "Y"
+					}, false, function(err, num) {
+						if (num.ok = 1) {
+							console.log('success');
+							res.send('success')
+						} else {
+							console.log('error');
+							res.send('error')
+						}
+					})
+				}
+			});
+		} else {
+			console.log('Card Information already on File for '+req.body.card.email);
+			res.send('Card Information already on File');
+		}
+	});
+});
+
+app.post("/sendTempPassword",function(req,res) {
+	var tempPass = randomPassword(req.body.name,10);
+	req.body.tempPass = tempPass;
+	console.log("Temp Password "+tempPass);
+	if(req.body.userType == "U") {
+		userModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (result && result.email) {
+				userModel.update({
+					email : req.body.email
+				}, {
+					tempPassword : req.body.tempPass,
+					tempPassYN : "Y",
+					lastUpdatedBy : req.body.updatedBy,
+					updatedDate : new Date()
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						sendEmail(result,sendTempPassTemplate,null,req);
+						res.send('success')
+					} else {
+						console.log("ERROR.Email Not Sent to User");
+						res.send('error')
+					}
+				})
+			}
+		});
+	} else if(req.body.userType == "E") {
+		empModel.findOne({
+			email : req.body.email
+		}, function(err, result) {
+			if (result && result.email) {
+				empModel.update({
+					email : req.body.email
+				}, {
+					tempPassword : req.body.tempPass,
+					tempPassYN : "Y",
+					lastUpdatedBy : req.body.updatedBy,
+					updatedDate : new Date()
+				}, false, function(err, num) {
+					if (num.ok = 1) {
+						console.log('success');
+						sendEmail(result,sendTempPassTemplate,null,req);
+						res.send('success')
+					} else {
+						console.log("ERROR.Email Not Sent to User");
+						res.send('error')
+					}
+				})
+			}
 		});
 	}
 });

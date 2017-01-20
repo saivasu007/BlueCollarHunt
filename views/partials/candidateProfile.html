@@ -37,7 +37,15 @@
 <div class="panel-body" style="padding:20px;">
 <img ng-show="dataUrl == 'NoProfilePic'" src="img/blank.jpeg" style="height:125px;width:175px;border-radius: 60%;background-position: center center;background-size: cover;" />
 <img ng-show="dataUrl != 'NoProfilePic'" ng-src="{{dataUrl | trustUrl}}" style="height:125px;width:175px;border-radius: 60%;background-position: center center;background-size: cover;" />
-<br/><br/><br/>
+<br/>
+<div ng-controller="RatingCtrl" style="text-align:center;">
+	<h3>
+    <span uib-rating ng-model="rating" max="max" read-only="isReadonly" on-hover="hoveringOver(value)" on-leave="overStar = null"  ng-change="updateRating(rating)" aria-labelledby="default-rating" style="color:orange;"></span>
+	<span class="label" ng-class="{'label-warning': percent<30, 'label-info': percent>=30 && percent<70, 'label-success': percent>=70}" ng-show="overStar && !isReadonly">{{percent}}%</span>
+	<!-- <b>Rating : {{currentUser.rate}}</b> -->
+	</h3>
+</div>
+<br/><br/>
 <table>
 <tr>
 <td>
@@ -74,7 +82,7 @@
 <div class="panel-body" style="padding:3px;padding-top:0px;">
 <h3>{{candidate.firstName}} {{candidate.lastName}} <!-- <img src="img/like_image.jpeg" style="width:90px;height:70px;padding-bottom:20px;"></h3> -->
 <button class="btnCustom" style="width:110px;height:28px;padding:0px;border-radius:20px;margin-top:0px;margin-left:10px;" ng-click="updateCandidateStatus(candidate)" ng-show="applicationStatus == 'IR' || applicationStatus == '' || applicationStatus == undefined">Short-List</button>
-<button class="btnCustom" style="width:115px;height:28px;padding:0px;border-radius:20px;margin-top:0px;margin-left:10px;background-color:#f0ad4e;background:#f0ad4e;" ng-click="updateCandidateStatus(candidate)" ng-show="applicationStatus == 'SL'" ng-disabled="true">Shortlisted</button>
+<button class="btnCustom" style="width:115px;height:28px;padding:0px;border-radius:20px;margin-top:0px;margin-left:10px;background:#f0ad4e;border: solid #f0ad4e 2px;"" ng-click="updateCandidateStatus(candidate)" ng-show="applicationStatus == 'SL'" ng-disabled="true">Shortlisted</button>
 <h4 style="margin:-10px 0px 0px 0px">@{{candidate.lastName}}</h4>
 <div class="form-group" style="margin:10px 0px 0px 0px;">
 <textarea name="message" id="coverMsg" class="form-control" rows="12" cols="26" ng-disabled="true"

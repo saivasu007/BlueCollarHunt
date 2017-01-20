@@ -15,7 +15,11 @@ var empSchema = new mongoose.Schema({
     saveCC: String,
     userType: String,
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    tempPassword: String,
+    tempPassYN: String,
+    updatedDate: Date,
+    lastUpdatedBy: String
 });
 
 empSchema.methods.validPassword = function( pwd ) {

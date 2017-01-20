@@ -54,7 +54,7 @@
 				  <input type="text" id="eml" autofocus="true" ng-model="user.email" class="form-control" style="width:350px" placeholder="User ID" ng-blur="testLoginName()" ng-required="true" autocomplete="true">
                	  <input type="password" id="pwd" ng-model="user.password" ng-keydown="pressEnter($event,user)" class="form-control" style="width:350px" placeholder="Password" ng-blur="testPasswordLen()" ng-required="true">
 				  <br/>
-				  <button ng-click="login(user)" class="btn btn-primary block full-width m-b" style="width:280px">Login</button>
+				  <button ng-click="adminLogin(user)" class="btn btn-primary block full-width m-b" style="width:280px">Login</button>
 				  <!-- 
 				  <br/><br/>
             	  <a class="btn btn-info btn-block" href="/register">Sign Up</a>	

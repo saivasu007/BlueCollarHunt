@@ -26,9 +26,11 @@
 <div class="panel panel-default site-panel-box" style="height:80%;">
 <div class="panel-body" style="padding:60px;height:175px;">
 		 <a href="/home"><img src="img/blueCollar.png" alt="BlueCollarHunt" width="125" height="125" style="margin:-30px 0px 0px -60px"/></a>
-		 <div  style="border:4px solid #5BC0DE;width:843px;height:55px;margin:-90px 0px 0px 140px;">
+		 <div style="border:4px solid #5BC0DE;width:843px;height:55px;margin:-80px 0px 0px 50px;display:inline-block;">
 			<h3 style="text-align:center;margin-top:10px;color:#63c1ff;">{{seeker.lastName.toUpperCase()}} INFORMATION UPDATE SCREEN</h3>
 		</div>
+		&emsp;&nbsp;&nbsp;
+		<a href="" ng-click="showContactInfo(seeker)" data-toggle="modal" data-target="#showContactInfo" tooltip="Send Message to Seeker"><img src="img/contactSeeker.png" style="display:inline-block;width:70px;height:50px;" /></a>
 </div></div></div></div></div>
 <div class="container" style="padding-left:0px;margin-top: -20px;">
 <div class="row" style="height:800px;">
@@ -109,12 +111,12 @@
  -->
  
  <div id="chgPasswd" class="right-box text-center" style="margin:-350px 0px 0px 590px;padding-top:40px;">
-  <div class="panel panel-default site-panel-box" style="height:305px;width:542px;border:2px ridge #5BC0DE;margin-bottom:0px;">
+  <div class="panel panel-default site-panel-box" style="height:330px;width:542px;border:2px ridge #5BC0DE;margin-bottom:0px;">
 	<div class="panel-body" style="padding:0px;">
 		 <div class="panel-heading" style="text-align:center;background-color:#63c1ff;">
 			<h4>Change Password</h4>
 		</div>
-		<div class="form-group" style="padding-top:25px;">
+		<div class="form-group" style="padding-top:15px;">
                 <input id="pw2" class="form-control" autofocus="true" style="width: 350px; height:42px; display:inline-block; margin-bottom: 0px;" type="password" ng-model="seeker.password1" placeholder="New Password" ng-required="true" ng-blur="testPasswordLen()">
             	<i class="glyphicon glyphicon-lock"  style="padding-top:10px;margin-left:-25px;"></i>
         </div>
@@ -122,14 +124,16 @@
                 <input id="pw2" class="form-control" style="width: 350px; height:42px; display:inline-block; margin-bottom: 0px;" type="password" ng-model="seeker.password2" placeholder="Repeat New Password" ng-required="true" ng-blur="testPassword()">
             	<i class="glyphicon glyphicon-lock"  style="padding-top:10px;margin-left:-25px;"></i>
         </div>
-	    <div style="padding-top:20px;">
-            <button ng-click="changePasswd(seeker)" class="btn btn-primary block m-b" style="width:65%">Save</button>
+	    <div style="padding-top:6px;">
+            <button ng-click="changePasswd(seeker)" class="btn btn-primary block m-b" style="width:65%;font-size:16px;font-weight:bold;">Save</button>
+            <h4> -------- OR --------</h4>
+            <button ng-click="generateTempPass(seeker)" class="btn btn-primary block m-b" style="width:65%;font-size:16px;font-weight:bold;">Generate Temp Password</button>
         </div>
 	</div>
   </div>
 </div>
 
-<div id="items" class="right-box" style="margin:-795px 0px 0px 590px;padding-top:70px;">
+<div id="items" class="right-box" style="margin:-812px 0px 0px 590px;padding-top:70px;">
   <div class="panel panel-default site-panel-box" style="height:405px;width:542px;margin-bottom:0px;border:2px ridge #5BC0DE;">
 	<div class="panel-body" style="padding:5px;">
 		 <div class="panel-heading" style="text-align:center;background-color:#63c1ff;margin-bottom:4px;">
@@ -146,7 +150,7 @@
 				</thead>
 				<tbody>
 				<tr ng-repeat="item in partialItems">
-					<td>{{item.filename}}</td>
+					<td style="text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">{{item.filename}}</td>
 					<td>{{item.contentType}}</td>
 					<td><button  class="btnCustom btn-danger" ng-click="deleteItem(item.filename)" style="width: 40px; height: 20px; font-size: 12px; padding:0px;background:#d9534f">
 					 <span class="glyphicon glyphicon-trash"></span> 
@@ -179,6 +183,78 @@
 </div>
 </div>
 </div></div>
+
+<!-- Section to send the email message -->
+<div  class="modal fade" id="showContactInfo" role="dialogue">
+	<div class="modal-dialogue" style="width:48%;height:100%;z-index:0;margin-top: 7%;margin-left: 27%">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4>Contact Information for {{seeker.lastName}} <button class="btnCustom" style="width:85px;height:33px;padding:0px;border-radius:20px;margin-left:470px;" ng-click="processEmpCall(emp.contactNum)"><span class="glyphicon glyphicon-phone-alt"></span></button></h4>
+				
+			</div>
+			<div class="modal-body" style="margin:10px 0px 0px 10px;">
+					<!-- Error Message Area ng-show="seekerErrorMsg" -->
+					<div class="form-group" ng-show="seekerErrorMsg" style="width:100%">
+									<flash-message
+						    			duration="5000"
+						    			show-close="true"
+						    			on-dismiss="ClearMessages(flash)"></flash-message>
+				    </div>
+					<!-- Error Message Area End -->
+				
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_name">Name *</label>
+                    <input id="form_name" type="text" name="name" class="form-control" placeholder="Seeker First Name *" ng-model="seeker.firstName" required="required" data-error="Firstname is required." ng-disabled="true">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_lastname">Location *</label>
+                    <input id="form_lastname" type="text" name="address" class="form-control" placeholder="Seeker Last Name *" ng-model="seeker.lastName" required="required" data-error="Lastname is required." ng-disabled="true">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_email">Email *</label>
+                    <input id="form_email" type="email" name="email" class="form-control" placeholder="Seeker Email *" ng-model="seeker.email" required="required" data-error="Valid email is required." ng-disabled="true">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_phone">Phone</label>
+                    <input id="form_phone" type="tel" name="phone" class="form-control" ng-model="seeker.contactNum" placeholder="Seeker Phone" ng-disabled="true">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="form_message">Message *</label>
+                    <textarea id="form_message" name="message" class="form-control" placeholder="Message for Seeker *" ng-model="seeker.message" rows="4" required="required" data-error="Please,leave us a message."></textarea>
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+        </div>
+	
+			</div>
+			<div class="modal-footer" style="text-align:right;">
+				<button class="btnCustom" style="width:165px;height:33px;padding:0px;border-radius:20px;" ng-click="sendSeekerMessage(seeker)">Send Message</button>
+				<button class="btnCustom" style="width:95px;height:33px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;" data-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End of Section to send the email message -->
+
 <footer>
 <div class="container" style="padding-left:0px;">
 <div class="row">

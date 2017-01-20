@@ -70,7 +70,13 @@
 <div style="text-align:center;"><a href="" ng-click="changeProfilePic()" ng-show="dataUrl != 'NoProfilePic'">Edit</a><a href="" ng-click="changeProfilePic()" ng-show="dataUrl == 'NoProfilePic'">Add Image</a></div>
 <input type="file" id="imgupload" ng-model="Image" accept="image/jpeg,image/png" placeholder="Change Profile Image" style="display:none">
 <br/>
-<br/>
+<div ng-controller="RatingCtrl" style="text-align:center;">
+	<h3>
+    <span uib-rating ng-model="rating" max="max" read-only="true" on-hover="hoveringOver(value)" on-leave="overStar = null" aria-labelledby="default-rating" style="color:orange;"></span>
+	<span class="label" ng-class="{'label-warning': percent<30, 'label-info': percent>=30 && percent<70, 'label-success': percent>=70}" ng-show="overStar && !isReadonly">{{percent}}%</span>
+	<!-- <b>Rating : {{currentUser.rate}}</b> -->
+	</h3>
+</div>
 <br/>
 <br/>
 <table>

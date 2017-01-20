@@ -3,7 +3,80 @@
  * @author : Srinivas Thungathurti
  * @description : Created for Capstone Project Blue Collar Hunt
  */
-var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash','djds4rce.angular-socialshare']);
+var app = angular.module('blueCollarApp', ['ngRoute', 'toggle-switch','ui.bootstrap','ngAutocomplete','angularFileUpload','ngImageInputWithPreview','ngFlash','djds4rce.angular-socialshare','ngSanitize','ngAnimate']);
+
+app.controller('DatepickerCtrl', function ($scope) {
+	  $scope.today = function() {
+	    $scope.dt = new Date();
+	  };
+	  $scope.today();
+
+	  $scope.clear = function () {
+	    $scope.dt = null;
+	  };
+
+	  // Disable weekend selection
+	  $scope.disabled = function(date, mode) {
+	    return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+	  };
+
+	  $scope.toggleMin = function() {
+	    $scope.minDate = new Date(1947, 5, 22);
+	  };
+	  $scope.toggleMin();
+	  $scope.maxDate = new Date(2050, 5, 22);
+
+	  $scope.open = function($event) {
+	    $scope.status.opened = true;
+	  };
+
+	  $scope.setDate = function(year, month, day) {
+	    $scope.dt = new Date(year, month, day);
+	  };
+
+	  $scope.dateOptions = {
+	    formatYear: 'yy',
+	    startingDay: 1
+	  };
+
+	  $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy','mm/dd/yyyy', 'shortDate'];
+	  $scope.format = $scope.formats[0];
+
+	  $scope.status = {
+	    opened: false
+	  };
+	  
+	  var tomorrow = new Date();
+	  tomorrow.setDate(tomorrow.getDate() + 1);
+	  var afterTomorrow = new Date();
+	  afterTomorrow.setDate(tomorrow.getDate() + 2);
+	  $scope.events =
+	    [
+	      {
+	        date: tomorrow,
+	        status: 'full'
+	      },
+	      {
+	        date: afterTomorrow,
+	        status: 'partially'
+	      }
+	    ];
+
+	  $scope.getDayClass = function(date, mode) {
+	    if (mode === 'day') {
+	      var dayToCheck = new Date(date).setHours(0,0,0,0);
+
+	      for (var i=0;i<$scope.events.length;i++){
+	        var currentDay = new Date($scope.events[i].date).setHours(0,0,0,0);
+
+	        if (dayToCheck === currentDay) {
+	          return $scope.events[i].status;
+	        }
+	      }
+	    }
+	    return '';
+	  };
+});
 
 app.directive("ngFileSelect",function(){
 	  return {
@@ -29,6 +102,34 @@ app.controller('indexCtrl', function($scope, ObserverService, $location, $anchor
 		$anchorScroll();
 	};
 });
+
+app.controller('RatingCtrl', function ($scope,$rootScope,$http) {
+	  if($rootScope.rating != undefined)  $scope.rating = $rootScope.rating;
+	  else $scope.rating = $rootScope.currentUser.rating;
+	  $scope.max = 5;
+	  /*
+	  alert($rootScope.currentUser.userType);
+	  if($rootScope.currentUser.userType == "U") $scope.isReadonly = true;
+	  else $scope.isReadonly = false;
+	  */
+
+	  $scope.hoveringOver = function(value) {
+	    $scope.overStar = value;
+	    $scope.percent = 100 * (value / $scope.max);
+	  };
+	  $scope.updateRating = function(val) {
+		  var postData = {
+				rating : val,
+				candEmail : $rootScope.candidateEmail
+		  }
+		  $http.post('/changeUserRating',postData).success(function(response){
+			  if(response == 'success') {
+				  $scope.rating = value;
+			  }
+		  });
+	  }
+});
+
 
 app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http,Flash) {
 	$scope.error = false;
@@ -226,6 +327,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 			$scope.user.userType = "U";
 			$scope.user.activeIn = "Y";
 			$scope.user.role = "user";
+			$scope.user.rating = "2";
 			$http.post('/register', user).success(function (response) {
 				if (response != "0") {
 					swal("Success","Please login with your registered email.","success");
@@ -292,6 +394,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 		    exp_year: cardYYYY
 		  }, amount, function(status,response) {
 			  var pStripeToken = response.id;
+			  var brand = response.brand;
 				var empData = {
 						stripeToken: pStripeToken,
 						email: emp.email,
@@ -315,6 +418,7 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 							cardYYYY: cardYYYY,
 							cardName: emp.cardName,
 							cvc: emp.cvc,
+							type: brand,
 							email: emp.email,
 							formatCardNumber: emp.cardNumber.replace(re, '$1'),
 							lastUpdated: moment(new Date()).format('MM/DD/YYYY, h:mm:ss a')
@@ -418,10 +522,15 @@ app.controller('registerCtrl', function($q, $scope, $location, $rootScope, $http
 
 app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams, $location) {
 
-	
-	$scope.result1 = '';
+	$scope.result1 = null;
     $scope.options1 = null;
     $scope.details1 = '';
+    
+    $scope.$watch(function() {
+        return $scope.result1;
+      }, function(location) {
+       
+    });
     
     $scope.search = function (searchInfo) {
     	if(searchInfo == undefined) {
@@ -437,15 +546,14 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
     	} else if(searchInfo.search == undefined && searchInfo.location != undefined) {
     		var data = {
         			name : "",
-        			location : searchInfo.location
+        			location : $scope.result1.substr(0,$scope.result1.indexOf(','))
         	}
     	} else if(searchInfo.search != undefined && searchInfo.location != undefined) {
     		var data = {
         			name : searchInfo.search,
-        			location : searchInfo.location
+        			location : $scope.result1.substr(0,$scope.result1.indexOf(','))
         	}
     	}
-    	
     	$http.post('/getJobs',data).success(function (response){
 			$scope.jobsList = response;
 			if($scope.jobsList.length <= 0) {
@@ -594,11 +702,11 @@ app.controller('landingCtrl', function ($scope, $rootScope, $http, $routeParams,
 	});
   }
 	
-	$scope.pressEnter = function (e,jobInfo) {
+  $scope.pressEnter = function (e,jobInfo) {
 		if (e.keyCode == 13){
 			//$scope.search(jobInfo);
 		}
-	};
+  };
 });
 
 app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $location,Flash) {
@@ -620,26 +728,68 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 		}
 		$scope.user.userType = "U";
 		$http.post('/login', user).success(function (response){
-			console.log(response);
 			$rootScope.currentUser = response;
-			if($rootScope.currentUser.role == "admin") $location.url('/admin');
-			else $location.url('/home');
-			
+			$location.url('/home');
 		}).error(function (err) {
 			if(err == "Unauthorized") {
 				$scope.errorMsg = true;
 				Flash.create('warning', "Email or password does not match!.",0, {class: 'alert-warning', id: 'custom-id'}, true);
 				return;
-			} else if(err != "Bad Request") {
+			} else if(err == "Deactivated\n") {
 				$scope.errorMsg = true;
 				Flash.create('Info', "User account disabled in portal.",0, {class: 'alert-info', id: 'custom-id'}, true);
+				return;
+			} else if(err == "AdminLogin\n") {
+				$scope.errorMsg = true;
+				Flash.create('Info', "Please login using Admin Login Screen.",0, {class: 'alert-info', id: 'custom-id'}, true);
 				return;
 			} else {
 				$scope.errorMsg = true;
 				Flash.create('Info', "Please enter valid Username or Password.",0, {class: 'alert-info', id: 'custom-id'}, true);
 				return;
 			}
-		})
+		});
+	};
+	
+	$scope.adminLogin = function (user){
+		$scope.ClearMessages(Flash);
+		if(user == undefined || user == "") { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Username or Password.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(user.email == undefined || user.email == "") { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Username.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(user.password == undefined || user.password == "") { 
+			$scope.errorMsg = true;
+			Flash.create('warning', "Please enter Password.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		}
+		$scope.user.userType = "U";
+		$scope.user.loginType = "admin";
+		$http.post('/login', user).success(function (response){
+			$rootScope.currentUser = response;
+			$location.url('/admin');
+		}).error(function (err) {
+			if(err == "Unauthorized") {
+				$scope.errorMsg = true;
+				Flash.create('warning', "Email or password does not match!.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+				return;
+			} else if(err == "Deactivated\n") {
+				$scope.errorMsg = true;
+				Flash.create('Info', "User account disabled in portal.",0, {class: 'alert-info', id: 'custom-id'}, true);
+				return;
+			} else if(err == "AdminLogin\n") {
+				$scope.errorMsg = true;
+				Flash.create('Info', "Please login using Admin Login Screen.",0, {class: 'alert-info', id: 'custom-id'}, true);
+				return;
+			} else {
+				$scope.errorMsg = true;
+				Flash.create('Info', "Please enter valid Username or Password.",0, {class: 'alert-info', id: 'custom-id'}, true);
+				return;
+			}
+		});
 	};
 	
 	//Test on the length of first password.
@@ -812,8 +962,10 @@ app.controller('loginCtrl', function ($scope, $rootScope, $http, $routeParams, $
 	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
-			if($rootScope.currentUser.role == "admin") $location.url('/adminLogin');
-			else $location.url('/login');
+			if($rootScope.currentUser.role == "admin") {
+				$scope.loginType = undefined;
+				$location.url('/adminLogin');
+			} else $location.url('/login');
 			$rootScope.currentUser = undefined;
 			$scope.user = undefined;
 		})
@@ -998,6 +1150,14 @@ app.controller('empLoginCtrl', function ($scope, $rootScope, $http, $routeParams
 });
 
 app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $interval,FileUploader) {
+	$scope.result1 = null;
+    $scope.options1 = null;
+    $scope.details1 = '';
+    
+    $scope.$watch(function() {
+        return $scope.result1;
+      }, function(location) {
+    });
 	$rootScope.jobID = undefined;
 	$rootScope.wrong = 0;
 	$rootScope.report = {type:'',wrong:[]};
@@ -1092,12 +1252,12 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
     	} else if(searchInfo.search == undefined && searchInfo.location != undefined) {
     		var data = {
         			name : "",
-        			location : searchInfo.location
+        			location : $scope.result1.substr(0,$scope.result1.indexOf(','))
         	}
     	} else if(searchInfo.search != undefined && searchInfo.location != undefined) {
     		var data = {
         			name : searchInfo.search,
-        			location : searchInfo.location
+        			location : $scope.result1.substr(0,$scope.result1.indexOf(','))
         	}
     	}
     	
@@ -1560,10 +1720,16 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 });
 
 app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location, $interval) {
+	
+	$scope.result1 = null;
+    $scope.options1 = null;
+    $scope.details1 = '';
+    
+    $scope.$watch(function() {
+        return $scope.result1;
+      }, function(location) {
+    });
 	$rootScope.jobID = undefined;
-	$scope.result1 = '';
-	$scope.options1 = null;
-	$scope.details1 = '';
 	$rootScope.wrong = 0;
 	$rootScope.report = {type:'',wrong:[]};
 	$scope.isJobQueue = false;
@@ -1578,11 +1744,13 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	});
 	*/
 	$scope.addJobInfo = function (jobInfo){
+		var jobExpiry = document.getElementById("expDate").value;
+		if(jobExpiry == "" || jobExpiry == undefined) jobExpiry = new Date()+10;
 		if(document.getElementById("publish").checked == true) jobInfo.activeJob = "Y";
 		else jobInfo.activeJob = "N";
 		var postData = { 
 			title : jobInfo.title,
-			location : jobInfo.location,
+			location : $scope.result1.substr(0,$scope.result1.indexOf(',')),
 			employerID : $scope.currentUser.email,
 			companyName : $scope.companyName,
 			responsibilities : jobInfo.responsibilities,
@@ -1591,8 +1759,10 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			jobID : "BCJOB-",
 			activeJob : jobInfo.activeJob,
 			origPostDate : new Date(),
-			salaryType : jobInfo.salaryType
+			salaryType : jobInfo.salaryType,
+			postExpiryDate : jobExpiry
 		};
+		alert(postData.postExpiryDate);
 		$http.post('/addJobDet',postData).success(function (response){
 			if (response != 0){
 				if(!confirm('Post Success.You want to post another job?')) {
@@ -1602,6 +1772,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					$scope.isCandidateSearch = false;
 					$scope.isJobStatusReport = false;
 					$scope.isJobReports = false;
+					$scope.isJobArchive = false;
 					$scope.getJobQueue($scope.currentUser.email);
 					$location.url('/empHome');
 				} else {
@@ -1625,6 +1796,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isCandidateSearch = false;
 		$scope.isJobStatusReport = false;
 		$scope.isJobReports = false;
+		$scope.isJobArchive = false;
 		$scope.isUpdate = false;
 		$scope.job = undefined;
 		$scope.companyName = $rootScope.currentUser.name;
@@ -1643,6 +1815,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isJobStatusReport = false;
 		$scope.isJobReports = false;
 		$scope.isUpdate = true;
+		$scope.isJobArchive = false;
 		$scope.companyName = $scope.job.companyName;
 		if(jobInfo.activeJob == "Y") document.getElementById("publish").checked = true;
 		else document.getElementById("publish").checked = false;
@@ -1654,14 +1827,15 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		else jobInfo.activeJob = "N";
 		var postData = { 
 				title : jobInfo.title,
-				location : jobInfo.location,
+				location : $scope.result1.substr(0,$scope.result1.indexOf(',')), //jobInfo.location,
 				companyName : $scope.companyName,
 				responsibilities : jobInfo.responsibilities,
 				requirement : jobInfo.requirement,
 				rate : jobInfo.rate,
 				activeJob : jobInfo.activeJob,
 				salaryType : jobInfo.salaryType,
-				jobID : jobInfo.jobID
+				jobID : jobInfo.jobID,
+				postExpiryDate : jobInfo.postExpiryDate
 		};
 
 		$http.post('/updateJobDet',postData).success(function (response){
@@ -1673,6 +1847,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isCandidateSearch = false;
 				$scope.isJobStatusReport = false;
 				$scope.isJobReports = false;
+				$scope.isJobArchive = false;
 				$scope.getJobQueue($scope.currentUser.email);
 				$location.url('/empHome');
 				} else if (response == 'error') {
@@ -1703,6 +1878,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isCandidateSearch = false;
 				$scope.isJobStatusReport = false;
 				$scope.isJobReports = false;
+				$scope.isJobArchive = false;
 				$location.url('/empHome');
 			} else if (response == "") {
 				$scope.allJobs = response;
@@ -1712,6 +1888,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isCandidateSearch = false;
 				$scope.isJobStatusReport = false;
 				$scope.isJobReports = false;
+				$scope.isJobArchive = false;
 				$location.url('/empHome');
 			} else if (response == 'error') {
 				alert(err);
@@ -1724,7 +1901,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 	$scope.$watch('currentPage + numPerPage', function() {
 	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
 	    end = begin + $scope.numPerPage;
-	    $scope.partialUsers = $scope.allUsers.slice(begin, end);
+	    $scope.partialJobs = $scope.allJobs.slice(begin, end);
 	  });
 	//End Pagination changes here.
 	
@@ -1749,6 +1926,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isCandidateSearch = false;
 				$scope.isJobStatusReport = false;
 				$scope.isJobReports = false;
+				$scope.isJobArchive = false;
 				$location.url('/empHome');
 			} else if (response == "") {
 				$scope.allJobs = response;
@@ -1757,6 +1935,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isCandidateSearch = false;
 				$scope.isJobStatusReport = false;
 				$scope.isJobReports = false;
+				$scope.isJobArchive = false;
 				$location.url('/empHome');
 			} else if (response == 'error') {
 				alert(err);
@@ -1765,6 +1944,55 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 			console.log(err);
 		})
 	};
+	
+	$scope.searchEmpArchJobs = function (searchInfo){
+		if(searchInfo == undefined) searchInfo = "";
+		var postData = { 
+				title : searchInfo,
+				email : $rootScope.currentUser.email,
+				relativeSearch : searchInfo.indexOf("BCJOB-") != -1
+		};
+		$http.post('/getEmpArchJobs',postData).success(function (response){
+			if (response != 0){
+				$scope.partialArchJobs = [];
+				$scope.allEmpArchJobs = [];
+				$scope.allArchJobs = response;
+				  for(i=0;i<=$scope.allArchJobs.length-1;i++) {
+						$scope.allEmpArchJobs.push($scope.allArchJobs[i]);
+				  }
+				$scope.partialArchJobs = $scope.allEmpArchJobs.slice(begin, end);	
+				$scope.isJobQueue = false;
+				$scope.isPostJob = false;
+				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
+				$scope.isJobArchive = true;
+				$location.url('/empHome');
+			} else if (response == "") {
+				$scope.allArchJobs = response;
+				$scope.partialArchJobs = response;
+				$scope.allEmpArchJobs = response;
+				$scope.isJobQueue = false;
+				$scope.isPostJob = false;
+				$scope.isCandidateSearch = false;
+				$scope.isJobStatusReport = false;
+				$scope.isJobReports = false;
+				$scope.isJobArchive = true;
+				$location.url('/empHome');
+			} else if (response == 'error') {
+				alert(err);
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialArchJobs = $scope.allArchJobs.slice(begin, end);
+	  });
+	//End Pagination changes here.
 	
 	$scope.getJobTracking = function (emailID){
 		
@@ -1782,6 +2010,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isCandidateSearch = false;
 				$scope.isJobStatusReport = false;
 				$scope.isJobReports = false;
+				$scope.isJobArchive = false;
 			} 
 		}).error(function (err) {
 			console.log(err);
@@ -1797,6 +2026,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isCandidateSearch = true;
 		$scope.isJobStatusReport = false;
 		$scope.isJobReports = false;
+		$scope.isJobArchive = false;
 	};
 	
 	$scope.publish = function (jobID){
@@ -1830,6 +2060,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isJobTrack = true;
 				$scope.isJobStatusReport = false;
 				$scope.isJobReports = false;
+				$scope.isJobArchive = false;
 			} else {
 				$scope.jobSeekerList = undefined;
 			}
@@ -1842,7 +2073,14 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$rootScope.candidateEmail = candidateInfo.email;
 		$rootScope.applicationStatus = candidateInfo.applicationStatus;
 		$rootScope.candidateJobID = candidateInfo.jobID;
-		$location.url('reviewProfile');
+		var postData = {
+				email : candidateInfo.email
+		}
+		$http.post('/getCandidateRating',postData).success(function (response){
+			if (response.rating != undefined) $rootScope.rating = response.rating;
+			else $rootScope.rating = 2;
+			$location.url('reviewProfile');
+		});
 	}
 	
 	$scope.searchCandidateInfo = function (search){
@@ -1865,6 +2103,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					$scope.isCandidateSearch = true;
 					$scope.isJobStatusReport = false;
 					$scope.isJobReports = false;
+					$scope.isJobArchive = false;
 					$location.url('/empHome');
 				} else if (response == "") {
 					$scope.allCandidates = response;
@@ -1874,6 +2113,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 					$scope.isCandidateSearch = true;
 					$scope.isJobStatusReport = false;
 					$scope.isJobReports = false;
+					$scope.isJobArchive = false;
 					$location.url('/empHome');
 				} else if (response == 'error') {
 					alert(err);
@@ -1912,6 +2152,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isCandidateSearch = false;
 		$scope.isJobReports = false;
 		$scope.isJobStatusReport = true;
+		$scope.isJobArchive = false;
 	};
 	
 	$scope.searchEmpJobCandStatInfo = function (empInfo){
@@ -1935,6 +2176,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isCandidateSearch = false;
 				$scope.isJobReports = false;
 				$scope.isJobStatusReport = true;
+				$scope.isJobArchive = false;
 				$location.url('/empHome');
 			} else if (response == "") {
 				$scope.allCandidatesStatus = response;
@@ -1944,6 +2186,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isCandidateSearch = false;
 				$scope.isJobReports = false;
 				$scope.isJobStatusReport = true;
+				$scope.isJobArchive = false;
 				$location.url('/empHome');
 			} else if (response == 'error') {
 				alert(err);
@@ -2022,6 +2265,97 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		 });
 	};
 	
+	$scope.archiveJob = function (jobInfo){
+		var postData ={
+				job : {
+					jobID: jobInfo.jobID,
+					employerID : jobInfo.employerID,
+					title : jobInfo.title,
+					location : jobInfo.location,
+					companyName : jobInfo.companyName,
+					responsibilities : jobInfo.responsibilities,
+					requirement : jobInfo.requirement,
+					rate : jobInfo.rate,
+					salaryType : jobInfo.salaryType,
+					jobExpiryDate : jobInfo.postExpiryDate,
+					origPostDate : jobInfo.origPostDate,
+					archivedDate : new Date(),
+					lastUpdatedBy: $scope.currentUser.email
+				}
+		};
+		swal({
+		    title: "Are you sure?",
+		    text: "Candidates will not be able to find the Job Information!",
+		    type: "warning",
+		    showCancelButton: true,
+		    confirmButtonColor: '#DD6B55',
+		    confirmButtonText: 'Yes, I am sure!',
+		    cancelButtonText: "No, cancel it!",
+		    closeOnConfirm: false,
+		    closeOnCancel: false
+		 }, function(isConfirm){
+			if(isConfirm) {
+				$http.post('/archiveJobInfo',postData).success(function (response) {
+					if (response == 'success'){
+						swal("Done","Job archived from the publish queue successfully.","success");
+						$scope.getJobQueue($scope.currentUser.email);
+						$scope.isJobQueue = true;
+						$location.url('/empHome');
+					}
+				}).error(function (err) {
+					console.log(err);
+				});
+			} else {
+				swal("Cancelled","Job Information is safe and not archived :)","error");
+			}
+		 });
+	};
+	
+	$scope.pushToQueue = function (jobInfo){
+		var postData ={
+				job : {
+					jobID: jobInfo.jobID,
+					employerID : jobInfo.employerID,
+					title : jobInfo.title,
+					location : jobInfo.location,
+					companyName : jobInfo.companyName,
+					responsibilities : jobInfo.responsibilities,
+					requirement : jobInfo.requirement,
+					rate : jobInfo.rate,
+					salaryType : jobInfo.salaryType,
+					postExpiryDate : jobInfo.postExpiryDate,
+					origPostDate : jobInfo.origPostDate,
+					lastUpdatedBy: $scope.currentUser.email
+				}
+		};
+		swal({
+		    title: "Are you sure?",
+		    text: "Job Information will be move back to active Job Queue",
+		    type: "warning",
+		    showCancelButton: true,
+		    confirmButtonColor: '#DD6B55',
+		    confirmButtonText: 'Yes, I am sure!',
+		    cancelButtonText: "No, cancel it!",
+		    closeOnConfirm: false,
+		    closeOnCancel: false
+		 }, function(isConfirm){
+			if(isConfirm) {
+				$http.post('/pushJobInfoQueue',postData).success(function (response) {
+					if (response == 'success'){
+						swal("Done","Job moved to publish queue successfully.","success");
+						$scope.searchEmpArchJobs();
+						$scope.isJobArchive = true;
+						$location.url('/empHome');
+					}
+				}).error(function (err) {
+					console.log(err);
+				});
+			} else {
+				swal("Cancelled","Job Information is still in archivals :(","error");
+			}
+		 });
+	};
+	
 	$scope.generateEmpReports = function () {
 		$scope.isJobQueue = false;
 		$scope.isPostJob = false;
@@ -2029,22 +2363,48 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 		$scope.isCandidateSearch = false;
 		$scope.isJobStatusReport = false;
 		$scope.isJobReports = true;
+		$scope.isJobArchive = false;
+		$location.url('/empHome');
+	}
+	
+	$scope.displayArchiveJobs = function () {
+		$scope.isJobQueue = false;
+		$scope.isPostJob = false;
+		$scope.isJobTrack = false;
+		$scope.isCandidateSearch = false;
+		$scope.isJobStatusReport = false;
+		$scope.isJobReports = false;
+		$scope.isJobArchive = true;
+		$scope.searchEmpArchJobs();
 		$location.url('/empHome');
 	}
 	
 	$scope.generateReport = function (emp) {
-		if(emp.reportType != undefined) {
+		var fromDt = document.getElementById("fromDt").value;
+		if((fromDt == "" || fromDt == undefined) && (emp.reportType != undefined)) {
 			var postData = {
 					type : emp.reportType,
 					email : $rootScope.currentUser.email
 			}
+		} else if((fromDt != "" || fromDt != undefined) && (emp.reportType != undefined)) {
+			alert("Here");
+			var postData = {
+					fromDate : fromDt,
+					type : emp.reportType,
+					email : $rootScope.currentUser.email
+			}
+		} else if((fromDt != "" || fromDt != undefined) && emp.reportType == undefined) {
+			var postData = {
+					fromDate : fromDt,
+					email : $rootScope.currentUser.email
+			}
 		} else {
 			var postData = {
+					fromDate : "",
 					type : "",
 					email : ""
 			}
 		}
-
 		$http.post('/getEmpReportData',postData).success(function (response) {
 			if (response != '0') {
 				$scope.partialReportInfo = [];
@@ -2061,6 +2421,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isJobStatusReport = false;
 				$scope.reportType = emp.reportType;
 				$scope.isJobReports = true;
+				$scope.isJobArchive = false;
 				$location.url('/empHome');
 			} else if (response == "") {
 				$scope.allEmpReportInfo = response;
@@ -2071,6 +2432,7 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
 				$scope.isJobStatusReport = false;
 				$scope.reportType = "";
 				$scope.isJobReports = true;
+				$scope.isJobArchive = false;
 				$location.url('/empHome');
 			} else if (response == 'error') {
 				swal("Ooops","ERROR:: "+err,"error");
@@ -2110,8 +2472,9 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
     };
     
     $scope.clearReportData = function (emp) {
-    	if($scope.emp.fromDate != undefined || $scope.emp.reportType != undefined) {
-        	emp.fromDate = undefined;
+    	var fromDate = document.getElementById("fromDt").value;
+    	if(fromDate != undefined || $scope.emp.reportType != undefined) {
+    		document.getElementById("fromDt").value = "";
         	emp.reportType = undefined;
         	$scope.reportType = undefined;
         	$scope.allReportInfo = undefined;
@@ -2124,6 +2487,13 @@ app.controller('empHomeCtrl', function ($q, $scope, $rootScope, $http, $location
     	if($scope.emp.search != undefined) {
 	        	$scope.emp.search = "";
 	        	$scope.searchEmpJobs();
+	    }
+    };
+    
+    $scope.clearArchJobs = function () {
+    	if($scope.emp.search != undefined) {
+	        	$scope.emp.search = "";
+	        	$scope.searchEmpArchJobs();
 	    }
     };
 
@@ -2384,21 +2754,12 @@ app.controller('empProfileCtrl', function ($q, $scope, $rootScope, $http, $locat
 
 app.controller('contactCtrl', function ($q, $scope, $rootScope, $http, $location,Flash) {
 		$rootScope.jobID = undefined;
-		$scope.result1 = '';
-		$scope.options1 = null;
-		$scope.details1 = '';
 		if($rootScope.counter == 2) {
 			$rootScope.jobInfo = undefined;
 			$rootScope.jobsList = undefined;
 			$rootScope.counter = 0;
 		}
-			
-		/*$http.get('/loggedin').success(function (user) {
-				if(user != undefined) {
-					$scope.contact = user;
-					$scope.contact.name = user.firstName+" "+user.lastName;
-				}
-		});*/
+
 		if($rootScope.currentUser != undefined) {
 			if($rootScope.currentUser.userType == "U") {
 					$scope.contact = $rootScope.currentUser;
@@ -3338,12 +3699,26 @@ app.controller('navCtrl', function ($scope, $http, $location, $rootScope){
 app.controller('testCtrl', function ($scope, $http, $location, $rootScope){
 	alert("test");
 	
-	$(".Collapsable").click(function () {
-		alert("hi")
-        $(this).parent().children().toggle();
-        $(this).toggle();
+	$scope.location = '';
+	$scope.location_list = [];
+	$scope.location_result = null; // this is the model we need to use
 
-    });
+	  // autocomplete options
+	  $scope.autocomplete_options = {
+	    types: 'establishment'
+	  };
+
+	  // look for a change in the location and do something
+	  // its a little confusing because we're not watching the ng-model from this controller
+	  // but rather the model that gets set from the ngAutocomplete directive
+	  $scope.$watch(function() {
+	    return $scope.location_result;
+	  }, function(location) {
+	    if (location) {
+	      $scope.location_list.push(location);
+	      $scope.location = '';
+	    }
+	  });
 	
 	$scope.saveEndorseMsg = function(endorseInfo) {
 		var postData = {
@@ -3378,6 +3753,27 @@ app.controller('adminCtrl', function ($q, $scope, $rootScope, $routeParams, $htt
 	$scope.maxSize = 5;
 	var begin = (($scope.currentPage - 1) * $scope.numPerPage)
     , end = begin + $scope.numPerPage;
+	
+	$scope.ClearMessages = function(flash) {
+		$scope.errorMsg = false;
+		$scope.cardErrorMsg = false;
+		Flash.clear();
+	}
+	
+	$scope.formatCC = function() {
+		var input = document.getElementById('cardNum');
+		payform.cardNumberInput(input);
+	}
+	
+	$scope.formatExpiry = function() {
+		var input = document.getElementById('expiry');
+		payform.expiryInput(input);
+	}
+	
+	$scope.formatCVC = function() {
+		var input = document.getElementById('cvc');
+		payform.cvcInput(input);
+	}
 	
 	$scope.formatContactNum = function(obj) {
 		var numbers = obj.contactNum.replace(/\D/g, ''),
@@ -3738,6 +4134,7 @@ app.controller('adminCtrl', function ($q, $scope, $rootScope, $routeParams, $htt
 					userType : cUser.userType
 			};
 		}
+		
 		$http.post('/updateProfile',postData).success(function (response){
 					if (response != 0){
 					swal("Done","Updated Successfully","success");
@@ -3956,6 +4353,7 @@ $scope.changePasswd = function (cUser) {
 				$http.post('/getEmpPaymentInfo',postData).success(function (response) {
 					if(response != '0') $rootScope.paymentSourceList = response;
 					else $rootScope.paymentSourceList = {};
+					$scope.addPaymentSrc = false;
 					$location.url('/admUpdateEmpInfo');
 				}).error(function (err) {
 					console.log(err);
@@ -3970,7 +4368,7 @@ $scope.changePasswd = function (cUser) {
 		 //alert(pymt._id);
 	 }
 	 
-	 $scope.validateCardInfo = function(paymentSrc) {		 
+	 $scope.validateCardInfo = function(paymentSrc) {
 		 var validCard = Stripe.card.validateCardNumber(paymentSrc.cardNumber);
 		 var validExpiry = Stripe.card.validateExpiry(paymentSrc.cardMM, paymentSrc.cardYYYY);
 		 var validCVC = Stripe.card.validateCVC(paymentSrc.cvc);
@@ -4029,6 +4427,7 @@ $scope.changePasswd = function (cUser) {
 		 });
 	 }
 	 
+	 /* Duplicate service
 	 $scope.saveProfileInfo = function(cUser) {
 				var postData = { 
 						firstName : cUser.firstName,
@@ -4036,12 +4435,12 @@ $scope.changePasswd = function (cUser) {
 						zipcode : cUser.zipcode,
 						email : cUser.email,
 						contactNum : cUser.contactNum,
-						gender : cUser.gender
+						gender : cUser.gender,
+						primarySkill : cUser.primarySkill
 				};
 				$http.post('/updateUserProfile',postData).success(function (response){
 						if (response != 0){
 						swal("Done","Updated Successfully","success");
-						$location.url('/admin');
 						} else if (response == 'error') {
 							swal("Ooops","ERROR::"+response,"error");
 						}
@@ -4049,6 +4448,7 @@ $scope.changePasswd = function (cUser) {
 						console.log(err);
 				});
 	};
+	*/
 	
 	$scope.sendEmpMessage = function(emp) {
 		$scope.ClearMessages(Flash);
@@ -4066,7 +4466,32 @@ $scope.changePasswd = function (cUser) {
 		$http.post('/sendEmailMessage',postData).success(function (response){
 				if (response != 0){
 					$scope.emp.message = "";
-					$scope.errorMsg = true;
+					$scope.empErrorMsg = true;
+					Flash.create('info', "Message Successfully Sent.",0, {class: 'alert-info', id: 'custom-id'}, true);
+				}
+		}).error(function (err) {
+				console.log(err);
+		});
+	}
+	
+	$scope.sendSeekerMessage = function(seeker) {
+		$scope.ClearMessages(Flash);
+		if(seeker.message == "" || seeker.message == undefined) {
+			$scope.seekerErrorMsg = true;
+			Flash.create('warning', "Please enter the message details.",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		}
+		
+		var postData = {
+				name : seeker.lastName+", "+seeker.firstName,
+				email : seeker.email,
+				content : seeker.message
+		};
+		$http.post('/sendEmailMessage',postData).success(function (response){
+				if (response != 0){
+					if(seeker.userType == 'U') $scope.seeker.message = "";
+					else $scope.emp.message = "";
+					$scope.seekerErrorMsg = true;
 					Flash.create('info', "Message Successfully Sent.",0, {class: 'alert-info', id: 'custom-id'}, true);
 				}
 		}).error(function (err) {
@@ -4153,6 +4578,125 @@ $scope.changePasswd = function (cUser) {
 	    $scope.partialReportInfo = $scope.allReportInfo.slice(reportBegin, reportEnd);	  
 	  });
 	//End Pagination changes here.
+	$scope.addPaymentSrc = false;
+	$scope.displayPaymentSource = function () {
+		$scope.addPaymentSrc = true;
+	}
+	
+	$scope.addPymtCancel = function () {
+		$scope.addPaymentSrc = false;
+	}
+	
+	$scope.validateCard = function () {
+		if($scope.emp.cardNumber != undefined) {
+			var validCard = Stripe.card.validateCardNumber($scope.emp.cardNumber);
+				if(!validCard) {
+					swal("Please specify a valid credit card number.");
+				}
+		}
+	}
+	
+	$scope.validateExpiry = function () {
+		if($scope.emp.cardMM != undefined || $scope.emp.cardYYYY != undefined) {   
+			var validExpiry = Stripe.card.validateExpiry($scope.emp.cardMM, $scope.emp.cardYYYY);
+				if(!validExpiry) {
+					swal("Please specify a valid credit card expiry month & year.");
+				}
+		}
+	}
+	
+	$scope.validateCVC = function () {
+		if($scope.emp.cvc != undefined) {
+		   var validCVC = Stripe.card.validateCVC($scope.emp.cvc);
+			  if(!validCVC) {
+				  swal("Please specify a valid credit card CVC.");
+			  }
+		}
+	}
+	
+	$scope.saveEmpCardInfo = function(empInfo) {
+		if(empInfo.cardNumber == "" || empInfo.cardNumber == undefined) { 
+			$scope.cardErrorMsg = true;
+			Flash.create('warning', "Please enter Card Number",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(empInfo.cardExpiry == "" || empInfo.cardExpiry == undefined) {
+			$scope.cardErrorMsg = true;
+			Flash.create('warning', "Please enter Card Expiry Month/Year",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(empInfo.cvc == "" || empInfo.cvc == undefined) {
+			$scope.cardErrorMsg = true;
+			Flash.create('warning', "Please enter the CVC Code",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		} else if(empInfo.cardName == "" || empInfo.cardName == undefined) {
+			$scope.cardErrorMsg = true;
+			Flash.create('warning', "Please enter Card Holder Name",0, {class: 'alert-warning', id: 'custom-id'}, true);
+			return;
+		}
+		var cardMM = empInfo.cardExpiry.substring(0,2);
+		var cardYYYY = empInfo.cardExpiry.substring(5,9);
+		var re = /(\d)\s+(?=\d)/g;
+		var postData = {
+				card:{
+					uid: empInfo._id,
+					cardNumber: empInfo.cardNumber,
+					cardMM: cardMM,
+					cardYYYY: cardYYYY,
+					cardName: empInfo.cardName,
+					cvc: empInfo.cvc,
+					type: "",
+					email: empInfo.email,
+					formatCardNumber: empInfo.cardNumber.replace(re, '$1'),
+					lastUpdated: moment(new Date()).format('MM/DD/YYYY, h:mm:ss a')
+				}
+		}
+		$http.post('/addPaymentSource', postData).success(function (resp) {
+			if (resp != "0" && resp == "success") {
+				swal("Done","Card Details Saved.","success");
+				empInfo.saveCC = 'Y';
+				$scope.showPaymentSource(empInfo);
+			} else {
+				swal("Ooops","Error message!! "+resp,"error");
+			}
+		}).error(function (err) {
+			swal("ERROR: "+err.message);
+		});
+	}
+	
+	$scope.generateTempPass = function (userInfo) {
+		if(userInfo.userType == 'U') {
+			var postData = {
+				  email: userInfo.email,
+				  tempPass: "",
+				  name: userInfo.firstName,
+				  userType: "U",
+				  updatedBy: $rootScope.currentUser.email
+			}
+		} else if(userInfo.userType == 'E') {
+			var postData = {
+					  email: userInfo.email,
+					  tempPass: "",
+					  userType: "E",
+					  name: userInfo.name,
+					  updatedBy: $rootScope.currentUser.email
+				}
+		} else {
+			var postData = {
+					  email: "",
+					  tempPass: "",
+					  name: "",
+					  updatedBy: ""
+				}
+		}
+		$http.post('/sendTempPassword',postData).success(function (response) {
+			if (response == 'success') {
+				swal("Done","Email sent to User","success");
+			} else {
+				swal("Ooops","Error while processing temporary password","error");
+			}
+		}).error(function (err) {
+			console.log(err);
+		})
+	};
 	
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {				
@@ -4162,6 +4706,7 @@ $scope.changePasswd = function (cUser) {
 			$scope.currentUser = undefined;
 			$scope.user = undefined;
 			$scope.emp = undefined;
+			$scope.loginType = undefined;
 			$location.url('/adminLogin');
 		})
 	};

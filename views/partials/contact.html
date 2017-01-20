@@ -70,7 +70,7 @@ Welcome to BlueCollarHunt Inc and we are new trend setting corporation in the Bl
 <br><br>If you have a question about BlueCollarHunt, please use the email form below to contact us or call us on <strong style="color:blue">(800) XXX-XXXX (9am-9pm PT daily) </strong> or reach out on <strong style="color:blue">Twitter @BlueCollarHunt</strong>. 
 </div></div>
 <br/>
-<div id="errMsgArea" ng-show="errorMsg" style="height:52px;width:740px;margin:0 0 0 20px;">
+<div id="errMsgArea" ng-show="errorMsg" style="height:52px;width:780px;margin:0 0 0 20px;">
 		<div class="panel-body" style="padding:0px;">
 			<div class="form-group">
 			<flash-message
@@ -80,14 +80,17 @@ Welcome to BlueCollarHunt Inc and we are new trend setting corporation in the Bl
     		</div>
 		</div>
 </div>
-<div class="well well-sm" style="width:740px;height:310px;margin-left:20px;float:left;padding:20px;padding-top:20px;margin-top:10px;">
+<div class="well well-sm" style="width:780px;height:310px;margin-left:20px;float:left;padding:20px;padding-top:20px;margin-top:10px;">
                 <form>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="name">
                                 <font color="red">*</font>&nbsp;Name</label>
-                            <input type="text" class="form-control" id="name" placeholder="Enter name" required="required" ng-model="contact.name" style="width:320px"/>
+                            <div class="input-group">
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span>
+                                </span>
+                            <input type="text" class="form-control" id="name" placeholder="Enter name" required="required" ng-model="contact.name" style="width:320px"/></div>
                         </div>
                         <div class="form-group">
                             <label for="email">
@@ -95,29 +98,34 @@ Welcome to BlueCollarHunt Inc and we are new trend setting corporation in the Bl
                             <div class="input-group">
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span>
                                 </span>
-                                <input type="email" class="form-control" id="email" placeholder="Enter email" required="required" ng-model="contact.email" style="width:280px"/></div>
+                                <input type="email" class="form-control" id="email" placeholder="Enter email" required="required" ng-model="contact.email" style="width:320px"/></div>
                         </div>
                         <div class="form-group">
                             <label for="subject">
                                 <font color="red">*</font>&nbsp;Subject</label>
-                            <select id="subject" name="subject" class="form-control" required="required" ng-model="contact.subject" style="width:320px">
+                                <div class="input-group">
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-list"></span>
+                                </span>
+                            <select id="subject" name="subject" class="form-control selectpicker" required="required" ng-model="contact.subject" style="width:320px;height:44px;">
                                 <option value="service">General Inquiry</option>
                                 <option value="suggestions">Suggestions</option>
                                 <option value="product">Technical Issues</option>
-                            </select>
+                            </select></div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="name">
                                 <font color="red">*</font>&nbsp;Message</label>
+                                <div class="input-group">
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-pencil"></span>
+                                </span>
                             <textarea name="message" id="message" class="form-control" rows="9" cols="26" required="required"
-                                placeholder="Message" ng-model="contact.message" style="width:334px;height:190px;resize:none;"></textarea>
+                                placeholder="Message" ng-model="contact.message" style="width:320px;height:215px;resize:none;"></textarea></div>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <!-- <button class="btn btn-primary pull-right" id="btnContactUs" ng-click="saveMessage(contact)"> -->
-                        <button class="btnCustom pull-right" style="width:158px;height:33px;padding:0px;border-radius:20px;margin-top:-10px;" ng-click="saveMessage(contact)">
+                        <button class="btnCustom pull-right" style="width:158px;height:33px;padding:0px;border-radius:20px;margin-top:-5px;" ng-click="saveMessage(contact)">
                             Send Message</button>
                     </div>
                 </div>

@@ -11,7 +11,8 @@ var userJobInfoSchema = new mongoose.Schema({
     filename: String,
     dateApplied: Date,
     applicationStatus: String,
-    files_id: Object
+    files_id: Object,
+    lastUpdatedBy: String
 });
 
 module.exports = mongoose.model('userJobInfoModel', userJobInfoSchema);

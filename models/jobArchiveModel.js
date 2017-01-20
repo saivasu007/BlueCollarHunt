@@ -1,7 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 
-var jobInfoSchema = new mongoose.Schema({
+var jobArchiveSchema = new mongoose.Schema({
     id: Number,
     jobID: String,
     employerID : String,
@@ -13,12 +13,10 @@ var jobInfoSchema = new mongoose.Schema({
     rate: Number,
     salaryType: String,
     referEmail: String,
-    maxNumber: Number,
-    activeJob: String,
+    jobExpiryDate: String,
     origPostDate: Date,
-    postExpiryDate: String,
-    updatedDate: Date,
+    archivedDate: Date,
     lastUpdatedBy: String
 });
 
-module.exports = mongoose.model('jobInfoModel', jobInfoSchema);
+module.exports = mongoose.model('jobArchiveModel', jobArchiveSchema);

@@ -32,12 +32,12 @@
 </div></div></div></div></div>
 
 <div class="container" style="padding-left:0px;margin-top: -20px;">
-<div class="row" style="height:697px;">
+<div class="row" style="height:757px;">
 <div class="col-xs-50 col-md-40">
-<div class="panel panel-default site-panel-box" style="height:720px;">
+<div class="panel panel-default site-panel-box" style="height:780px;">
 <div class="panel-body" style="padding:10px;">
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:700px;width:870px;margin:0px 0px 0px 295px;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:760px;width:870px;margin:0px 0px 0px 295px;">
 <div class="panel-body" style="padding:0px;">
 <div ng-show="isPostJob" style="float:none;padding-top:8px;">
 				<div  style="border:4px solid #5BC0DE;width:846px;height:44px;margin-left:10px;">
@@ -91,6 +91,24 @@
 			                <option>Per Year</option>
                 </select>
             	</td></tr>
+            	<tr>
+				<td style="padding-left:10px;">
+				<label for="expDate"  style="font-size: 18px">* Job Expiry Date:</label>
+				</td>
+				<td style="padding-left:70px;">
+                <div ng-controller="DatepickerCtrl">
+					<div class="row">
+		        	<div class="col-md-6">
+					<p class="input-group">
+		              <input type="text" id="expDate" class="form-control" uib-datepicker-popup="MM/dd/yyyy" ng-model="job.postExpiryDate" is-open="status.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" close-text="Close" style="width:229px;" placeholder="Job Expiry Date" ng-click="open($event)"/>
+		              <span class="input-group-btn">
+		                <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar" style="width:20px;height:22px;margin-top:8px;"></i></button>
+		              </span>
+		            </p>
+		            </div>
+		            </div></div>
+            	</td>
+            	</tr>
             	<tr style="line-height: 350%;"><td style="padding-left:10px;">
             	<label style="font-size: 18px">* Publish Job:</label>
             	</td><td style="padding-left:70px;">
@@ -151,9 +169,9 @@
 				</thead>
 				<tbody>
 				<tr ng-repeat="job in allJobs">
-					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)"><strong>{{job.title.toUpperCase()}}</strong></td>
-					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)">{{job.location}}</td>
-					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)">${{job.rate}} {{job.salaryType}}</td>
+					<td style="padding: 10px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)"><strong>{{job.title.toUpperCase()}}</strong></td>
+					<td style="padding: 10px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)">{{job.location}}</td>
+					<td style="padding: 10px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)">${{job.rate}} {{job.salaryType}}</td>
 					 <!-- 
 					 <td ng-if="job.activeJob == 'Y'"><button  class="btnCustom btn-info" ng-click="unPublish(job.jobID)" style="width: 105px; height: 34px; font-size: 18px; padding:0px;">
 					 Un Publish 
@@ -164,9 +182,13 @@
 					-->
 					<td ng-if="job.activeJob == 'Y'"><label class="switch"><input type="checkbox" checked ng-click="unPublish(job.jobID)"><div class="slider round"></div></label></td>
 					<td ng-if="job.activeJob == 'N' || job.activeJob == undefined"><label class="switch"><input type="checkbox" ng-click="publish(job.jobID)"><div class="slider round"></div></label></td>
-					<td><button  class="btnCustom btn-danger" ng-click="delete(job.jobID)" style="width: 70px; height: 34px; font-size: 18px; padding:0px;background:#d9534f">
+					<td><button  class="btnCustom btn-danger" ng-click="delete(job.jobID)" style="width: 55px; height: 34px; font-size: 18px; padding:0px;background:#d9534f" tooltip="remove">
 					 <span class="glyphicon glyphicon-trash"></span> 
-					</button></td>
+					</button>&emsp;
+					<button  class="btnCustom btn-warning" ng-click="archiveJob(job)" style="width: 55px; height: 34px; font-size: 18px; padding:0px;background:#f0ad4e" tooltip="archive">
+					 <span><i class="fa fa-archive"></i></span> 
+					</button>
+					</td>
 				</tr>
 				<tr ng-show="allJobs.length <= 0">
 				<td colspan="5" align="center"><h4 style="color:red">No active Jobs available for {{currentUser.name.toUpperCase()}} for selected criteria</h4></td>
@@ -370,7 +392,20 @@
 					</td>
 					<td style="width:20px"></td>
 					<td>
+					<!-- 
 					<input id="fromDate" class="form-control" style="width: 240px; height: 42px" type="text" ng-model="emp.fromDate" placeholder="Search By Date" ng-required="true">
+					-->
+					<div ng-controller="DatepickerCtrl">
+					<div class="row">
+		        	<div class="col-md-6">
+					<p class="input-group">
+		              <input type="text" id="fromDt" class="form-control" uib-datepicker-popup="MM/dd/yyyy" ng-model="emp.fromDate" is-open="status.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" close-text="Close" style="width:200px;" placeholder="Report Date" ng-click="open($event)"/>
+		              <span class="input-group-btn">
+		                <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar" style="width:20px;height:22px;margin-top:8px;"></i></button>
+		              </span>
+		            </p>
+		            </div>
+		            </div></div>
 					</td>
 					<td style="width:20px"></td>
 					<td>
@@ -460,11 +495,96 @@
 			</table>
 			</div>
 </div>
+<!--  End of Employer reports screen -->
+
+<!--  Job archive screen Info -->
+
+<div ng-show="isJobArchive" style="text-align:left;margin:0 0 0 10px;padding-top:10px;">
+			<div  style="border:4px solid #5BC0DE;width:846px;height:120px;">
+			<h3 style="text-align:center;margin-top:5px;padding-bottom:20px;color:#63c1ff;">ARCHIVE JOB INFORMATION SCREEN</h3>
+			<table>
+				<tr>
+				   <td nowrap style="padding-left:80px;">
+					<label for="search" style="font-size: 18px;padding-left:25px;">Search Jobs:</label>
+					</td>
+					<td style="width:20px"></td>
+					<td>
+					<input id="search" class="form-control" style="width: 340px; height: 42px" type="text" ng-model="emp.search" placeholder="Search By Job ID or Title" ng-required="true">
+					</td>
+					<td style="padding-left:10px;">
+					<button class="btnCustom" style="width:94px;height:42px;padding:0px;border-radius:20px;margin-bottom:8px;" ng-click="searchEmpArchJobs(emp.search)">
+					Search
+					</button>
+					</td>
+					<td style="padding-left:10px;">
+					<a href="" ng-click="clearArchJobs()"><button class="btnCustom" style="width:94px;height:42px;padding:0px;border-radius:20px;background: #f0ad4e;border: solid #f0ad4e 2px;background:#f0ad4e;margin-bottom:8px;">Clear</button></a>
+					</td>
+				</tr>
+			</table>	    
+			</div>
+			<p style="padding-top:0.1%;"/></p>
+			<div  style="border:3px solid #5BC0DE;width:846px;" ng-show="allArchJobs.length >= 0">
+			<table class="table table-striped" style="margin-bottom: 10px;">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<th>Job Title</th>
+					<th>Job Location</th>
+					<th>Salary</th>
+					<th>Expory Date</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="job in allArchJobs">
+					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)"><strong>{{job.title.toUpperCase()}}</strong></td>
+					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)">{{job.location}}</td>
+					<td style="padding: 0px;padding-top: 10px;cursor: pointer;" ng-click="updateJobInfo(job)">${{job.rate}} {{job.salaryType}}</td>
+					 <!-- 
+					 <td ng-if="job.activeJob == 'Y'"><button  class="btnCustom btn-info" ng-click="unPublish(job.jobID)" style="width: 105px; height: 34px; font-size: 18px; padding:0px;">
+					 Un Publish 
+					</button></td>
+					<td ng-if="job.activeJob == 'N' || job.activeJob == undefined"><button class="btnCustom btn-info" ng-click="publish(job.jobID)" style="width: 105px; height: 34px; font-size: 18px; padding:0px;">
+					</span>Publish 
+					</button></td>
+					-->
+					<td>{{job.jobExpiryDate}}</td>
+					<td><button  class="btnCustom btn-danger" ng-click="delete(job.jobID)" style="width: 55px; height: 34px; font-size: 18px; padding:0px;background:#d9534f" tooltip="remove">
+					 <span class="glyphicon glyphicon-trash"></span> 
+					</button>&emsp;
+					<button  class="btnCustom btn-warning" ng-click="pushToQueue(job)" style="width: 55px; height: 34px; font-size: 18px; padding:0px;background:#f0ad4e" tooltip="Push back to Job Queue">
+					 <span><i class="fa fa-undo"></i></span> 
+					</button>
+					</td>
+				</tr>
+				<tr ng-show="allArchJobs.length <= 0">
+				<td colspan="5" align="center"><h4 style="color:red">No archived Jobs available for {{currentUser.name.toUpperCase()}} for selected criteria</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialArchJobs.length > 0">
+				<td></td><td></td><td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentPage"
+				      total-items="allEmpArchJobs.length"
+				      max-size="maxSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+</div>
+
+<!-- End of Job Archive Screen Info -->
 
 
 </div></div></div>
 
-<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:700px;width:290px;background-color:#3399FF;margin:-710px 0px 0px 10px;">
+<div class="panel panel-default site-panel-box" style="border: 3px ridge #5BC0DE;height:760px;width:290px;background-color:#3399FF;margin:-770px 0px 0px 10px;">
 <div class="panel-body" style="padding:0px;padding-top:0px;">
 		<div class="form-group">
 		<div id="post" class="clickDiv" style="height:75px;padding: 5px;cursor: pointer;font-size:24px;text-align:center;padding-top:20px;" ng-click="displayJobEntry()"><font style="color:#e1ffff">Post Job</font></div>
@@ -478,6 +598,8 @@
 		<div id="jobStat" class="clickDiv" style="height:75px;padding: 5px;cursor: pointer;font-size:24px;text-align:center;padding-top:20px;" ng-click="searchEmpJobCandStatus()"><font style="color:#e1ffff">Job Status</font></div>
 		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: solid;border-width: 2px;"/>
 		<div id="report" class="clickDiv" style="height:75px;padding: 5px;cursor: pointer;font-size:24px;text-align:center;padding-top:20px;" ng-click="generateEmpReports()"><font style="color:#e1ffff;">Job Reports</font></div>
+		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: solid;border-width: 2px;"/>
+		<div id="report" class="clickDiv" style="height:75px;padding: 5px;cursor: pointer;font-size:24px;text-align:center;padding-top:20px;" ng-click="displayArchiveJobs()"><font style="color:#e1ffff;">Job Archive</font></div>
 		<hr style="display: block;margin-top: 0.1em;margin-bottom: 0.1em;margin-left: auto;margin-right: auto;border-style: solid;border-width: 2px;"/>
 		</div>
 </div>

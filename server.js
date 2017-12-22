@@ -97,6 +97,7 @@ function encrypt(pass){
 	  var cipher = crypto.createCipher('aes-256-cbc','d6F3Efeq')
 	  var crypted = cipher.update(pass,'utf8','hex')
 	  crypted += cipher.final('hex');
+	  console.log("encrypted password is : "+crypted);
 	  return crypted;
 	}
 
@@ -292,6 +293,7 @@ passPort.use(new localStrategy({
 	passReqToCallback : true
 }, function(req, username, password, done) {
 	// authentication method
+	console.log("encrypted user is : "+encrypt("Mydomain123!"));
 	if(req.body.userType == "U") {
 	userModel.findOne({
 		email : username,
